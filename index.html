@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,11 +13,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: #111827; color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .animate-in { animation: fadeIn 0.4s ease-out; }
         .slide-down { animation: slideDown 0.3s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -32,6 +36,9 @@
         // 아이콘 컴포넌트
         const Icon = ({ name, size = 20, className = "" }) => {
             const icons = {
+                // [New] 스윙 전용 아이콘 (부드러운 파동)
+                swing: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 15c3.33-6 6.67-6 10 0s6.67 6 10 0"/><path d="M17 5l5 0 0 5"/></svg>,
+                
                 clock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
                 globe: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
                 chart: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
@@ -53,63 +60,79 @@
                 starFilled: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
                 calendar: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
                 x: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>,
-                pie: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                pie: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
+                alert: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+                zap: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             };
             return icons[name] || null;
         };
 
         const FALLBACK_DATA = [
-            { id: 'us1', rank: 1, symbol: 'PLTR', name: 'Palantir', market: 'US', currentPrice: 22.5, changePercent: 1.2, buyZoneTop: 23, buyZoneBottom: 21, targetPrice: 28, aiReason: 'RSI 과매도 + 골든크로스 + 매출 고성장', history: [], score: 85, rsi: 32, news: [] },
-            { id: 'kr1', rank: 1, symbol: '삼성전자', name: 'Samsung Elec', market: 'KR', currentPrice: 72500, changePercent: -0.5, buyZoneTop: 73000, buyZoneBottom: 71000, targetPrice: 80000, aiReason: '외국인 수급 유입 + 60일선 지지 + 영업이익률 개선', history: [], score: 75, rsi: 45, news: [] }
+            { id: 'us1', rank: 1, symbol: 'PLTR', name: 'Palantir', market: 'US', currentPrice: 22.5, changePercent: 1.2, buyZoneTop: 23, buyZoneBottom: 21, targetPrice: 28, aiReason: 'RSI 과매도 + 골든크로스 + 매출 고성장', history: [], score: 85, rsi: 32, news: [], rvol: 2.5, sector: "Technology", financials: { op_margin: 0.2, rev_growth: 0.15, per: 45 } },
+            { id: 'kr1', rank: 1, symbol: '삼성전자', name: 'Samsung Elec', market: 'KR', currentPrice: 72500, changePercent: -0.5, buyZoneTop: 73000, buyZoneBottom: 71000, targetPrice: 80000, aiReason: '외국인 수급 유입 + 60일선 지지', history: [], score: 75, rsi: 45, news: [], rvol: 1.2, sector: "Technology", financials: { op_margin: 0.1, rev_growth: -0.05, per: 12 } }
         ];
 
-        // --- 컴포넌트: 알림 팝업 (Toast) ---
-        const Toast = ({ message, onClose }) => {
+        // --- 타이틀 화면 (Splash Screen) ---
+        const SplashScreen = ({ onFinish }) => {
+            const [fading, setFading] = useState(false);
+            
             useEffect(() => {
-                const timer = setTimeout(onClose, 3000); // 3초 후 자동 닫힘
-                return () => clearTimeout(timer);
-            }, [onClose]);
+                const timer1 = setTimeout(() => setFading(true), 2000);
+                const timer2 = setTimeout(onFinish, 2500);
+                return () => { clearTimeout(timer1); clearTimeout(timer2); };
+            }, [onFinish]);
 
             return (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-3 z-50 slide-down w-[90%] max-w-sm">
-                    <div className="bg-indigo-500 p-1.5 rounded-full"><Icon name="bell" size={14} className="text-white"/></div>
+                <div className={`fixed inset-0 bg-gray-900 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${fading ? 'opacity-0' : 'opacity-100'}`}>
+                    {/* [수정됨] 애니메이션 제거 및 스윙 아이콘 적용 */}
+                    <div className="bg-indigo-600 p-4 rounded-2xl mb-4 shadow-lg shadow-indigo-500/50">
+                        <Icon name="swing" size={48} className="text-white" />
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-white tracking-tighter">
+                        <span className="text-blue-400">Daily</span>Pick<span className="text-indigo-400">10</span>
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-2 font-medium">AI 스마트 스윙 투자</p>
+                </div>
+            );
+        };
+
+        const Toast = ({ message, onClose }) => {
+            useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, [onClose]);
+            return (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-3 z-50 slide-down w-[90%] max-w-sm border border-gray-600">
+                    <div className="bg-indigo-600 p-1.5 rounded-full"><Icon name="bell" size={14} className="text-white"/></div>
                     <div className="flex-1 text-sm font-medium">{message}</div>
                     <button onClick={onClose}><Icon name="x" size={16} className="text-gray-400"/></button>
                 </div>
             );
         };
 
-        // --- 컴포넌트: 알림함 화면 ---
         const NotificationView = ({ notifications, onBack, onClear }) => {
             return (
-                <div className="h-full flex flex-col bg-gray-50 animate-in">
-                    <div className="bg-white p-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+                <div className="h-full flex flex-col bg-gray-900 animate-in text-gray-100">
+                    <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center justify-between sticky top-0 z-10">
                         <div className="flex items-center gap-3">
-                            <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full">
-                                <div className="rotate-180"><Icon name="arrowRight" className="text-gray-600" /></div>
+                            <button onClick={onBack} className="p-2 hover:bg-gray-700 rounded-full">
+                                <div className="rotate-180"><Icon name="arrowRight" className="text-gray-300" /></div>
                             </button>
                             <h2 className="font-bold text-lg">알림함</h2>
                         </div>
-                        {notifications.length > 0 && (
-                            <button onClick={onClear} className="text-xs text-red-500 font-bold px-2">전체 삭제</button>
-                        )}
+                        {notifications.length > 0 && <button onClick={onClear} className="text-xs text-red-400 font-bold px-2 hover:text-red-300">전체 삭제</button>}
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {notifications.length === 0 ? (
-                            <div className="text-center py-20 text-gray-400">
-                                <Icon name="bell" size={40} className="mx-auto mb-2 text-gray-200" />
+                            <div className="text-center py-20 text-gray-500">
+                                <Icon name="bell" size={40} className="mx-auto mb-2 text-gray-600" />
                                 <p className="text-sm">새로운 알림이 없습니다.</p>
                             </div>
                         ) : (
                             notifications.map((noti) => (
-                                <div key={noti.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex gap-3">
-                                    <div className="bg-indigo-50 p-2 h-fit rounded-full text-indigo-600">
-                                        <Icon name="activity" size={16} />
-                                    </div>
+                                <div key={noti.id} className="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-sm flex gap-3">
+                                    <div className="bg-indigo-900/50 p-2 h-fit rounded-full text-indigo-400"><Icon name="activity" size={16} /></div>
                                     <div>
-                                        <p className="text-sm font-bold text-gray-800">{noti.title}</p>
-                                        <p className="text-xs text-gray-600 mt-1">{noti.message}</p>
-                                        <p className="text-[10px] text-gray-400 mt-2">{noti.time}</p>
+                                        <p className="text-sm font-bold text-gray-100">{noti.title}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{noti.message}</p>
+                                        <p className="text-[10px] text-gray-500 mt-2">{noti.time}</p>
                                     </div>
                                 </div>
                             ))
@@ -119,31 +142,51 @@
             );
         };
 
-        // --- 컴포넌트: 시장 상황 배너 ---
         const MarketBanner = ({ marketStatus }) => {
             if (!marketStatus) return null;
-            
-            const MarketBadge = ({ title, data }) => {
-                const isUp = data.change >= 0;
-                const isPanic = data.status === 'PANIC';
-                const bgClass = isPanic ? 'bg-red-600 text-white' : (isUp ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700');
-                
+            const MarketBadge = ({ title, data, isVix = false }) => {
+                let bgClass = 'bg-gray-800 text-blue-400 border-gray-700';
+                if (data.status === 'VERY_GOOD') bgClass = 'bg-green-900/20 text-green-400 border-green-900/30';
+                if (data.status === 'GOOD') bgClass = 'bg-blue-900/20 text-blue-400 border-blue-900/30';
+                if (data.status === 'BAD') bgClass = 'bg-orange-900/20 text-orange-400 border-orange-900/30';
+                if (data.status === 'PANIC') bgClass = 'bg-red-900/20 text-red-400 border-red-900/30';
                 return (
-                    <div className={`flex-1 p-3 rounded-xl border ${isPanic ? 'border-red-600' : 'border-gray-100'} ${bgClass} flex flex-col items-center justify-center`}>
-                        <span className={`text-[10px] font-bold opacity-80 ${isPanic ? 'text-red-100' : 'text-gray-500'}`}>{title}</span>
+                    <div className={`flex-1 p-3 rounded-xl border ${bgClass} flex flex-col items-center justify-center`}>
+                        <span className="text-[10px] font-bold opacity-80 flex items-center gap-1 text-gray-400">
+                            {isVix && <Icon name="alert" size={10} />}
+                            {title}
+                        </span>
                         <div className="flex items-end gap-1 mt-0.5">
-                            <span className="font-extrabold text-lg">{data.current.toLocaleString()}</span>
-                            <span className="text-xs font-bold mb-1">{data.change > 0 ? '+' : ''}{data.change}%</span>
+                            <span className="font-extrabold text-lg text-gray-100">{data.current.toLocaleString()}</span>
+                            {!isVix && <span className={`text-xs font-bold mb-1 ${data.change >= 0 ? 'text-red-400' : 'text-blue-400'}`}>{data.change > 0 ? '+' : ''}{data.change}%</span>}
                         </div>
-                        <span className={`text-[10px] font-medium mt-1 px-1.5 py-0.5 rounded ${isPanic ? 'bg-white/20' : 'bg-white/60'}`}>{data.message}</span>
+                        <span className="text-[10px] font-medium mt-1 px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-300">{data.message}</span>
                     </div>
                 );
             };
-
             return (
-                <div className="px-4 py-2 flex gap-3">
+                <div className="px-4 py-2 flex gap-2">
                     <MarketBadge title="S&P 500" data={marketStatus.US} />
                     <MarketBadge title="KOSPI" data={marketStatus.KR} />
+                    {marketStatus.VIX && <MarketBadge title="공포지수" data={marketStatus.VIX} isVix={true} />}
+                </div>
+            );
+        };
+
+        const HotSectorBanner = ({ sectors }) => {
+            if (!sectors || sectors.length === 0) return null;
+            return (
+                <div className="px-4 pb-2">
+                    <div className="bg-indigo-900/20 border border-indigo-900/30 rounded-lg p-2 flex items-center justify-between">
+                        <span className="text-xs font-bold text-indigo-300 flex items-center gap-1">
+                            <Icon name="activity" size={12} /> 오늘의 주도 테마
+                        </span>
+                        <div className="flex gap-1">
+                            {sectors.map((sec, idx) => (
+                                <span key={idx} className="text-[10px] bg-indigo-500/20 text-indigo-200 px-2 py-0.5 rounded-full border border-indigo-500/30">{sec}</span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             );
         };
@@ -153,41 +196,45 @@
             const shortReason = stock.aiReason ? stock.aiReason.split('+')[0].trim() : '분석 데이터 없음';
             const hasMoreReasons = stock.aiReason ? stock.aiReason.includes('+') : false;
             const isPositive = stock.changePercent >= 0;
+            const isHighVol = stock.rvol && stock.rvol >= 1.5;
 
             return (
-                <div onClick={onClick} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer relative overflow-hidden">
-                    {isRecommended && <div className="absolute top-0 left-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10">TOP {stock.rank}</div>}
-                    {!isRecommended && <div className="absolute top-0 left-0 bg-gray-400 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10 flex items-center gap-1">⚠️ 추천 제외</div>}
+                <div onClick={onClick} className="bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-700 hover:border-gray-600 transition-all cursor-pointer relative overflow-hidden">
+                    {isRecommended ? <div className="absolute top-0 left-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10">TOP {stock.rank}</div> : <div className="absolute top-0 left-0 bg-gray-600 text-gray-200 text-[10px] font-bold px-2 py-1 rounded-br-lg z-10">⚠️ 추천 제외</div>}
+                    {isHighVol && <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10 flex items-center gap-1"><Icon name="zap" size={10} /> Vol {stock.rvol}x</div>}
 
-                    <div className="flex justify-between items-start pl-8">
+                    <div className="flex justify-between items-start pl-8 mt-1">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-bold text-gray-900">{stock.symbol}</h3>
+                                <h3 className="font-bold text-gray-100">{stock.symbol}</h3>
                                 <span className="text-xs text-gray-400 truncate w-20">{stock.name}</span>
                                 {isFavorite && <Icon name="starFilled" size={14} className="text-yellow-400" />}
                             </div>
-                            <p className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded inline-flex items-center gap-1">
+                            <div className="flex flex-wrap gap-1 mb-1">
+                                {stock.sector && stock.sector !== 'Unknown' && <span className="text-[10px] bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">{stock.sector}</span>}
+                            </div>
+                            <p className="text-xs text-blue-300 font-medium bg-blue-900/30 px-2 py-1 rounded inline-flex items-center gap-1">
                                 {shortReason}
                                 {hasMoreReasons && <span className="text-blue-400">외..</span>}
                             </p>
                         </div>
-                        <div className="text-right">
-                            <div className="font-bold text-lg">{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</div>
-                            {stock.score && <div className="text-xs font-bold text-indigo-600 mb-1">AI 점수: {stock.score}</div>}
-                            <div className={`text-xs font-medium ${isPositive ? 'text-red-500' : 'text-blue-500'}`}>
+                        <div className="text-right mt-4">
+                            <div className="font-bold text-lg text-white">{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</div>
+                            {stock.score && <div className="text-xs font-bold text-indigo-400 mb-1">AI 점수: {stock.score}</div>}
+                            <div className={`text-xs font-medium ${isPositive ? 'text-red-400' : 'text-blue-400'}`}>
                                 {stock.changePercent > 0 ? '+' : ''}{stock.changePercent}%
                             </div>
                         </div>
                     </div>
                     {isRecommended && (
-                        <div className="mt-4 pt-3 border-t border-gray-50">
+                        <div className="mt-4 pt-3 border-t border-gray-700">
                             <div className="flex justify-between text-xs mb-1">
-                                <span className="text-gray-500">매수 적정가</span>
-                                <span className="font-bold text-gray-800">{stock.market === 'US' ? '$' : '₩'}{stock.buyZoneBottom.toLocaleString()} ~ {stock.buyZoneTop.toLocaleString()}</span>
+                                <span className="text-gray-400">매수 적정가</span>
+                                <span className="font-bold text-gray-200">{stock.market === 'US' ? '$' : '₩'}{stock.buyZoneBottom.toLocaleString()} ~ {stock.buyZoneTop.toLocaleString()}</span>
                             </div>
-                            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden relative">
-                                <div className="absolute top-0 left-0 h-full bg-green-500 opacity-20 w-full"></div>
-                                <div className={`absolute top-0 h-full w-1.5 rounded-full bg-green-600`} style={{ left: '50%' }}></div>
+                            <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden relative">
+                                <div className="absolute top-0 left-0 h-full bg-green-500/50 w-full"></div>
+                                <div className={`absolute top-0 h-full w-1.5 rounded-full bg-green-500`} style={{ left: '50%' }}></div>
                             </div>
                         </div>
                     )}
@@ -197,143 +244,145 @@
 
         const StockDetail = ({ stock, onBack, isFavorite, onToggleFavorite }) => {
             if (!stock) return null;
-
-            const allReasons = stock.aiReason ? stock.aiReason.split('+').map(r => r.trim()) : [];
+            const detailedReasons = stock.aiReason ? stock.aiReason.split('+').map(r => r.trim()) : [];
             const stopLossPrice = Math.floor(stock.buyZoneBottom * 0.97);
             const takeProfitPrice1 = Math.floor(stock.currentPrice * 1.05);
             const takeProfitPrice2 = Math.floor(stock.currentPrice * 1.10);
+            const recommendationStatus = stock.rank 
+                ? <span className="text-[10px] bg-blue-900/50 text-blue-300 px-2 py-0.5 rounded-full font-bold border border-blue-800">🔥 AI 추천중 (TOP {stock.rank})</span>
+                : <span className="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full font-bold border border-gray-600">⚠️ 과거 기록</span>;
             
-            // 키워드 기반으로 이유 분류
             const techKeywords = ['RSI', '과매도', '이평선', '지지', 'MACD', '골든크로스', '눌림목', '볼린저밴드'];
             const fundKeywords = ['매출', '이익', '성장', 'PER', '재무'];
-            
-            const techReasons = allReasons.filter(r => techKeywords.some(k => r.includes(k)));
-            const fundReasons = allReasons.filter(r => fundKeywords.some(k => r.includes(k)));
-            const otherReasons = allReasons.filter(r => !techKeywords.some(k => r.includes(k)) && !fundKeywords.some(k => r.includes(k)));
-            
-            const recommendationStatus = stock.rank 
-                ? <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">🔥 AI 추천중 (TOP {stock.rank})</span>
-                : <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-bold">⚠️ 과거 기록</span>;
+            const techReasons = detailedReasons.filter(r => techKeywords.some(k => r.includes(k)));
+            const fundReasons = detailedReasons.filter(r => fundKeywords.some(k => r.includes(k)));
+            const otherReasons = detailedReasons.filter(r => !techKeywords.some(k => r.includes(k)) && !fundKeywords.some(k => r.includes(k)));
 
             return (
-                <div className="bg-gray-50 h-full flex flex-col animate-in">
-                    <div className="bg-white p-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+                <div className="bg-gray-900 h-full flex flex-col animate-in text-gray-100">
+                    <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center justify-between sticky top-0 z-10">
                         <div className="flex items-center gap-3">
-                            <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full">
-                                <div className="rotate-180"><Icon name="arrowRight" className="text-gray-600" /></div>
+                            <button onClick={onBack} className="p-2 hover:bg-gray-700 rounded-full">
+                                <div className="rotate-180"><Icon name="arrowRight" className="text-gray-300" /></div>
                             </button>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h2 className="font-bold text-lg">{stock.symbol}</h2>
+                                    <h2 className="font-bold text-lg text-white">{stock.symbol}</h2>
                                     {recommendationStatus}
                                 </div>
                                 <span className="text-xs text-gray-400">{stock.name}</span>
                             </div>
                         </div>
-                        <button onClick={() => onToggleFavorite(stock)} className="p-2 hover:bg-gray-100 rounded-full">
+                        <button onClick={() => onToggleFavorite(stock)} className="p-2 hover:bg-gray-700 rounded-full">
                             {isFavorite ? <Icon name="starFilled" className="text-yellow-400" /> : <Icon name="star" className="text-gray-400" />}
                         </button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                        <div className="bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-700">
                             <div className="flex justify-between items-center mb-4">
-                                <span className="text-gray-500 text-sm font-medium">스윙 매매 전략</span>
-                                {stock.score && <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-bold border border-indigo-100">AI 점수 {stock.score}점</span>}
+                                <span className="text-gray-400 text-sm font-medium">스윙 매매 전략</span>
+                                {stock.score && <span className="bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded text-xs font-bold border border-indigo-800">AI 점수 {stock.score}점</span>}
                             </div>
                             <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex flex-col justify-center">
-                                    <p className="text-[10px] text-red-500 font-bold mb-1">🎯 1차 익절 (+5%)</p>
-                                    <p className="text-base font-bold text-red-700 mb-1">{stock.market === 'US' ? '$' : '₩'}{takeProfitPrice1.toLocaleString()}</p>
+                                <div className="bg-red-900/20 p-3 rounded-xl border border-red-900/30 flex flex-col justify-center">
+                                    <p className="text-[10px] text-red-400 font-bold mb-1">🎯 1차 익절 (+5%)</p>
+                                    <p className="text-base font-bold text-red-300 mb-1">{stock.market === 'US' ? '$' : '₩'}{takeProfitPrice1.toLocaleString()}</p>
                                 </div>
-                                <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex flex-col justify-center">
-                                    <p className="text-[10px] text-red-500 font-bold mb-1">🚀 2차 익절 (+10%)</p>
-                                    <p className="text-base font-bold text-red-700 mb-1">{stock.market === 'US' ? '$' : '₩'}{takeProfitPrice2.toLocaleString()}</p>
+                                <div className="bg-red-900/20 p-3 rounded-xl border border-red-900/30 flex flex-col justify-center">
+                                    <p className="text-[10px] text-red-400 font-bold mb-1">🚀 2차 익절 (+10%)</p>
+                                    <p className="text-base font-bold text-red-300 mb-1">{stock.market === 'US' ? '$' : '₩'}{takeProfitPrice2.toLocaleString()}</p>
                                 </div>
                             </div>
-                            <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-between mb-2">
-                                <span className="text-xs text-blue-500 font-bold">🛡️ 손절가 (-3%)</span>
-                                <span className="text-base font-bold text-blue-700">{stock.market === 'US' ? '$' : '₩'}{stopLossPrice.toLocaleString()}</span>
+                            <div className="bg-blue-900/20 p-3 rounded-xl border border-blue-900/30 flex items-center justify-between mb-2">
+                                <span className="text-xs text-blue-400 font-bold">🛡️ 손절가 (-3%)</span>
+                                <p className="text-base font-bold text-blue-300">{stock.market === 'US' ? '$' : '₩'}{stopLossPrice.toLocaleString()}</p>
                             </div>
-                            <div className="flex items-center justify-between text-xs bg-gray-50 p-3 rounded-lg text-gray-600">
-                                <span>현재가: <strong>{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</strong></span>
-                                <span className="text-gray-400">|</span>
+                            <div className="flex items-center justify-between text-xs bg-gray-700/50 p-3 rounded-lg text-gray-400">
+                                <span>현재가: <strong className="text-gray-200">{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</strong></span>
+                                <span className="text-gray-600">|</span>
                                 <span>매수구간: {stock.buyZoneBottom.toLocaleString()} ~ {stock.buyZoneTop.toLocaleString()}</span>
                             </div>
                         </div>
+                        
+                        {stock.financials && (stock.financials.op_margin !== 0 || stock.financials.per !== 0) && (
+                            <div className="bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-700">
+                                <h4 className="font-bold text-sm mb-3 text-gray-100 flex items-center gap-2">
+                                    <Icon name="pie" size={16} className="text-purple-400" /> 핵심 재무 지표
+                                </h4>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-purple-900/20 p-3 rounded-xl border border-purple-900/30 text-center">
+                                        <p className="text-[10px] text-purple-300 font-bold mb-1">영업이익률</p>
+                                        <p className="text-lg font-bold text-purple-100">{(stock.financials.op_margin * 100).toFixed(1)}%</p>
+                                    </div>
+                                    <div className="bg-blue-900/20 p-3 rounded-xl border border-blue-900/30 text-center">
+                                        <p className="text-[10px] text-blue-300 font-bold mb-1">매출성장</p>
+                                        <p className="text-lg font-bold text-blue-100">{(stock.financials.rev_growth * 100).toFixed(1)}%</p>
+                                    </div>
+                                    <div className="bg-gray-700/50 p-3 rounded-xl border border-gray-600 text-center">
+                                        <p className="text-[10px] text-gray-400 font-bold mb-1">PER</p>
+                                        <p className="text-lg font-bold text-gray-200">{stock.financials.per > 0 ? stock.financials.per.toFixed(1) + '배' : '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
-                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-900 mb-1 flex items-center gap-2 text-sm">
-                                <Icon name="activity" size={16} className="text-blue-500" /> 주가 흐름 & 볼린저 밴드
+                        <div className="bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-700">
+                            <h3 className="font-bold text-gray-100 mb-1 flex items-center gap-2 text-sm">
+                                <Icon name="activity" size={16} className="text-blue-400" /> 주가 흐름 & 볼린저 밴드
                             </h3>
                             <p className="text-xs text-gray-400 mb-3 pl-6">최근 1개월 일봉 차트</p>
-                            <div className="h-48 bg-gray-50 rounded-xl p-2 border border-gray-100">
+                            <div className="h-48 bg-gray-900 rounded-xl p-2 border border-gray-700">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <ComposedChart data={stock.history}>
                                         <XAxis dataKey="time" hide />
                                         <YAxis domain={['auto', 'auto']} hide />
-                                        <ReferenceLine y={stock.buyZoneTop} stroke="green" strokeDasharray="3 3" />
-                                        <Line type="monotone" dataKey="price" stroke="#2563eb" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="bb_upper" stroke="#9ca3af" strokeDasharray="3 3" strokeWidth={1} dot={false} />
-                                        <Line type="monotone" dataKey="bb_lower" stroke="#9ca3af" strokeDasharray="3 3" strokeWidth={1} dot={false} />
-                                        <Tooltip labelStyle={{display:'none'}} formatter={(val)=>[val.toLocaleString(), '가격']} />
+                                        <ReferenceLine y={stock.buyZoneTop} stroke="#10b981" strokeDasharray="3 3" />
+                                        <Line type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="bb_upper" stroke="#4b5563" strokeDasharray="3 3" strokeWidth={1} dot={false} />
+                                        <Line type="monotone" dataKey="bb_lower" stroke="#4b5563" strokeDasharray="3 3" strokeWidth={1} dot={false} />
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', borderRadius: '8px', color: '#f3f4f6' }}
+                                            itemStyle={{ color: '#93c5fd' }}
+                                            labelStyle={{ display: 'none' }}
+                                            formatter={(val)=>[val.toLocaleString(), '가격']} 
+                                        />
                                     </ComposedChart>
                                 </ResponsiveContainer>
                             </div>
                         </div>
 
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                            <h4 className="font-bold text-sm mb-3 text-gray-800 flex items-center gap-2">
-                                <Icon name="shield" size={16} className="text-indigo-500" /> AI 추천 근거
+                        <div className="bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-700">
+                            <h4 className="font-bold text-sm mb-3 text-gray-100 flex items-center gap-2">
+                                <Icon name="shield" size={16} className="text-indigo-400" /> AI 추천 근거
                             </h4>
-                            
-                            {/* 1. 기술적 분석 */}
-                            {techReasons.length > 0 && (
-                                <div className="mb-3">
-                                    <p className="text-xs font-bold text-gray-500 mb-1 ml-1">📈 기술적 분석</p>
-                                    <ul className="space-y-1">
-                                        {techReasons.map((reason, idx) => (
-                                            <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                                                <span className="flex-shrink-0 w-1 h-1 rounded-full bg-blue-500 mt-2"></span>
-                                                <span>{reason}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {/* 2. 재무/펀더멘털 (강조됨) */}
                             {fundReasons.length > 0 && (
-                                <div className="mb-3 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
-                                    <p className="text-xs font-bold text-indigo-600 mb-1 flex items-center gap-1">
+                                <div className="mb-3 bg-indigo-900/20 p-2 rounded-lg border border-indigo-900/30">
+                                    <p className="text-xs font-bold text-indigo-300 mb-1 flex items-center gap-1">
                                         <Icon name="pie" size={12} /> 재무 건전성 (Fundamental)
                                     </p>
                                     <ul className="space-y-1">
-                                        {fundReasons.map((reason, idx) => (
-                                            <li key={idx} className="flex items-start gap-2 text-sm text-indigo-800">
-                                                <span className="flex-shrink-0 w-1 h-1 rounded-full bg-indigo-500 mt-2"></span>
-                                                <span>{reason}</span>
-                                            </li>
-                                        ))}
+                                        {fundReasons.map((reason, idx) => <li key={idx} className="flex items-start gap-2 text-sm text-indigo-200"><span className="flex-shrink-0 w-1 h-1 rounded-full bg-indigo-400 mt-2"></span><span>{reason}</span></li>)}
                                     </ul>
                                 </div>
                             )}
-                            
-                            {/* 3. 기타 이유 및 RSI */}
+                            {techReasons.length > 0 && (
+                                <div className="mb-2">
+                                    <p className="text-xs font-bold text-gray-400 mb-1 ml-1">📈 기술적 분석</p>
+                                    <ul className="space-y-1">
+                                        {techReasons.map((reason, idx) => <li key={idx} className="flex items-start gap-2 text-sm text-gray-300"><span className="flex-shrink-0 w-1 h-1 rounded-full bg-blue-500 mt-2"></span><span>{reason}</span></li>)}
+                                    </ul>
+                                </div>
+                            )}
                             <ul className="space-y-1">
-                                {otherReasons.map((reason, idx) => (
-                                    <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                                        <span className="flex-shrink-0 w-1 h-1 rounded-full bg-gray-400 mt-2"></span>
-                                        <span>{reason}</span>
-                                    </li>
-                                ))}
-                                {stock.rsi && <li className="flex items-start gap-2 text-sm text-gray-700"><span className="flex-shrink-0 w-1 h-1 rounded-full bg-green-500 mt-2"></span><span className="font-medium text-green-600">현재 RSI: {stock.rsi} (저점 구간)</span></li>}
+                                {otherReasons.map((reason, idx) => <li key={idx} className="flex items-start gap-2 text-sm text-gray-300"><span className="flex-shrink-0 w-1 h-1 rounded-full bg-gray-500 mt-2"></span><span>{reason}</span></li>)}
+                                {stock.rsi && <li className="flex items-start gap-2 text-sm text-gray-300"><span className="flex-shrink-0 w-1 h-1 rounded-full bg-green-500 mt-2"></span><span className="font-medium text-green-400">현재 RSI: {stock.rsi} (저점 구간)</span></li>}
                             </ul>
                         </div>
 
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                            <h4 className="font-bold text-sm mb-3 text-gray-800 flex items-center gap-2">
-                                <Icon name="newspaper" size={16} className="text-orange-500" /> 주요 뉴스
+                        <div className="bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-700">
+                            <h4 className="font-bold text-sm mb-3 text-gray-100 flex items-center gap-2">
+                                <Icon name="newspaper" size={16} className="text-orange-400" /> 주요 뉴스
                             </h4>
                             {stock.news && stock.news.length > 0 ? (
                                 <div className="space-y-3">
@@ -341,28 +390,23 @@
                                         <a key={idx} href={news.link} target="_blank" className="block group">
                                             <div className="flex items-start gap-2">
                                                 <div className="flex-1">
-                                                    <p className="text-sm text-gray-800 group-hover:text-blue-600 font-medium leading-snug mb-1">{news.title}</p>
+                                                    <p className="text-sm text-gray-200 group-hover:text-blue-400 font-medium leading-snug mb-1">{news.title}</p>
                                                     <div className="flex items-center gap-2">
-                                                        {news.sentiment === 'positive' && <span className="flex items-center gap-1 text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 font-bold"><Icon name="thumbsUp" size={10}/> 호재</span>}
-                                                        {news.sentiment === 'negative' && <span className="flex items-center gap-1 text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 font-bold"><Icon name="thumbsDown" size={10}/> 악재</span>}
-                                                        <span className="text-[10px] text-gray-400">{news.publisher}</span>
+                                                        {news.sentiment === 'positive' && <span className="flex items-center gap-1 text-[10px] bg-red-900/30 text-red-300 px-1.5 py-0.5 rounded border border-red-800 font-bold"><Icon name="thumbsUp" size={10}/> 호재</span>}
+                                                        {news.sentiment === 'negative' && <span className="flex items-center gap-1 text-[10px] bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800 font-bold"><Icon name="thumbsDown" size={10}/> 악재</span>}
+                                                        <span className="text-[10px] text-gray-500">{news.publisher}</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            {idx < Math.min(stock.news.length, 3) - 1 && <div className="h-px bg-gray-50 my-2"></div>}
+                                            {idx < Math.min(stock.news.length, 3) - 1 && <div className="h-px bg-gray-700 my-2"></div>}
                                         </a>
                                     ))}
                                 </div>
-                            ) : (
-                                <div className="text-center py-6 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
-                                    <p className="text-xs text-gray-400">관련 뉴스 없음</p>
-                                </div>
-                            )}
+                            ) : <div className="text-center py-6 bg-gray-700/30 rounded-xl border border-gray-700 border-dashed"><p className="text-xs text-gray-400">관련 뉴스 없음</p></div>}
                         </div>
                     </div>
-                    
-                    <div className="p-4 bg-white border-t border-gray-100">
-                        <button onClick={() => onToggleFavorite(stock)} className={`w-full py-3.5 rounded-xl font-bold transition-colors shadow-lg ${isFavorite ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-gray-900 text-white hover:bg-black'}`}>
+                    <div className="p-4 bg-gray-800 border-t border-gray-700">
+                        <button onClick={() => onToggleFavorite(stock)} className={`w-full py-3.5 rounded-xl font-bold transition-colors shadow-lg ${isFavorite ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
                             {isFavorite ? '관심종목 해제' : '관심종목 담기'}
                         </button>
                     </div>
@@ -373,56 +417,32 @@
         const HistoryView = ({ onSelectHistory, onBack }) => {
             const [historyList, setHistoryList] = useState([]);
             const [loading, setLoading] = useState(false);
-
             useEffect(() => {
                 const fetchHistoryIndex = async () => {
                     setLoading(true);
                     try {
                         const res = await fetch('history_index.json', { cache: "no-store" });
-                        if (res.ok) {
-                            const data = await res.json();
-                            setHistoryList(data);
-                        }
-                    } catch (e) {
-                        console.warn("히스토리 목록 로드 실패", e);
-                    } finally {
-                        setLoading(false);
-                    }
+                        if (res.ok) { const data = await res.json(); setHistoryList(data); }
+                    } catch (e) { console.warn("히스토리 로드 실패", e); } finally { setLoading(false); }
                 };
                 fetchHistoryIndex();
             }, []);
-
             return (
-                <div className="h-full flex flex-col bg-gray-50 animate-in">
-                    <div className="bg-white p-4 border-b border-gray-100 flex items-center gap-3 sticky top-0 z-10">
-                        <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full">
-                            <div className="rotate-180"><Icon name="arrowRight" className="text-gray-600" /></div>
-                        </button>
-                        <h2 className="font-bold text-lg flex items-center gap-2">
-                            <Icon name="history" size={20} className="text-indigo-600" /> 과거 기록 (백테스팅)
-                        </h2>
+                <div className="h-full flex flex-col bg-gray-900 animate-in text-gray-100">
+                    <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center gap-3 sticky top-0 z-10">
+                        <button onClick={onBack} className="p-2 hover:bg-gray-700 rounded-full"><div className="rotate-180"><Icon name="arrowRight" className="text-gray-300" /></div></button>
+                        <h2 className="font-bold text-lg flex items-center gap-2"><Icon name="history" size={20} className="text-indigo-400" /> 과거 기록 (백테스팅)</h2>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                        {loading && <p className="text-center text-gray-400 text-sm py-10">기록을 불러오는 중...</p>}
-                        {!loading && historyList.length === 0 && (
-                            <div className="text-center py-20 text-gray-400">
-                                <Icon name="clock" size={40} className="mx-auto mb-2 text-gray-200" />
-                                <p className="text-sm">저장된 기록이 없습니다.</p>
-                                <p className="text-xs mt-1">매일 분석을 실행하면 기록이 쌓입니다.</p>
-                            </div>
-                        )}
+                        {loading && <p className="text-center text-gray-500 text-sm py-10">기록을 불러오는 중...</p>}
+                        {!loading && historyList.length === 0 && <div className="text-center py-20 text-gray-500"><Icon name="clock" size={40} className="mx-auto mb-2 text-gray-600" /><p className="text-sm">저장된 기록이 없습니다.</p><p className="text-xs mt-1">매일 분석을 실행하면 기록이 쌓입니다.</p></div>}
                         {historyList.map((item, idx) => (
-                            <div key={idx} onClick={() => onSelectHistory(item.file)} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center cursor-pointer hover:border-indigo-200 transition-colors">
+                            <div key={idx} onClick={() => onSelectHistory(item.file)} className="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-sm flex justify-between items-center cursor-pointer hover:border-indigo-500/50 transition-colors">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600">
-                                        <Icon name="calendar" size={18} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-gray-800">{item.date} 추천</p>
-                                        <p className="text-xs text-gray-400">AI 분석 리포트</p>
-                                    </div>
+                                    <div className="bg-indigo-900/50 p-2 rounded-lg text-indigo-400"><Icon name="calendar" size={18} /></div>
+                                    <div><p className="font-bold text-gray-200">{item.date} 추천</p><p className="text-xs text-gray-400">AI 분석 리포트</p></div>
                                 </div>
-                                <Icon name="arrowRight" size={16} className="text-gray-300" />
+                                <Icon name="arrowRight" size={16} className="text-gray-500" />
                             </div>
                         ))}
                     </div>
@@ -431,38 +451,31 @@
         };
 
         const App = () => {
+            const [showSplash, setShowSplash] = useState(true);
             const [stocks, setStocks] = useState([]);
             const [marketStatus, setMarketStatus] = useState(null);
+            const [dominantSectors, setDominantSectors] = useState([]);
             const [activeTab, setActiveTab] = useState('US'); 
             const [selectedStock, setSelectedStock] = useState(null);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(false);
             const [favorites, setFavorites] = useState([]);
-            
-            // 알림 관련 상태
             const [notifications, setNotifications] = useState([]);
             const [showToast, setShowToast] = useState(false);
             const [toastMessage, setToastMessage] = useState("");
             const [lastUpdated, setLastUpdated] = useState("");
-            
-            // 백테스팅 관련 상태
             const [isHistoryMode, setIsHistoryMode] = useState(false);
             const [historyDate, setHistoryDate] = useState(null);
-            const [activeView, setActiveView] = useState('HOME'); // 'HOME', 'NOTIFICATIONS', 'HISTORY'
+            const [activeView, setActiveView] = useState('HOME'); 
 
             useEffect(() => {
                 const savedFavs = localStorage.getItem('myFavorites');
                 if (savedFavs) setFavorites(JSON.parse(savedFavs));
-                
                 const savedNotis = localStorage.getItem('myNotifications');
                 if (savedNotis) setNotifications(JSON.parse(savedNotis));
-                
                 const savedLastUpdated = localStorage.getItem('lastUpdatedTime');
                 if (savedLastUpdated) setLastUpdated(savedLastUpdated);
-
                 fetchStockData();
-                
-                // 30초마다 폴링 (데이터 갱신 체크)
                 const interval = setInterval(fetchStockData, 30000);
                 return () => clearInterval(interval);
             }, []);
@@ -470,91 +483,53 @@
             const toggleFavorite = (stock) => {
                 let newFavs;
                 const exists = favorites.some(fav => fav.id === stock.id);
-                if (exists) {
-                    newFavs = favorites.filter(fav => fav.id !== stock.id);
-                } else {
-                    newFavs = [...favorites, stock];
-                }
+                if (exists) newFavs = favorites.filter(fav => fav.id !== stock.id);
+                else newFavs = [...favorites, stock];
                 setFavorites(newFavs);
                 localStorage.setItem('myFavorites', JSON.stringify(newFavs));
             };
             
             const addNotification = (title, message) => {
-                const newNoti = {
-                    id: Date.now(),
-                    title: title,
-                    message: message,
-                    time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-                };
+                const newNoti = { id: Date.now(), title: title, message: message, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) };
                 const newNotis = [newNoti, ...notifications];
                 setNotifications(newNotis);
                 localStorage.setItem('myNotifications', JSON.stringify(newNotis));
-                
                 setToastMessage(title);
                 setShowToast(true);
             };
             
-            const clearNotifications = () => {
-                setNotifications([]);
-                localStorage.removeItem('myNotifications');
-            };
+            const clearNotifications = () => { setNotifications([]); localStorage.removeItem('myNotifications'); };
 
             const fetchStockData = async (url = 'todays_recommendation.json') => {
-                // 백그라운드 폴링일 때는 로딩 표시 안함
-                // setLoading(true); 
-                
                 try {
                     const response = await fetch(url, { cache: "no-store" });
-                    
                     if (!response.ok) throw new Error("파일 없음");
                     const data = await response.json();
-                    
-                    // 데이터 구조 파싱
                     let newStocks = [];
                     let newMarketStatus = null;
+                    let newSectors = [];
                     let timestamp = "";
-                    
-                    if (Array.isArray(data)) {
-                        newStocks = data;
-                    } else if (data.stocks) {
+                    if (Array.isArray(data)) newStocks = data;
+                    else if (data.stocks) {
                         newStocks = data.stocks;
                         newMarketStatus = data.market_status;
+                        newSectors = data.dominant_sectors || [];
                         timestamp = data.timestamp;
                     }
-                    
                     setStocks(newStocks);
                     setMarketStatus(newMarketStatus);
-                    
-                    // [알림 로직 개선]
-                    // 로컬 스토리지 값을 직접 확인하여 중복 알림 방지
+                    setDominantSectors(newSectors);
                     const savedTimestamp = localStorage.getItem('lastUpdatedTime');
-
                     if (url === 'todays_recommendation.json' && timestamp && timestamp !== savedTimestamp) {
-                        // 날짜 비교: 오늘 생성된 데이터인지 확인
-                        const dataTime = new Date(timestamp.replace(/-/g, '/')); // IOS 호환
+                        const dataTime = new Date(timestamp.replace(/-/g, '/')); 
                         const now = new Date();
-                        const isToday = dataTime.toDateString() === now.toDateString();
-
-                        // 오늘 데이터이고, 이전에 알림을 보낸 적이 없는 새로운 데이터일 때만 알림
-                        if (isToday) {
-                             addNotification("🔔 새로운 추천 도착!", "AI가 새로운 종목 분석을 완료했습니다.");
-                        }
-
-                        // 최신 타임스탬프 저장 (알림 여부와 관계없이 갱신하여 중복 방지)
+                        if (dataTime.toDateString() === now.toDateString()) addNotification("🔔 새로운 추천 도착!", "AI가 새로운 종목 분석을 완료했습니다.");
                         setLastUpdated(timestamp);
                         localStorage.setItem('lastUpdatedTime', timestamp);
                     }
-                    
                 } catch (err) {
-                    // console.warn("로딩 실패", err);
-                    // 에러 시 기존 데이터 유지 또는 폴백 사용 (최초 로딩 시에만)
-                    if (stocks.length === 0) {
-                        setStocks(FALLBACK_DATA);
-                        setError(true);
-                    }
-                } finally {
-                    setLoading(false);
-                }
+                    if (stocks.length === 0) { setStocks(FALLBACK_DATA); setError(true); }
+                } finally { setLoading(false); }
             };
 
             const handleLoadHistory = (fileUrl) => {
@@ -563,7 +538,7 @@
                 setActiveTab('US');
                 const dateMatch = fileUrl.match(/(\d{4}-\d{2}-\d{2})/);
                 setHistoryDate(dateMatch ? dateMatch[0] : '과거');
-                setActiveView('HOME'); // 뷰 전환
+                setActiveView('HOME'); 
             };
 
             const handleGoHome = () => {
@@ -575,43 +550,32 @@
             
             const handleBackToHistoryList = () => {
                 setIsHistoryMode(false); 
-                setActiveView('HISTORY'); // 탭 이동 대신 뷰 전환
+                setActiveView('HISTORY'); 
                 setHistoryDate(null);
             };
 
             const displayStocks = useMemo(() => {
                 if (activeView === 'HISTORY') return [];
-                
-                // [핵심 수정] 관심종목(FAV)일 때 로직 복구
                 if (activeTab === 'FAV') {
                     return favorites.map(fav => {
-                        // 최신 데이터에 해당 종목이 있는지 확인 (실시간 가격 반영)
                         const latest = stocks.find(s => s.id === fav.id);
-                        // 있으면 최신 데이터(순위 포함), 없으면 저장된 옛날 데이터(순위 없음) 사용
                         return latest ? { ...latest, rank: latest.rank } : { ...fav, rank: null };
                     });
                 }
-                
                 return stocks.filter(stock => stock.market === activeTab);
-            }, [activeTab, stocks, activeView, favorites]); // favorites 의존성 추가
+            }, [activeTab, stocks, activeView, favorites]);
 
             const debugInfo = `Loaded: ${stocks.length}`;
 
+            if (showSplash) return <SplashScreen onFinish={() => setShowSplash(false)} />;
+
             return (
-                <div className="bg-gray-100 min-h-screen font-sans flex justify-center items-start pt-0 sm:pt-10">
-                    <div className="w-full max-w-md bg-white sm:rounded-[2rem] shadow-2xl overflow-hidden min-h-screen sm:min-h-[800px] sm:max-h-[900px] flex flex-col relative border-4 border-gray-900/5">
-                        
-                        {/* 토스트 알림 */}
+                <div className="bg-gray-900 min-h-screen font-sans flex justify-center items-start pt-0 sm:pt-10 text-gray-100">
+                    <div className="w-full max-w-md bg-gray-900 sm:rounded-[2rem] shadow-2xl overflow-hidden min-h-screen sm:min-h-[800px] sm:max-h-[900px] flex flex-col relative border-4 border-gray-800">
                         {showToast && <Toast message={toastMessage} onClose={() => setShowToast(false)} />}
-                        
                         {selectedStock ? (
-                            <div className="absolute inset-0 z-20 bg-white">
-                                <StockDetail 
-                                    stock={selectedStock} 
-                                    onBack={() => setSelectedStock(null)} 
-                                    isFavorite={favorites.some(f => f.id === selectedStock.id)}
-                                    onToggleFavorite={toggleFavorite}
-                                />
+                            <div className="absolute inset-0 z-20 bg-gray-900">
+                                <StockDetail stock={selectedStock} onBack={() => setSelectedStock(null)} isFavorite={favorites.some(f => f.id === selectedStock.id)} onToggleFavorite={toggleFavorite} />
                             </div>
                         ) : activeView === 'HISTORY' ? (
                             <HistoryView onSelectHistory={handleLoadHistory} onBack={() => setActiveView('HOME')} />
@@ -619,100 +583,42 @@
                             <NotificationView notifications={notifications} onBack={() => setActiveView('HOME')} onClear={clearNotifications} />
                         ) : (
                             <>
-                                <header className={`px-6 pt-8 pb-4 border-b border-gray-50 ${isHistoryMode ? 'bg-indigo-50' : 'bg-white'}`}>
+                                <header className={`px-6 pt-8 pb-4 border-b border-gray-800 ${isHistoryMode ? 'bg-indigo-900/20' : 'bg-gray-900'}`}>
                                     <div className="flex justify-between items-center mb-6">
                                         <div className="flex items-center gap-3">
-                                            {isHistoryMode && (
-                                                <button onClick={handleBackToHistoryList} className="p-1 -ml-2 rounded-full hover:bg-indigo-100">
-                                                    <Icon name="arrowRight" className="rotate-180 text-indigo-600" />
-                                                </button>
-                                            )}
+                                            {isHistoryMode && <button onClick={handleBackToHistoryList} className="p-1 -ml-2 rounded-full hover:bg-indigo-900/50"><Icon name="arrowRight" className="rotate-180 text-indigo-400" /></button>}
                                             <div>
-                                                <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-                                                    {isHistoryMode ? `${historyDate} 기록` : "Daily Pick 10"}
-                                                </h1>
-                                                <p className="text-xs text-gray-500 font-medium mt-1">
-                                                    {isHistoryMode ? "과거 AI 분석 결과입니다" : "오늘의 성장주 스윙 기회"}
-                                                </p>
+                                                <h1 className="text-2xl font-extrabold text-white tracking-tight">{isHistoryMode ? `${historyDate} 기록` : "DailyPick10"}</h1>
+                                                <p className="text-xs text-gray-400 font-medium mt-1">{isHistoryMode ? "과거 AI 분석 결과입니다" : "AI 스마트 스윙 투자"}</p>
                                             </div>
                                         </div>
-                                        
                                         {isHistoryMode ? (
-                                            <button onClick={handleGoHome} className="bg-white p-2 rounded-full hover:bg-gray-100 transition-colors shadow-sm text-xs font-bold text-indigo-600 px-3">
-                                                최신으로 복귀
-                                            </button>
+                                            <button onClick={handleGoHome} className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors shadow-sm text-xs font-bold text-indigo-400 px-3 border border-gray-700">최신으로 복귀</button>
                                         ) : (
-                                            <button onClick={() => fetchStockData()} className="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition-colors">
-                                                <Icon name="refresh" className={loading ? "animate-spin text-gray-600" : "text-gray-600"} />
-                                            </button>
+                                            <button onClick={() => fetchStockData()} className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors border border-gray-700"><Icon name="refresh" className={loading ? "animate-spin text-gray-400" : "text-gray-400"} /></button>
                                         )}
                                     </div>
-                                    
                                     {!isHistoryMode && <MarketBanner marketStatus={marketStatus} />}
-                                    
-                                    <div className="flex bg-gray-100 p-1 rounded-2xl mt-4">
-                                        <button onClick={() => setActiveTab('US')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'US' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                            <Icon name="globe" size={14} /> 미국
-                                        </button>
-                                        <button onClick={() => setActiveTab('KR')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'KR' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                            <Icon name="chart" size={14} /> 한국
-                                        </button>
-                                        <button onClick={() => setActiveTab('FAV')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'FAV' ? 'bg-white text-yellow-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                            <Icon name="starFilled" size={14} className={activeTab === 'FAV' ? "text-yellow-500" : "text-gray-400"} /> 내 종목
-                                        </button>
+                                    {!isHistoryMode && <HotSectorBanner sectors={dominantSectors} />}
+                                    <div className="flex bg-gray-800 p-1 rounded-2xl mt-4 border border-gray-700">
+                                        <button onClick={() => setActiveTab('US')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'US' ? 'bg-gray-700 text-blue-400 shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}><Icon name="globe" size={14} /> 미국</button>
+                                        <button onClick={() => setActiveTab('KR')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'KR' ? 'bg-gray-700 text-red-400 shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}><Icon name="chart" size={14} /> 한국</button>
+                                        <button onClick={() => setActiveTab('FAV')} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'FAV' ? 'bg-gray-700 text-yellow-400 shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}><Icon name="starFilled" size={14} className={activeTab === 'FAV' ? "text-yellow-500" : "text-gray-400"} /> 내 종목</button>
                                     </div>
                                 </header>
-
-                                <div className="px-6 py-2 bg-gray-50/50 flex justify-between items-center border-b border-gray-100">
-                                    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400">
-                                        <Icon name="shield" size={12} />
-                                        <span>{loading ? "데이터 로딩 중..." : (error ? "연결 실패" : debugInfo)}</span>
-                                    </div>
-                                    {isHistoryMode && <span className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded font-bold">과거 데이터 열람 중</span>}
+                                <div className="px-6 py-2 bg-gray-800/50 flex justify-between items-center border-b border-gray-800">
+                                    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Icon name="shield" size={12} /><span>{loading ? "데이터 로딩 중..." : (error ? "연결 실패" : debugInfo)}</span></div>
+                                    {isHistoryMode && <span className="text-[10px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-800">과거 데이터 열람 중</span>}
                                 </div>
-
-                                <main key={activeTab} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
-                                    {activeTab === 'FAV' && displayStocks.length === 0 && (
-                                        <div className="text-center py-20 text-gray-400">
-                                            <Icon name="star" size={40} className="mx-auto mb-2 text-gray-200" />
-                                            <p className="text-sm">관심 종목이 없습니다.</p>
-                                            <p className="text-xs mt-1">마음에 드는 종목을 담아보세요!</p>
-                                        </div>
-                                    )}
-
-                                    {displayStocks.map((stock) => (
-                                        <StockCard 
-                                            key={stock.id} 
-                                            stock={stock} 
-                                            onClick={() => setSelectedStock(stock)}
-                                            isFavorite={favorites.some(f => f.id === stock.id)} 
-                                        />
-                                    ))}
-                                    
-                                    {!loading && activeTab !== 'FAV' && displayStocks.length === 0 && (
-                                        <div className="text-center py-10">
-                                            <p className="text-sm text-gray-400">
-                                                {error ? "데이터를 불러올 수 없습니다." : "추천 조건에 맞는 종목이 없습니다."}
-                                            </p>
-                                        </div>
-                                    )}
+                                <main key={activeTab} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-900">
+                                    {activeTab === 'FAV' && displayStocks.length === 0 && <div className="text-center py-20 text-gray-500"><Icon name="star" size={40} className="mx-auto mb-2 text-gray-600" /><p className="text-sm">관심 종목이 없습니다.</p><p className="text-xs mt-1">마음에 드는 종목을 담아보세요!</p></div>}
+                                    {displayStocks.map((stock) => <StockCard key={stock.id} stock={stock} onClick={() => setSelectedStock(stock)} isFavorite={favorites.some(f => f.id === stock.id)} />)}
+                                    {!loading && activeTab !== 'FAV' && displayStocks.length === 0 && <div className="text-center py-10"><p className="text-sm text-gray-500">{error ? "데이터를 불러올 수 없습니다." : "추천 조건에 맞는 종목이 없습니다."}</p></div>}
                                 </main>
-
-                                <nav className="bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center pb-8 sm:pb-4">
-                                    <button onClick={() => !isHistoryMode && setActiveView('HOME')} className={`flex flex-col items-center ${activeView === 'HOME' ? 'text-blue-600' : 'text-gray-400'}`}>
-                                        <Icon name="home" size={24} />
-                                        <span className="text-[10px] mt-1">홈</span>
-                                    </button>
-                                    
-                                    <button onClick={() => { setActiveView('HISTORY'); setIsHistoryMode(false); }} className={`flex flex-col items-center ${activeView === 'HISTORY' ? 'text-blue-600' : 'text-gray-400'}`}>
-                                        <Icon name="history" size={24} />
-                                        <span className="text-[10px] mt-1">백테스팅</span>
-                                    </button>
-                                    
-                                    <button onClick={() => setActiveView('NOTIFICATIONS')} className={`flex flex-col items-center ${activeView === 'NOTIFICATIONS' ? 'text-blue-600' : 'text-gray-400'} relative`}>
-                                        {notifications.length > 0 ? <Icon name="bellDot" size={24} /> : <Icon name="bell" size={24} />}
-                                        <span className="text-[10px] mt-1">알림</span>
-                                    </button>
+                                <nav className="bg-gray-800 border-t border-gray-700 px-6 py-4 flex justify-between items-center pb-8 sm:pb-4">
+                                    <button onClick={() => !isHistoryMode && setActiveView('HOME')} className={`flex flex-col items-center ${activeView === 'HOME' ? 'text-blue-500' : 'text-gray-500 hover:text-gray-300'}`}><Icon name="home" size={24} /><span className="text-[10px] mt-1">홈</span></button>
+                                    <button onClick={() => { setActiveView('HISTORY'); setIsHistoryMode(false); }} className={`flex flex-col items-center ${activeView === 'HISTORY' ? 'text-blue-500' : 'text-gray-500 hover:text-gray-300'}`}><Icon name="history" size={24} /><span className="text-[10px] mt-1">백테스팅</span></button>
+                                    <button onClick={() => setActiveView('NOTIFICATIONS')} className={`flex flex-col items-center ${activeView === 'NOTIFICATIONS' ? 'text-blue-500' : 'text-gray-500 hover:text-gray-300'} relative`}>{notifications.length > 0 ? <Icon name="bellDot" size={24} /> : <Icon name="bell" size={24} />}<span className="text-[10px] mt-1">알림</span></button>
                                 </nav>
                             </>
                         )}

@@ -1,0 +1,43 @@
+name: Daily Stock Scan (Mon-Fri)
+
+on:
+  schedule:
+    # [설명] GitHub Actions는 UTC(세계협정시) 기준입니다. (한국시간 -9시간)
+    
+    # 1. 한국 시간 아침 08:00 (미국장 마감 반영) -> UTC 전날 23:00
+    #    화~금 아침에 실행 (월요일 아침은 미국 일요일이라 휴장)
+    - cron: '0 23 * * 1-4'
+
+    # 2. 한국 시간 저녁 18:00 (한국장 마감 반영) -> UTC 당일 09:00
+    #    월~금 저녁에 실행
+    - cron: '0 9 * * 1-5'
+
+  workflow_dispatch: # 수동 실행 버튼
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas requests lxml
+
+      - name: Run Daily Scan
+        # 평일 모드로 실행 -> todays_recommendation.json 만 갱신
+        run: python daily_stock_scanner.py --mode daily
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          # 변경사항이 있을 때만 커밋
+          git add todays_recommendation.json
+          git commit -m "Update Daily Recommendations" || exit 0
+          git push

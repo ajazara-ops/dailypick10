@@ -2,19 +2,17 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) - 월~금
-    # (일요일~목요일 UTC 23:00에 돌려야 한국 월~금 아침이 됩니다)
+    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) -> 미국장 마감 -> 미국만 분석
     - cron: '0 23 * * 0-4'
 
-    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) - 월~금
+    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) -> 한국장 마감 -> 한국만 분석
     - cron: '0 9 * * 1-5'
     
-    # 3. [추가] 주간 리포트용: 한국 토요일 아침 08:00 (UTC 금요일 23:00)
+    # 3. 한국 시간 토요일 아침 08:00 (UTC 금요일 23:00) -> 주간 리포트
     - cron: '0 23 * * 5'
 
   workflow_dispatch: # 수동 실행 버튼
 
-# 👇 [필수] 이 권한 설정이 있어야 403 에러가 안 납니다!
 permissions:
   contents: write
 
@@ -37,16 +35,24 @@ jobs:
 
       - name: Run Scan Logic
         run: |
-          # 현재 요일(UTC 기준) 가져오기 (1=월, 5=금, 6=토, 7=일)
+          # 현재 시간과 요일(UTC 기준) 확인
+          HOUR=$(date +%H)
           DOW=$(date +%u)
           
-          # 금요일(5) 23시 실행(=한국 토요일 아침)인 경우 Weekly 모드 실행
-          if [ "$DOW" -eq 5 ] && [ "$(date +%H)" -eq 23 ]; then
+          # 1. 토요일 아침 (금요일 23시) -> 주간 리포트 실행
+          if [ "$DOW" -eq 5 ] && [ "$HOUR" -eq 23 ]; then
             echo "📅 Running Weekly Report Mode"
             python daily_stock_scanner.py --mode weekly
+            
+          # 2. 평일 아침 (일~목 23시) -> 미국 주식만 분석 (--target US)
+          elif [ "$HOUR" -eq 23 ]; then
+            echo "🇺🇸 Running US Stock Scan Mode"
+            python daily_stock_scanner.py --mode daily --target US
+            
+          # 3. 평일 저녁 (월~금 09시) -> 한국 주식만 분석 (--target KR)
           else
-            echo "📅 Running Daily Scan Mode"
-            python daily_stock_scanner.py --mode daily
+            echo "🇰🇷 Running KR Stock Scan Mode"
+            python daily_stock_scanner.py --mode daily --target KR
           fi
 
       - name: Commit and Push
@@ -54,10 +60,7 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           
-          # 1. 오늘의 추천 파일 추가
           git add todays_recommendation.json
-          
-          # 2. [중요] 히스토리 폴더 및 인덱스 파일도 추가 (신규 로직 반영)
           git add history/*.json history_index.json || true
           
           git commit -m "Update Stock Data via GitHub Action" || echo "No changes to commit"

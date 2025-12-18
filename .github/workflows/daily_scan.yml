@@ -1,24 +1,29 @@
-name: Daily Stock Scan (Mon-Fri)
+name: Daily Stock Scanner
 
 on:
   schedule:
-    # [설명] GitHub Actions는 UTC(세계협정시) 기준입니다. (한국시간 -9시간)
-    
-    # 1. 한국 시간 아침 08:00 (미국장 마감 반영) -> UTC 전날 23:00
-    #    화~금 아침에 실행 (월요일 아침은 미국 일요일이라 휴장)
-    - cron: '0 23 * * 1-4'
+    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) - 월~금
+    # (일요일~목요일 UTC 23:00에 돌려야 한국 월~금 아침이 됩니다)
+    - cron: '0 23 * * 0-4'
 
-    # 2. 한국 시간 저녁 18:00 (한국장 마감 반영) -> UTC 당일 09:00
-    #    월~금 저녁에 실행
+    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) - 월~금
     - cron: '0 9 * * 1-5'
+    
+    # 3. [추가] 주간 리포트용: 한국 토요일 아침 08:00 (UTC 금요일 23:00)
+    - cron: '0 23 * * 5'
 
   workflow_dispatch: # 수동 실행 버튼
 
+# 👇 [필수] 이 권한 설정이 있어야 403 에러가 안 납니다!
+permissions:
+  contents: write
+
 jobs:
-  build:
+  run-scanner:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,17 +32,33 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install yfinance pandas requests lxml
 
-      - name: Run Daily Scan
-        # 평일 모드로 실행 -> todays_recommendation.json 만 갱신
-        run: python daily_stock_scanner.py --mode daily
+      - name: Run Scan Logic
+        run: |
+          # 현재 요일(UTC 기준) 가져오기 (1=월, 5=금, 6=토, 7=일)
+          DOW=$(date +%u)
+          
+          # 금요일(5) 23시 실행(=한국 토요일 아침)인 경우 Weekly 모드 실행
+          if [ "$DOW" -eq 5 ] && [ "$(date +%H)" -eq 23 ]; then
+            echo "📅 Running Weekly Report Mode"
+            python daily_stock_scanner.py --mode weekly
+          else
+            echo "📅 Running Daily Scan Mode"
+            python daily_stock_scanner.py --mode daily
+          fi
 
       - name: Commit and Push
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          # 변경사항이 있을 때만 커밋
+          
+          # 1. 오늘의 추천 파일 추가
           git add todays_recommendation.json
-          git commit -m "Update Daily Recommendations" || exit 0
+          
+          # 2. [중요] 히스토리 폴더 및 인덱스 파일도 추가 (신규 로직 반영)
+          git add history/*.json history_index.json || true
+          
+          git commit -m "Update Stock Data via GitHub Action" || echo "No changes to commit"
           git push

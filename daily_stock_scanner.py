@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 import math
 import os
 import sys
+import re
 from collections import Counter
 from datetime import datetime, timedelta
 
@@ -24,7 +25,6 @@ def safe_float(val, default=0.0):
 
 # --- [알림 전송 함수] ---
 def send_push_notification(title, message):
-    # ✅ 사용자님의 푸시 토큰을 여기에 넣었습니다.
     user_push_tokens = ["ExponentPushToken[kip5csOC92Ymcc_AtKjqyl]"] 
 
     if not user_push_tokens:
@@ -58,12 +58,10 @@ def get_latest_recommendation_ids():
     """history 폴더에서 가장 최근(오늘 제외) 파일의 종목 ID 집합을 반환"""
     if not os.path.exists('history'): return set()
     
-    # 날짜 역순 정렬 (최신 파일이 앞으로)
     files = sorted([f for f in os.listdir('history') if f.endswith('_recommendation.json')], reverse=True)
     
     if not files: return set()
     
-    # 가장 최근 파일 읽기
     try:
         with open(f"history/{files[0]}", 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -114,15 +112,57 @@ def get_sp500_tickers():
         return [t.replace('.', '-') for t in tickers]
     except: return ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META']
 
+def get_nasdaq100_tickers():
+    """위키피디아에서 나스닥 100 종목 리스트를 가져옵니다."""
+    try:
+        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers)
+        tables = pd.read_html(response.text)
+        
+        # 'Ticker' 또는 'Symbol' 컬럼이 있는 테이블 찾기
+        for table in tables:
+            if 'Ticker' in table.columns:
+                return [str(t).replace('.', '-') for t in table['Ticker'].tolist()]
+            elif 'Symbol' in table.columns:
+                return [str(t).replace('.', '-') for t in table['Symbol'].tolist()]
+        return []
+    except Exception as e:
+        print(f"⚠️ 나스닥 100 목록 가져오기 실패: {e}")
+        return []
+
 def get_korea_tickers():
-    return [
-        '005930.KS', '000660.KS', '373220.KS', '207940.KS', '005380.KS', '000270.KS', '068270.KS', '005490.KS', '035420.KS', 
-        '006400.KS', '051910.KS', '035720.KS', '003670.KS', '028260.KS', '012330.KS', '105560.KS', '055550.KS', '032830.KS', 
-        '086790.KS', '015760.KS', '034020.KS', '011200.KS', '010120.KS', '259960.KS', '329180.KS', '011070.KS', '034220.KS',
-        '009150.KS', '010950.KS', '011780.KS', '009830.KS', '204320.KS', '003490.KS', '086280.KS', '000100.KS', '128940.KS',
-        '247540.KQ', '086520.KQ', '028300.KQ', '196170.KQ', '035900.KQ', '041510.KQ', '068760.KQ', '277810.KQ', '403870.KQ', 
-        '039200.KQ', '293490.KQ', '263750.KQ', '145020.KQ', '214150.KQ', '042700.KQ', '005290.KQ', '240810.KQ', '357780.KQ'
-    ]
+    """네이버 금융에서 코스피/코스닥 시가총액 상위 50개씩 총 100개를 가져옵니다."""
+    tickers = []
+    
+    try:
+        url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=0&page=1'
+        res = requests.get(url)
+        codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
+        seen = set()
+        unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
+        for code in unique_codes[:50]:
+            tickers.append(f"{code}.KS")
+    except Exception as e:
+        print(f"⚠️ 코스피 목록 가져오기 실패: {e}")
+
+    try:
+        url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=1&page=1'
+        res = requests.get(url)
+        codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
+        seen = set()
+        unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
+        for code in unique_codes[:50]:
+            tickers.append(f"{code}.KQ")
+    except Exception as e:
+        print(f"⚠️ 코스닥 목록 가져오기 실패: {e}")
+
+    if not tickers:
+        return [
+            '005930.KS', '000660.KS', '373220.KS', '207940.KS', '005380.KS', '000270.KS', 
+            '068270.KS', '005490.KS', '035420.KS', '006400.KS', '051910.KS', '035720.KS'
+        ]
+    return tickers
 
 # --- [3] 뉴스 수집 ---
 def get_news_from_google_kr(ticker):
@@ -168,11 +208,17 @@ def process_news_for_list(stock_list):
         print(f"{len(raw)}개"); item['news'] = analyze_news_sentiment(raw[:3])
 
 # --- [4] 지표 계산 ---
-def calculate_indicators(close):
+def calculate_indicators(close, high, low):
     delta = close.diff(); gain = (delta.where(delta > 0, 0)).rolling(14).mean(); loss = (-delta.where(delta < 0, 0)).rolling(14).mean(); rs = gain/loss; rsi = 100 - (100/(1+rs))
     exp1 = close.ewm(span=12).mean(); exp2 = close.ewm(span=26).mean(); macd = exp1 - exp2; signal = macd.ewm(span=9).mean()
     ma20 = close.rolling(20).mean(); std = close.rolling(20).std(); upper = ma20 + (std*2); lower = ma20 - (std*2)
-    return rsi, macd, signal, upper, lower, ma20
+    
+    lowest_low = low.rolling(window=14).min()
+    highest_high = high.rolling(window=14).max()
+    stoch_k = 100 * ((close - lowest_low) / (highest_high - lowest_low))
+    stoch_d = stoch_k.rolling(window=3).mean()
+    
+    return rsi, macd, signal, upper, lower, ma20, stoch_k, stoch_d
 
 # --- [5] 개별 종목 분석 ---
 def analyze_stock(ticker, market_type):
@@ -180,7 +226,7 @@ def analyze_stock(ticker, market_type):
         stock = yf.Ticker(ticker)
         try: hist = stock.history(period="2y")
         except: return None
-        if len(hist) < 60: return None
+        if len(hist) < 120: return None
         
         info = {}
         try: info = stock.info 
@@ -188,10 +234,14 @@ def analyze_stock(ticker, market_type):
         
         if market_type == 'US' and info.get('operatingMargins', 0) < -0.5: return None
         
-        close = hist['Close']; volume = hist['Volume']
-        rsi, macd, signal, bb_upper, bb_lower, ma20 = calculate_indicators(close)
+        close = hist['Close']; volume = hist['Volume']; high = hist['High']; low = hist['Low']
+        rsi, macd, signal, bb_upper, bb_lower, ma20, stoch_k, stoch_d = calculate_indicators(close, high, low)
         
-        cur_p = close.iloc[-1]; cur_rsi = rsi.iloc[-1]; cur_low = bb_lower.iloc[-1]; ma60 = close.rolling(60).mean().iloc[-1]
+        cur_p = close.iloc[-1]; cur_rsi = rsi.iloc[-1]; cur_low = bb_lower.iloc[-1]
+        ma60 = close.rolling(60).mean().iloc[-1]
+        ma120 = close.rolling(120).mean().iloc[-1]
+        cur_k = stoch_k.iloc[-1]
+        
         vol_ma20 = volume.rolling(20).mean().iloc[-1]; cur_vol = volume.iloc[-1]
         rvol = safe_float(cur_vol / vol_ma20, 1.0) if vol_ma20 > 0 else 1.0
         
@@ -202,26 +252,40 @@ def analyze_stock(ticker, market_type):
             
         if pd.isna(cur_rsi) or pd.isna(cur_p) or cur_rsi > 80: return None
         
-        score = 40; reasons = [] 
-        if cur_rsi < 30: score += 30; reasons.append("RSI 과매도")
+        score = 0; reasons = [] 
+        
+        if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
-        elif cur_rsi < 60: score += 10; reasons.append("눌림목")
-        if cur_p <= cur_low * 1.05: score += 20; reasons.append("볼린저밴드 하단 근접")
-        if not pd.isna(ma60) and cur_p >= ma60 * 0.95 and cur_p <= ma60 * 1.08: score += 15; reasons.append("60일선 지지")
-        if macd.iloc[-1] > signal.iloc[-1]: score += 10
-        if rvol >= 1.2: score += 15; reasons.append(f"거래량 증가({rvol:.1f}배)")
+        elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
         
+        if cur_p <= cur_low * 1.05: score += 30; reasons.append("볼린저밴드 하단 근접")
+        
+        if not pd.isna(ma60) and cur_p >= ma60 * 0.98 and cur_p <= ma60 * 1.05: score += 20; reasons.append("60일선 지지")
+        
+        if macd.iloc[-1] > signal.iloc[-1]: score += 15; reasons.append("MACD 상승신호")
+        
+        if rvol >= 1.5: score += 20; reasons.append(f"거래량 폭발({rvol:.1f}배)")
+        elif rvol >= 1.2: score += 10; reasons.append(f"거래량 증가")
+        
+        if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
+        
+        if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
+
+        op_margin = info.get('operatingMargins', 0)
+        rev_growth = info.get('revenueGrowth', 0)
+        per = info.get('forwardPE', info.get('trailingPE', 0))
+        pbr = info.get('priceToBook', 0)
+
         if market_type == 'US':
-            op_margin = info.get('operatingMargins', 0)
-            rev_growth = info.get('revenueGrowth', 0)
-            per = info.get('forwardPE', 0)
-            if op_margin > 0.10: score += 5; reasons.append("영업이익률 우수")
-            if rev_growth > 0.05: score += 5; reasons.append("매출 고성장")
-            if per > 0 and per < 40: score += 5; reasons.append("적정 PER")
+            if op_margin > 0.15: score += 10; reasons.append("이익률 우수")
+            if rev_growth > 0.10: score += 10; reasons.append("고성장주")
+            if per > 0 and per < 30: score += 10; reasons.append("저평가(PER)")
         elif market_type == 'KR':
-            score += 5; reasons.append("재무 건전성 양호")
+            if per > 0 and per < 20: score += 5; reasons.append("적정 PER")
+            if pbr > 0 and pbr < 1.5: score += 5; reasons.append("저PBR")
+            if op_margin > 0: score += 5; reasons.append("흑자 기업")
         
-        cutoff = 25 if market_type == 'US' else 10 
+        cutoff = 40 
         if score < cutoff: return None
         
         name = info.get('shortName', ticker) if info else ticker
@@ -250,7 +314,6 @@ def analyze_stock(ticker, market_type):
 def generate_weekly_report(today_str):
     print(f"\n📊 [Weekly] 지난 2주간({today_str} 기준)의 통합 성과 분석 시작...")
     
-    # 1. 지난 14일간의 파일 찾기
     history_files = []
     end_date = datetime.strptime(today_str, "%Y-%m-%d")
     start_date = end_date - timedelta(days=14)
@@ -264,19 +327,18 @@ def generate_weekly_report(today_str):
             file_date_str = f.split('_')[0]
             try:
                 file_date = datetime.strptime(file_date_str, "%Y-%m-%d")
-                if start_date <= file_date < end_date: # 오늘 제외, 과거 14일
+                if start_date <= file_date < end_date: 
                     history_files.append(f)
             except: pass
             
     print(f"📂 분석 대상 파일: {len(history_files)}개 ({history_files})")
     
-    # 2. 모든 추천 종목 수집
     aggregated_stocks = []
     
     for file in history_files:
         with open(f"history/{file}", 'r', encoding='utf-8') as f:
             data = json.load(f)
-            rec_date = file.split('_')[0] # 추천일
+            rec_date = file.split('_')[0]
             for stock in data.get('stocks', []):
                 stock['buyPrice'] = stock['currentPrice'] 
                 stock['recommendDate'] = rec_date
@@ -284,7 +346,6 @@ def generate_weekly_report(today_str):
 
     print(f"🔎 총 {len(aggregated_stocks)}개의 과거 추천 내역 분석 중...")
 
-    # 3. 현재가 조회 및 수익률 계산
     final_results = []
     
     for i, item in enumerate(aggregated_stocks):
@@ -305,7 +366,6 @@ def generate_weekly_report(today_str):
         except Exception as e:
             pass 
 
-    # 4. 수익률 순으로 정렬
     final_results.sort(key=lambda x: x['returnRate'], reverse=True)
     top_performers = final_results[:10]
     
@@ -344,23 +404,26 @@ def main():
     print(f"🚀 AI 주식 분석기 가동 (모드: {mode}, 날짜: {today_str})")
 
     if mode == 'daily':
-        # 1. 어제 추천 종목 리스트 가져오기 (비교용)
         prev_stock_ids = get_latest_recommendation_ids()
 
-        # [평일] 기존 로직: 오늘 추천 종목 선정
         ms = analyze_market_condition(); final = []
         
-        us = get_sp500_tickers(); usc = []
-        print("\n🇺🇸 미국 분석..."); 
-        for i, t in enumerate(us): 
-            print(f"[{i+1}/{len(us)}] {t}...", end='\r'); d = analyze_stock(t, 'US'); 
+        # [수정] S&P 500 + NASDAQ 100 통합 (중복 제거)
+        sp500 = get_sp500_tickers()
+        nasdaq100 = get_nasdaq100_tickers()
+        us_tickers = list(set(sp500 + nasdaq100)) # 합집합
+        
+        print(f"\n🇺🇸 미국 분석 (대상: {len(us_tickers)}개)...")
+        usc = []
+        for i, t in enumerate(us_tickers): 
+            print(f"[{i+1}/{len(us_tickers)}] {t}...", end='\r'); d = analyze_stock(t, 'US'); 
             if d: usc.append(d)
         usc.sort(key=lambda x: x['score'], reverse=True); ust = usc[:10]
         for i, item in enumerate(ust): item['rank'] = i + 1
         final.extend(ust)
         
         kr = get_korea_tickers(); krc = []
-        print("\n🇰🇷 한국 분석..."); 
+        print(f"\n🇰🇷 한국 분석 (대상: {len(kr)}개)...")
         for i, t in enumerate(kr): 
             print(f"[{i+1}/{len(kr)}] {t}...", end='\r'); d = analyze_stock(t, 'KR'); 
             if d: krc.append(d)
@@ -378,24 +441,19 @@ def main():
         print("\n💾 [Daily Mode] 오늘의 추천 종목 갱신 중...")
         with open('todays_recommendation.json', 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
 
-        # 2. 신규 진입 종목 필터링 및 메시지 생성
         new_stocks = [s['symbol'] for s in final if s['id'] not in prev_stock_ids]
         
         noti_title = "🔔 DailyPick10 알림"
         if new_stocks:
-            # 신규 종목이 있을 경우: 신규 종목 위주로 메시지 구성
-            highlight_stocks = ", ".join(new_stocks[:2]) # 최대 2개만 표시
+            highlight_stocks = ", ".join(new_stocks[:2]) 
             noti_body = f"오늘의 추천 종목이 도착하였습니다! 오늘의 추천: {highlight_stocks} 등 {len(final)}건 (신규 {len(new_stocks)}건)"
         else:
-            # 신규 종목이 없을 경우: 상위 1, 2위 종목 표시
             top_stocks = ", ".join([s['symbol'] for s in final[:2]])
             noti_body = f"오늘의 추천 종목이 도착하였습니다! 오늘의 추천: {top_stocks} 등 {len(final)}건 (순위 변동)"
 
-        # 3. 알림 전송
         send_push_notification(noti_title, noti_body)
 
     elif mode == 'weekly':
-        # [토요일] 신규 로직: 지난 2주간 데이터 취합 및 성과 분석
         generate_weekly_report(today_str)
         update_history_index()
 

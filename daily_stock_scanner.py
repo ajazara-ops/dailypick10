@@ -9,7 +9,7 @@ import math
 import os
 import sys
 import re
-import argparse  # [추가] 명령행 인자 처리를 위해 추가
+import argparse 
 from collections import Counter
 from datetime import datetime, timedelta
 
@@ -26,7 +26,6 @@ def safe_float(val, default=0.0):
 
 # --- [알림 전송 함수] ---
 def send_push_notification(title, message):
-    # ✅ 사용자님의 푸시 토큰
     user_push_tokens = ["ExponentPushToken[kip5csOC92Ymcc_AtKjqyl]"] 
 
     if not user_push_tokens:
@@ -237,31 +236,23 @@ def analyze_stock(ticker, market_type):
         
         score = 0; reasons = [] 
         
-        # 1. RSI (과매도 구간)
         if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
         elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
         
-        # 2. 볼린저 밴드
         if cur_p <= cur_low * 1.05: score += 30; reasons.append("볼린저밴드 하단 근접")
         
-        # 3. 이평선 지지
         if not pd.isna(ma60) and cur_p >= ma60 * 0.98 and cur_p <= ma60 * 1.05: score += 20; reasons.append("60일선 지지")
         
-        # 4. MACD
         if macd.iloc[-1] > signal.iloc[-1]: score += 15; reasons.append("MACD 상승신호")
         
-        # 5. 거래량
         if rvol >= 1.5: score += 20; reasons.append(f"거래량 폭발({rvol:.1f}배)")
         elif rvol >= 1.2: score += 10; reasons.append(f"거래량 증가")
         
-        # 6. 스토캐스틱
         if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
         
-        # 7. 장기 추세 (120일선)
         if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
 
-        # 8. 펀더멘털
         op_margin = info.get('operatingMargins', 0)
         rev_growth = info.get('revenueGrowth', 0)
         per = info.get('forwardPE', info.get('trailingPE', 0))
@@ -386,7 +377,6 @@ def main():
     print(f"🚀 AI 주식 분석기 가동 (모드: {args.mode}, 타겟: {args.target}, 날짜: {today_str})")
 
     if args.mode == 'daily':
-        # 1. 어제 추천 종목(신규 비교용) 및 기존 데이터 로드(병합용)
         prev_stock_ids = get_latest_recommendation_ids()
         existing_stocks = []
         try:
@@ -397,7 +387,6 @@ def main():
         ms = analyze_market_condition()
         final_stocks = []
         
-        # 2. 미국 주식 분석 (Target이 US 또는 ALL일 때)
         if args.target in ['US', 'ALL']:
             sp500 = get_sp500_tickers()
             nasdaq100 = get_nasdaq100_tickers()
@@ -412,12 +401,10 @@ def main():
             process_news_for_list(ust)
             final_stocks.extend(ust)
         else:
-            # US 타겟이 아니면 기존 데이터의 US 종목만 유지
             print("\n🇺🇸 미국 데이터는 기존 내용을 유지합니다.")
             us_kept = [s for s in existing_stocks if s['market'] == 'US']
             final_stocks.extend(us_kept)
 
-        # 3. 한국 주식 분석 (Target이 KR 또는 ALL일 때)
         if args.target in ['KR', 'ALL']:
             kr = get_korea_tickers(); krc = []
             print(f"\n🇰🇷 한국 분석 (대상: {len(kr)}개)...")
@@ -429,28 +416,21 @@ def main():
             process_news_for_list(krt)
             final_stocks.extend(krt)
         else:
-            # KR 타겟이 아니면 기존 데이터의 KR 종목만 유지
             print("\n🇰🇷 한국 데이터는 기존 내용을 유지합니다.")
             kr_kept = [s for s in existing_stocks if s['market'] == 'KR']
             final_stocks.extend(kr_kept)
         
-        # 4. 저장
         all_sectors = [s['sector'] for s in final_stocks if s['sector'] != '기타']
         dominant_sectors = [item[0] for item in Counter(all_sectors).most_common(2)]
         
-        out = {"market_status": ms, "stocks": final_stocks, "dominant_sectors": dominant_sectors, "timestamp": f"{today_str} {datetime.now().strftime('%H:%M:%S')}"}
-        
-        print("\n💾 [Daily Mode] 오늘의 추천 종목 갱신 중...")
-        with open('todays_recommendation.json', 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
-
-        # 5. 알림 전송 (Target에 맞는 내용으로)
+        # [수정] 알림 메시지 생성 로직을 여기로 이동 (파일 저장 전에!)
         noti_title = "🔔 DailyPick10 알림"
+        noti_body = ""
         
-        # 현재 타겟 시장의 종목만 필터링해서 메시지 생성
         target_market_stocks = [s for s in final_stocks if s['market'] == args.target] if args.target != 'ALL' else final_stocks
         
         if not target_market_stocks:
-            print("🔕 추천 종목이 없어서 알림을 건너뜁니다.")
+            print("🔕 추천 종목이 없어서 알림 메시지를 생성하지 않습니다.")
         else:
             new_stocks = [s['symbol'] for s in target_market_stocks if s['id'] not in prev_stock_ids]
             market_name = "미국" if args.target == 'US' else ("한국" if args.target == 'KR' else "전체")
@@ -462,6 +442,23 @@ def main():
                 top_stocks = ", ".join([s['symbol'] for s in target_market_stocks[:2]])
                 noti_body = f"오늘의 {market_name} 추천 종목이 도착했습니다! 오늘의 추천: {top_stocks} 등 {len(target_market_stocks)}건"
 
+        # [수정] JSON에 알림 메시지도 함께 저장
+        out = {
+            "market_status": ms, 
+            "stocks": final_stocks, 
+            "dominant_sectors": dominant_sectors, 
+            "timestamp": f"{today_str} {datetime.now().strftime('%H:%M:%S')}",
+            "notification": {  # 여기가 핵심입니다!
+                "title": noti_title,
+                "body": noti_body
+            }
+        }
+        
+        print("\n💾 [Daily Mode] 오늘의 추천 종목 갱신 중...")
+        with open('todays_recommendation.json', 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
+
+        # 알림 전송 (앱이 꺼져있을 때를 위함)
+        if noti_body:
             send_push_notification(noti_title, noti_body)
 
     elif args.mode == 'weekly':

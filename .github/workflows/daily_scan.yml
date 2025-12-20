@@ -2,16 +2,36 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) -> 미국장 마감 -> 미국만 분석
+    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) -> 미국장 마감
     - cron: '0 23 * * 0-4'
 
-    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) -> 한국장 마감 -> 한국만 분석
+    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) -> 한국장 마감
     - cron: '0 9 * * 1-5'
     
     # 3. 한국 시간 토요일 아침 08:00 (UTC 금요일 23:00) -> 주간 리포트
     - cron: '0 23 * * 5'
 
-  workflow_dispatch: # 수동 실행 버튼
+  # 👇 [핵심] 수동 실행 시 메뉴 선택 기능 추가
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '실행 모드 (daily: 평일분석 / weekly: 주간리포트)'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+        - auto
+        - daily
+        - weekly
+      target:
+        description: '분석 시장 (daily 모드일 때만 적용)'
+        required: false
+        default: 'ALL'
+        type: choice
+        options:
+        - ALL
+        - US
+        - KR
 
 permissions:
   contents: write
@@ -35,24 +55,38 @@ jobs:
 
       - name: Run Scan Logic
         run: |
-          # 현재 시간과 요일(UTC 기준) 확인
-          HOUR=$(date +%H)
-          DOW=$(date +%u)
+          # 1. 입력값 받기 (없으면 빈 문자열)
+          MODE="${{ inputs.mode }}"
+          TARGET="${{ inputs.target }}"
           
-          # 1. 토요일 아침 (금요일 23시) -> 주간 리포트 실행
-          if [ "$DOW" -eq 5 ] && [ "$HOUR" -eq 23 ]; then
-            echo "📅 Running Weekly Report Mode"
+          # 2. 'auto' 이거나 스케줄 실행인 경우 -> 시간 기반 자동 결정
+          if [ -z "$MODE" ] || [ "$MODE" == "auto" ]; then
+            HOUR=$(date +%H)
+            DOW=$(date +%u)
+            
+            # 금요일 23시(한국 토요일 아침) -> Weekly
+            if [ "$DOW" -eq 5 ] && [ "$HOUR" -eq 23 ]; then
+              MODE="weekly"
+            # 평일 23시(한국 평일 아침) -> Daily US
+            elif [ "$HOUR" -eq 23 ]; then
+              MODE="daily"
+              TARGET="US"
+            # 평일 09시(한국 평일 저녁) -> Daily KR
+            else
+              MODE="daily"
+              TARGET="KR"
+            fi
+          fi
+          
+          echo "🚀 실행 모드: $MODE / 타겟: $TARGET"
+          
+          # 3. 파이썬 스크립트 실행
+          if [ "$MODE" == "weekly" ]; then
             python daily_stock_scanner.py --mode weekly
-            
-          # 2. 평일 아침 (일~목 23시) -> 미국 주식만 분석 (--target US)
-          elif [ "$HOUR" -eq 23 ]; then
-            echo "🇺🇸 Running US Stock Scan Mode"
-            python daily_stock_scanner.py --mode daily --target US
-            
-          # 3. 평일 저녁 (월~금 09시) -> 한국 주식만 분석 (--target KR)
           else
-            echo "🇰🇷 Running KR Stock Scan Mode"
-            python daily_stock_scanner.py --mode daily --target KR
+            # TARGET이 비어있으면 ALL로 설정
+            if [ -z "$TARGET" ]; then TARGET="ALL"; fi
+            python daily_stock_scanner.py --mode daily --target $TARGET
           fi
 
       - name: Commit and Push
@@ -63,5 +97,5 @@ jobs:
           git add todays_recommendation.json
           git add history/*.json history_index.json || true
           
-          git commit -m "Update Stock Data via GitHub Action" || echo "No changes to commit"
+          git commit -m "Update Stock Data ($MODE mode)" || echo "No changes to commit"
           git push

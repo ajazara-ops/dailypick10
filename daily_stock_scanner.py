@@ -301,11 +301,72 @@ def analyze_stock(ticker, market_type):
         }
     except: return None
 
-# --- [6] 주간 수익률 결산 알림 (토요일 5PM) ---
+# --- [6] 주간 종합 리포트 생성 (기존) ---
+def generate_weekly_report(today_str):
+    print(f"\n📊 [Weekly] 지난 2주간({today_str} 기준)의 통합 성과 분석 시작...")
+    
+    history_files = []
+    end_date = datetime.strptime(today_str, "%Y-%m-%d")
+    start_date = end_date - timedelta(days=14)
+    
+    if not os.path.exists('history'): 
+        print("❌ 히스토리 폴더가 없습니다.")
+        return
+
+    for f in os.listdir('history'):
+        if f.endswith('_recommendation.json'):
+            file_date_str = f.split('_')[0]
+            try:
+                file_date = datetime.strptime(file_date_str, "%Y-%m-%d")
+                if start_date <= file_date < end_date: 
+                    history_files.append(f)
+            except: pass
+    
+    aggregated_stocks = []
+    for file in history_files:
+        with open(f"history/{file}", 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            rec_date = file.split('_')[0]
+            for stock in data.get('stocks', []):
+                stock['buyPrice'] = stock['currentPrice'] 
+                stock['recommendDate'] = rec_date
+                aggregated_stocks.append(stock)
+
+    final_results = []
+    for i, item in enumerate(aggregated_stocks):
+        ticker = item['id']
+        buy_price = item['buyPrice']
+        try:
+            stock_info = yf.Ticker(ticker)
+            todays_data = stock_info.history(period="5d")
+            if len(todays_data) > 0:
+                current_price = float(todays_data['Close'].iloc[-1])
+                return_rate = ((current_price - buy_price) / buy_price) * 100
+                item['currentPrice'] = round(current_price, 2)
+                item['returnRate'] = round(return_rate, 2)
+                final_results.append(item)
+        except Exception as e: pass 
+
+    final_results.sort(key=lambda x: x['returnRate'], reverse=True)
+    top_performers = final_results[:10]
+    for i, item in enumerate(top_performers): item['rank'] = i + 1
+        
+    ms = analyze_market_condition()
+    out = {
+        "market_status": ms, "stocks": top_performers, "dominant_sectors": [], 
+        "timestamp": f"{today_str} 08:00:00 (Weekly Report)"
+    }
+    
+    with open(f"history/{today_str}_recommendation.json", 'w', encoding='utf-8') as f:
+        json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
+        
+    print(f"\n✅ 주간 종합 리포트 생성 완료! (상위 {len(top_performers)}개 저장)")
+
+# --- [7] 주간 수익률 결산 알림 (토요일 5PM) ---
 def send_weekly_summary_notification():
     print(f"\n📢 [Weekly Summary] 주간 수익률 결산 알림 전송 시작...")
     
-    # [수정] 최근 14일간 (2주) 파일 수집
+    # 최근 14일간 (2주) 파일 수집
     history_files = []
     today = datetime.now()
     start_date = today - timedelta(days=14) 
@@ -368,8 +429,9 @@ def send_weekly_summary_notification():
     print("🇰🇷 한국 주간 수익률 계산 중...")
     kr_avg = calculate_top_avg(kr_stocks)
 
-    title = "📊 주간 수익률 결산"
-    body = f"지난 2주간 추천 종목 성과입니다.\n🇰🇷 한국 Top10 평균: {kr_avg:+.2f}%\n🇺🇸 미국 Top10 평균: {us_avg:+.2f}%"
+    # [수정] 구체적인 수익률 수치 제거하고 안내 메시지로 변경
+    title = "📊 주간 수익률 결산 도착"
+    body = "지난 2주간의 추천 종목 성과 분석이 완료되었습니다.\n지금 앱에서 한국/미국 Top 10 수익률을 확인해보세요!"
     
     send_push_notification(title, body)
 
@@ -480,6 +542,10 @@ def main():
 
         if noti_body:
             send_push_notification(noti_title, noti_body)
+    
+    elif args.mode == 'weekly':
+        generate_weekly_report(today_str)
+        update_history_index()
     
     elif args.mode == 'weekly_summary':
         # [신규] 토요일 오후 5시 결산 알림

@@ -2,29 +2,31 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. 한국 시간 아침 08:00 (UTC 전날 23:00) -> 미국장 마감
-    - cron: '0 23 * * 0-4'
-
-    # 2. 한국 시간 저녁 18:00 (UTC 당일 09:00) -> 한국장 마감
+    # 1. 한국 시간 평일 저녁 18:00 (UTC 09:00) -> 한국장 마감 -> 한국(KR) 분석
+    # 월~금요일
     - cron: '0 9 * * 1-5'
-    
-    # 3. 한국 시간 토요일 아침 08:00 (UTC 금요일 23:00) -> 주간 리포트
-    - cron: '0 23 * * 5'
 
-  # 👇 [핵심] 수동 실행 시 메뉴 선택 기능 추가
-  workflow_dispatch:
+    # 2. 한국 시간 평일+토 아침 08:00 (UTC 전날 23:00) -> 미국장 마감 -> 미국(US) 분석
+    # 월~금요일 (UTC 기준으로는 화~토 아침에 해당)
+    # 수정: 미국장은 월~금 열리므로, 한국시간 화~토 아침에 데이터를 가져와야 함.
+    - cron: '0 23 * * 1-5'
+    
+    # 3. 한국 시간 토요일 오후 17:00 (UTC 토요일 08:00) -> 주간 수익률 결산 알림
+    - cron: '0 8 * * 6'
+
+  workflow_dispatch: 
     inputs:
       mode:
-        description: '실행 모드 (daily: 평일분석 / weekly: 주간리포트)'
+        description: '실행 모드'
         required: true
         default: 'auto'
         type: choice
         options:
         - auto
         - daily
-        - weekly
+        - weekly_summary
       target:
-        description: '분석 시장 (daily 모드일 때만 적용)'
+        description: '분석 시장'
         required: false
         default: 'ALL'
         type: choice
@@ -55,36 +57,39 @@ jobs:
 
       - name: Run Scan Logic
         run: |
-          # 1. 입력값 받기 (없으면 빈 문자열)
           MODE="${{ inputs.mode }}"
           TARGET="${{ inputs.target }}"
           
-          # 2. 'auto' 이거나 스케줄 실행인 경우 -> 시간 기반 자동 결정
           if [ -z "$MODE" ] || [ "$MODE" == "auto" ]; then
             HOUR=$(date +%H)
             DOW=$(date +%u)
             
-            # 금요일 23시(한국 토요일 아침) -> Weekly
-            if [ "$DOW" -eq 5 ] && [ "$HOUR" -eq 23 ]; then
-              MODE="weekly"
-            # 평일 23시(한국 평일 아침) -> Daily US
+            # 토요일(6) 08시(UTC) -> 한국 토요일 17시 -> 수익률 결산 알림
+            if [ "$DOW" -eq 6 ] && [ "$HOUR" -eq 08 ]; then
+              MODE="weekly_summary"
+              
+            # 평일 23시(UTC) -> 한국 평일/토 아침 -> 미국장 분석
             elif [ "$HOUR" -eq 23 ]; then
               MODE="daily"
               TARGET="US"
-            # 평일 09시(한국 평일 저녁) -> Daily KR
-            else
+              
+            # 평일 09시(UTC) -> 한국 평일 저녁 -> 한국장 분석
+            elif [ "$HOUR" -eq 09 ]; then
               MODE="daily"
               TARGET="KR"
+            
+            # 그 외 시간 (수동 실행 등)
+            else
+              MODE="daily"
+              TARGET="ALL"
             fi
           fi
           
           echo "🚀 실행 모드: $MODE / 타겟: $TARGET"
           
-          # 3. 파이썬 스크립트 실행
-          if [ "$MODE" == "weekly" ]; then
-            python daily_stock_scanner.py --mode weekly
+          if [ "$MODE" == "weekly_summary" ]; then
+            python daily_stock_scanner.py --mode weekly_summary
           else
-            # TARGET이 비어있으면 ALL로 설정
             if [ -z "$TARGET" ]; then TARGET="ALL"; fi
             python daily_stock_scanner.py --mode daily --target $TARGET
           fi

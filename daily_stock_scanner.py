@@ -242,6 +242,7 @@ def analyze_stock(ticker, market_type, target_date=None):
         try: hist = stock.history(period="2y")
         except: return None
         
+        # [수정] 과거 시점 분석을 위한 데이터 슬라이싱
         if target_date:
             target_dt = datetime.strptime(target_date, "%Y-%m-%d")
             hist.index = hist.index.tz_localize(None)
@@ -368,27 +369,57 @@ def generate_weekly_report(target_date_str):
     print(f"🔎 총 {len(aggregated_stocks)}개의 과거 추천 내역 수익률 계산 중...")
 
     final_results = []
+    # [수정] 10개마다 1초 딜레이 추가하여 API 과부하 방지
     for i, item in enumerate(aggregated_stocks):
+        if i % 10 == 0: time.sleep(1)
+        
         ticker = item['id']
         buy_price = item['buyPrice']
         try:
             stock_info = yf.Ticker(ticker)
             target_dt = datetime.strptime(target_date_str, "%Y-%m-%d")
-            hist = stock_info.history(period="3mo")
+            
+            # [수정] 데이터 조회 기간 6개월로 확대 (끊김 방지)
+            hist = stock_info.history(period="6mo")
+            
+            if hist.empty:
+                print(f"⚠️ {ticker}: 데이터 없음 (Skipping)")
+                continue
+
             hist.index = hist.index.tz_localize(None)
             hist_until_target = hist[hist.index <= target_dt]
             
-            if len(hist_until_target) > 0:
+            if not hist_until_target.empty:
                 current_price = float(hist_until_target['Close'].iloc[-1])
                 return_rate = ((current_price - buy_price) / buy_price) * 100
-                item['currentPrice'] = round(current_price, 2)
-                item['returnRate'] = round(return_rate, 2)
-                final_results.append(item)
-        except Exception as e: pass 
+                
+                # 아이템 복사 후 값 업데이트
+                new_item = item.copy()
+                new_item['currentPrice'] = round(current_price, 2)
+                new_item['returnRate'] = round(return_rate, 2)
+                final_results.append(new_item)
+            else:
+                print(f"⚠️ {ticker}: {target_date_str} 시점 이전 데이터 없음")
 
-    final_results.sort(key=lambda x: x['returnRate'], reverse=True)
-    top_performers = final_results[:10]
-    for i, item in enumerate(top_performers): item['rank'] = i + 1
+        except Exception as e: 
+            print(f"❌ {ticker} 수익률 계산 에러: {e}")
+            pass 
+
+    # [수정] 한국/미국 각각 Top 10 선정 후 합치기
+    us_results = [s for s in final_results if s['market'] == 'US']
+    kr_results = [s for s in final_results if s['market'] == 'KR']
+
+    us_results.sort(key=lambda x: x['returnRate'], reverse=True)
+    kr_results.sort(key=lambda x: x['returnRate'], reverse=True)
+
+    us_top10 = us_results[:10]
+    kr_top10 = kr_results[:10]
+
+    # 랭킹 부여 (각 시장별로 1~10위)
+    for i, item in enumerate(us_top10): item['rank'] = i + 1
+    for i, item in enumerate(kr_top10): item['rank'] = i + 1
+
+    top_performers = us_top10 + kr_top10
         
     ms = analyze_market_condition(target_date=target_date_str)
     out = {
@@ -402,7 +433,7 @@ def generate_weekly_report(target_date_str):
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
         
-    print(f"\n✅ 주간 종합 리포트 생성 완료: {output_path}")
+    print(f"\n✅ 주간 종합 리포트 생성 완료: {output_path} (총 {len(top_performers)}개)")
 
 # --- [7] 주간 수익률 결산 알림 (토요일 5PM) ---
 def send_weekly_summary_notification():
@@ -477,6 +508,7 @@ def run_backfill(start_date, end_date):
         target_str = current_dt.strftime("%Y-%m-%d")
         print(f"\n📅 [Backfill] 처리 중: {target_str}")
         
+        # 1. 데일리 스캔
         ms = analyze_market_condition(target_date=target_str)
         final_stocks = []
         
@@ -632,6 +664,11 @@ def main():
             run_backfill(args.start, args.end)
         else:
             print("⚠️ Backfill mode requires --start and --end arguments (YYYY-MM-DD)")
+
+    # [추가] 인덱스 파일만 강제 업데이트하는 모드
+    elif args.mode == 'update_index':
+        update_history_index()
+        print("✅ history_index.json 파일이 갱신되었습니다.")
 
     print(f"\n✅ 완료되었습니다.")
 

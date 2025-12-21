@@ -196,8 +196,7 @@
                     .then(res => res.json())
                     .then(data => {
                         const allStocks = data.stocks || [];
-                        // [수정] 다시 Top 3개만 보여주도록 변경 (Top 10 -> Top 3)
-                        const sorted = allStocks.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3);
+                        const sorted = allStocks.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10); // Top 10
                         setTopStocks(sorted);
                         
                         if (data.timestamp) {
@@ -212,8 +211,11 @@
             const googlePlayUrl = "https://play.google.com/store/apps/details?id=com.ajazara.dailypick10"; 
 
             const openTerms = (type) => {
-                if (type === 'terms') setModalContent({ title: '이용약관', content: TERMS_CONTENT });
-                else setModalContent({ title: '개인정보 처리방침', content: PRIVACY_CONTENT });
+                if (type === 'terms') {
+                    setModalContent({ title: '이용약관', content: TERMS_CONTENT });
+                } else {
+                    setModalContent({ title: '개인정보 처리방침', content: PRIVACY_CONTENT });
+                }
                 setModalOpen(true);
             };
 
@@ -249,9 +251,8 @@
                         </div>
                     </header>
 
-                    {/* Preview Section (Top 3 Only) */}
+                    {/* Preview Section (Top 10 Full List) */}
                     <section id="preview" className="w-full max-w-md px-4 mb-24 relative z-10">
-                        {/* Background Glow */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/10 blur-[100px] -z-10 rounded-full"></div>
                         
                         <div className="glass-panel rounded-3xl p-2 shadow-2xl border border-white/10 bg-gray-800/50">
@@ -260,19 +261,18 @@
                                     <div>
                                         <h3 className="font-bold text-gray-100 flex items-center gap-2 text-lg">
                                             <span className="bg-yellow-500/20 text-yellow-500 p-1 rounded-lg"><Icon name="bolt" size={18} /></span> 
-                                            {/* [수정] 텍스트 변경: Top 10 -> Top 3 */}
-                                            오늘의 추천 Top 3
+                                            오늘의 추천 Top {topStocks.length}
                                         </h3>
                                         <p className="text-xs text-gray-500 mt-1 pl-1">AI 알고리즘 분석 결과 ({dataDate})</p>
                                     </div>
                                 </div>
                                 
                                 {topStocks.length > 0 ? (
-                                    <div className="space-y-3">
+                                    <div className="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                                         {topStocks.map((stock, idx) => (
                                             <div key={idx} className="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex justify-between items-center hover:bg-gray-750 transition-colors">
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${idx===0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black' : 'bg-gray-700 text-gray-300'}`}>
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${idx < 3 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black' : 'bg-gray-700 text-gray-300'}`}>
                                                         {idx + 1}
                                                     </div>
                                                     <div>
@@ -293,10 +293,9 @@
                                             </div>
                                         ))}
                                         
-                                        {/* [수정] 더 보기 버튼 텍스트 변경 */}
                                         <div className="pt-4 pb-2 text-center">
                                             <a href={googlePlayUrl} target="_blank" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                                                <span>+ 나머지 추천 종목 앱에서 확인하기</span>
+                                                <span>앱에서 상세 분석 보기</span>
                                                 <Icon name="arrowRight" size={14} />
                                             </a>
                                         </div>
@@ -311,57 +310,31 @@
                         </div>
                     </section>
                     
-                    {/* [New] 성과 리포트 예시 섹션 */}
+                    {/* Features Section (복구됨) */}
+                    <section id="features" className="w-full bg-gray-900 py-16 px-6 border-t border-slate-800">
+                        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
+                                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="chart" size={32} /></div>
+                                <h3 className="text-xl font-bold mb-3 text-white">기술적 분석 자동화</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">RSI 과매도, 볼린저밴드 하단 등 검증된 지표를 AI가 매일매일 자동으로 분석합니다.</p>
+                            </div>
+                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
+                                <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="check" size={32} /></div>
+                                <h3 className="text-xl font-bold mb-3 text-white">투명한 성과 공개</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">과거에 추천했던 종목들이 2주 뒤 실제로 얼마나 올랐는지 수익률을 숨김없이 공개합니다.</p>
+                            </div>
+                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
+                                <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="bolt" size={32} /></div>
+                                <h3 className="text-xl font-bold mb-3 text-white">놓치지 않는 타이밍</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">미국장은 아침 8시, 한국장은 저녁 6시. 장 마감 직후 분석 완료 알림을 보내드립니다.</p>
+                            </div>
+                        </div>
+                    </section>
+                    
                     <PerformancePreview />
 
-                    <section id="how-it-works" className="w-full py-24 px-6 bg-slate-900/50 border-t border-slate-800">
-                        <div className="max-w-5xl mx-auto">
-                            <div className="text-center mb-16">
-                                <h2 className="text-3xl font-bold text-white mb-4">어떻게 수익을 내나요?</h2>
-                                <p className="text-gray-400">복잡한 과정 없이, 딱 3단계로 끝나는 스마트한 투자</p>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                                <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 -z-10"></div>
-                                <div className="flex flex-col items-center text-center group">
-                                    <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                        <Icon name="chart" size={40} className="text-blue-400" />
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-3 text-gray-100">1. AI 시장 분석</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed">장 마감 후 AI가 전체 종목의 RSI, 거래량, 수급을 분석하여 상승 시그널을 포착합니다.</p>
-                                </div>
-                                <div className="flex flex-col items-center text-center group">
-                                    <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                        <Icon name="bolt" size={40} className="text-yellow-400" />
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-3 text-gray-100">2. Top 10 알림</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed">가장 상승 확률이 높은 10개 종목을 엄선해 매일 아침/저녁 푸시 알림으로 배달해 드립니다.</p>
-                                </div>
-                                <div className="flex flex-col items-center text-center group">
-                                    <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                        <Icon name="check" size={40} className="text-green-400" />
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-3 text-gray-100">3. 수익 실현</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed">제시된 매수가/목표가를 참고해 투자하고, 2주 뒤 투명하게 공개되는 성과 리포트로 검증하세요.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="faq" className="w-full py-24 px-6 border-t border-slate-800">
-                        <div className="max-w-3xl mx-auto">
-                            <h2 className="text-3xl font-bold text-center mb-12 text-white">자주 묻는 질문</h2>
-                            <div className="space-y-4">
-                                <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                                    <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 정말 무료인가요?</h3>
-                                    <p className="text-gray-400 leading-relaxed">네, 앱 다운로드와 오늘의 추천 종목 확인은 모두 무료입니다. 서버 운영을 위해 일부 광고가 포함되어 있습니다.</p>
-                                </div>
-                                <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                                    <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 미국 주식도 추천해주나요?</h3>
-                                    <p className="text-gray-400 leading-relaxed">물론입니다. 한국 주식(코스피/코스닥)뿐만 아니라 미국 주식(S&P500, 나스닥) 추천 종목도 매일 아침 8시에 제공됩니다.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    <HowItWorks />
+                    <FAQ />
 
                     <footer className="w-full py-12 text-center text-gray-500 text-sm bg-gray-900 border-t border-gray-800">
                         <div className="flex items-center justify-center gap-2 mb-4 opacity-70">

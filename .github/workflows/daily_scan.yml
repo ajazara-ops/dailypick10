@@ -2,16 +2,14 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. 한국 시간 평일 저녁 18:00 (UTC 09:00) -> 한국장 마감 -> 한국(KR) 분석
-    # 월~금요일
+    # 1. [한국 주식] 월~금 저녁 18:00 KST (UTC 09:00)
     - cron: '0 9 * * 1-5'
 
-    # 2. 한국 시간 평일+토 아침 08:00 (UTC 전날 23:00) -> 미국장 마감 -> 미국(US) 분석
-    # 월~금요일 (UTC 기준으로는 화~토 아침에 해당)
-    # 수정: 미국장은 월~금 열리므로, 한국시간 화~토 아침에 데이터를 가져와야 함.
+    # 2. [미국 주식] 화~토 아침 08:00 KST (UTC 23:00)
+    # (미국장은 월~금 열리므로, 한국시간으로는 화~토 아침에 데이터가 나옵니다)
     - cron: '0 23 * * 1-5'
     
-    # 3. 한국 시간 토요일 오후 17:00 (UTC 토요일 08:00) -> 주간 수익률 결산 알림
+    # 3. [주간 결산] 토요일 오후 17:00 KST (UTC 08:00)
     - cron: '0 8 * * 6'
 
   workflow_dispatch: 
@@ -24,6 +22,7 @@ on:
         options:
         - auto
         - daily
+        - weekly
         - weekly_summary
       target:
         description: '분석 시장'
@@ -60,25 +59,26 @@ jobs:
           MODE="${{ inputs.mode }}"
           TARGET="${{ inputs.target }}"
           
+          # 자동 모드('auto')이거나 스케줄 실행인 경우 시간으로 판단
           if [ -z "$MODE" ] || [ "$MODE" == "auto" ]; then
             HOUR=$(date +%H)
             DOW=$(date +%u)
             
-            # 토요일(6) 08시(UTC) -> 한국 토요일 17시 -> 수익률 결산 알림
+            # 1. 토요일(6) 08시(UTC) -> 한국 토요일 17시 -> 주간 결산 알림
             if [ "$DOW" -eq 6 ] && [ "$HOUR" -eq 08 ]; then
               MODE="weekly_summary"
               
-            # 평일 23시(UTC) -> 한국 평일/토 아침 -> 미국장 분석
+            # 2. 23시(UTC) -> 한국 아침 08시 -> 미국 주식(US) 분석
             elif [ "$HOUR" -eq 23 ]; then
               MODE="daily"
               TARGET="US"
               
-            # 평일 09시(UTC) -> 한국 평일 저녁 -> 한국장 분석
+            # 3. 09시(UTC) -> 한국 저녁 18시 -> 한국 주식(KR) 분석
             elif [ "$HOUR" -eq 09 ]; then
               MODE="daily"
               TARGET="KR"
             
-            # 그 외 시간 (수동 실행 등)
+            # 그 외 시간
             else
               MODE="daily"
               TARGET="ALL"
@@ -87,7 +87,9 @@ jobs:
           
           echo "🚀 실행 모드: $MODE / 타겟: $TARGET"
           
-          if [ "$MODE" == "weekly_summary" ]; then
+          if [ "$MODE" == "weekly" ]; then
+            python daily_stock_scanner.py --mode weekly
+          elif [ "$MODE" == "weekly_summary" ]; then
             python daily_stock_scanner.py --mode weekly_summary
           else
             if [ -z "$TARGET" ]; then TARGET="ALL"; fi
@@ -100,7 +102,7 @@ jobs:
           git config --global user.email "action@github.com"
           
           git add todays_recommendation.json
-          git add history/*.json history_index.json || true
+          git add daily_data/*.json weekly_reports/*.json history_index.json || true
           
           git commit -m "Update Stock Data ($MODE mode)" || echo "No changes to commit"
           git push

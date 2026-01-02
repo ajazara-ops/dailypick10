@@ -311,6 +311,11 @@ def analyze_stock(ticker, market_type, target_date=None):
                 per = kr_fund['per']
                 pbr = kr_fund['pbr']
         
+        # [수정] 국가별 필터링 분리
+        # 1. 한국 주식(KR): 영업이익률 적자(0 미만)면 무조건 탈락 (보수적)
+        if market_type == 'KR' and op_margin is not None and op_margin < 0: return None
+        
+        # 2. 미국 주식(US): 성장주 고려하여 -0.5 (심각한 적자) 미만일 때만 탈락
         if market_type == 'US' and op_margin is not None and op_margin < -0.5: return None
         
         close = hist['Close']; volume = hist['Volume']; high = hist['High']; low = hist['Low']
@@ -376,9 +381,9 @@ def analyze_stock(ticker, market_type, target_date=None):
             "targetPrice": safe_float(round(cur_p * 1.1, 2), price_val), "aiReason": " + ".join(reasons),
             "score": int(score), "rsi": safe_float(round(cur_rsi, 2)), "history": hist_data, "news": [],
             "financials": {
-                "op_margin": op_margin, 
-                "rev_growth": rev_growth, 
-                "per": per
+                "op_margin": safe_float(op_margin), 
+                "rev_growth": safe_float(rev_growth), 
+                "per": safe_float(per)
             },
             "sector": sector, "rvol": safe_float(round(rvol, 2))
         }
@@ -486,8 +491,7 @@ def generate_weekly_report(target_date_str):
 def send_weekly_summary_notification():
     print(f"\n📢 [Weekly Summary] 주간 수익률 결산 알림 전송 시작...")
     
-    # [수정] 한국 시간 기준 오늘 날짜 가져오기
-    today_str = (datetime.utcnow() + timedelta(hours=9)).strftime("%Y-%m-%d")
+    today_str = time.strftime("%Y-%m-%d")
     report_file_path = f"{WEEKLY_REPORT_DIR}/{today_str}_weekly.json"
     
     if not os.path.exists(report_file_path):
@@ -556,6 +560,7 @@ def run_backfill(start_date, end_date):
         target_str = current_dt.strftime("%Y-%m-%d")
         print(f"\n📅 [Backfill] 처리 중: {target_str}")
         
+        # 1. 데일리 스캔
         ms = analyze_market_condition(target_date=target_str)
         final_stocks = []
         
@@ -625,6 +630,7 @@ def main():
                 existing_stocks = json.load(f).get('stocks', [])
         except: pass
 
+        # [수정] 지수 분석 시에도 기준 날짜를 적용하여 정확도 향상
         ms = analyze_market_condition(target_date=today_str)
         final_stocks = []
         

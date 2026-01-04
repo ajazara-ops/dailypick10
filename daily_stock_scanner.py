@@ -311,7 +311,11 @@ def analyze_stock(ticker, market_type, target_date=None):
                 per = kr_fund['per']
                 pbr = kr_fund['pbr']
         
-        if market_type == 'KR' and op_margin is not None and op_margin < 0: return None
+        # [수정] 강력 필터링 적용 (적자 기업 제외)
+        # 영업이익률이 0 미만이면 아예 탈락
+        if op_margin is not None and op_margin < 0: return None
+        
+        # 미국 주식은 좀 더 엄격하게 -0.5 미만만 제외했던 것을 0 미만으로 통일해도 좋음
         if market_type == 'US' and op_margin is not None and op_margin < -0.5: return None
         
         close = hist['Close']; volume = hist['Volume']; high = hist['High']; low = hist['Low']
@@ -333,6 +337,7 @@ def analyze_stock(ticker, market_type, target_date=None):
         
         score = 0; reasons = [] 
         
+        # Technical Score
         if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
         elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
@@ -345,6 +350,7 @@ def analyze_stock(ticker, market_type, target_date=None):
         if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
         if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
 
+        # Fundamental Score
         if market_type == 'US':
             if op_margin and op_margin > 0.15: score += 10; reasons.append("이익률 우수")
             if rev_growth and rev_growth > 0.10: score += 10; reasons.append("고성장주")

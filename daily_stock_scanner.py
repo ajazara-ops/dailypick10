@@ -311,11 +311,7 @@ def analyze_stock(ticker, market_type, target_date=None):
                 per = kr_fund['per']
                 pbr = kr_fund['pbr']
         
-        # [수정] 강력 필터링 적용 (적자 기업 제외)
-        # 영업이익률이 0 미만이면 아예 탈락
-        if op_margin is not None and op_margin < 0: return None
-        
-        # 미국 주식은 좀 더 엄격하게 -0.5 미만만 제외했던 것을 0 미만으로 통일해도 좋음
+        if market_type == 'KR' and op_margin is not None and op_margin < 0: return None
         if market_type == 'US' and op_margin is not None and op_margin < -0.5: return None
         
         close = hist['Close']; volume = hist['Volume']; high = hist['High']; low = hist['Low']
@@ -337,7 +333,6 @@ def analyze_stock(ticker, market_type, target_date=None):
         
         score = 0; reasons = [] 
         
-        # Technical Score
         if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
         elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
@@ -350,7 +345,6 @@ def analyze_stock(ticker, market_type, target_date=None):
         if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
         if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
 
-        # Fundamental Score
         if market_type == 'US':
             if op_margin and op_margin > 0.15: score += 10; reasons.append("이익률 우수")
             if rev_growth and rev_growth > 0.10: score += 10; reasons.append("고성장주")
@@ -403,7 +397,8 @@ def generate_weekly_report(target_date_str):
     if not os.path.exists(WEEKLY_REPORT_DIR):
         os.makedirs(WEEKLY_REPORT_DIR)
 
-    for f in os.listdir(DAILY_DATA_DIR):
+    # daily_files 수집 (날짜순 정렬)
+    for f in sorted(os.listdir(DAILY_DATA_DIR)):
         if f.endswith('_daily.json'):
             file_date_str = f.split('_')[0]
             try:
@@ -414,17 +409,23 @@ def generate_weekly_report(target_date_str):
             
     print(f"📂 분석 대상 데일리 파일: {len(daily_files)}개")
     
-    aggregated_stocks = []
+    # [수정] 중복 제거 로직 추가 (딕셔너리 사용)
+    stocks_dict = {} # { "종목코드": 종목데이터 }
+
     for file in daily_files:
         with open(f"{DAILY_DATA_DIR}/{file}", 'r', encoding='utf-8') as f:
             data = json.load(f)
             rec_date = file.split('_')[0]
             for stock in data.get('stocks', []):
-                stock['buyPrice'] = stock['currentPrice'] 
-                stock['recommendDate'] = rec_date
-                aggregated_stocks.append(stock)
+                sid = stock['id']
+                # 최초 추천 시점의 가격을 유지하기 위해, 이미 있으면 건너뜀
+                if sid not in stocks_dict:
+                    stock['buyPrice'] = stock['currentPrice'] 
+                    stock['recommendDate'] = rec_date
+                    stocks_dict[sid] = stock
 
-    print(f"🔎 총 {len(aggregated_stocks)}개의 과거 추천 내역 수익률 계산 중...")
+    aggregated_stocks = list(stocks_dict.values())
+    print(f"🔎 총 {len(aggregated_stocks)}개의 유니크 종목 수익률 계산 중...")
 
     final_results = []
     for i, item in enumerate(aggregated_stocks):
@@ -594,8 +595,7 @@ def run_backfill(start_date, end_date):
         }
         
         filename = f"{DAILY_DATA_DIR}/{target_str}_daily.json"
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
+        with open(filename, 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
         print(f"💾 Saved: {filename}")
         
         current_dt += timedelta(days=1)

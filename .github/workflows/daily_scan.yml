@@ -2,14 +2,16 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. [한국] 18:00 KST -> UTC 09:00 인데, 혼잡을 피해 30분 늦춤 (UTC 09:30)
+    # 1. [한국 주식] 월~금 저녁 18:30 KST (UTC 09:30)
+    # (서버 혼잡을 피해 30분 늦춤)
     - cron: '30 9 * * 1-5'
 
-    # 2. [미국] 08:00 KST -> UTC 23:00 인데, 15분 늦춤 (UTC 23:15)
+    # 2. [미국 주식] 화~토 아침 08:15 KST (UTC 23:15)
+    # (서버 혼잡을 피해 15분 늦춤)
     - cron: '15 23 * * 1-5'
     
-    # 3. [주간] 17:00 KST -> UTC 08:00 인데, 45분 늦춤 (UTC 08:45)
-    - cron: '45 8 * * 6'
+    # 3. [주간 결산] 토요일 오후 17:00 KST (UTC 08:00)
+    - cron: '0 8 * * 6'
 
   workflow_dispatch: 
     inputs:
@@ -46,7 +48,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' # [수정] 3.9 -> 3.11로 버전 업그레이드 (필수!)
+          python-version: '3.11' # 3.11 버전 유지
 
       - name: Install dependencies
         run: |
@@ -63,28 +65,32 @@ jobs:
             HOUR=$(date +%H)
             DOW=$(date +%u)
             
-            # 1. 토요일(6) 08시(UTC) -> 한국 토요일 17시 -> 주간 결산 알림
-            if [ "$DOW" -eq 6 ] && [ "$HOUR" -eq 08 ]; then
+            # 1. 토요일(6) 08시~10시(UTC) -> 한국 토요일 17시~19시 -> 주간 결산 알림
+            # (지연 실행 고려하여 범위로 체크)
+            if [ "$DOW" -eq 6 ] && [ "$HOUR" -ge 8 ] && [ "$HOUR" -le 10 ]; then
               MODE="weekly_summary"
               
-            # 2. 23시(UTC) -> 한국 아침 08시 -> 미국 주식(US) 분석
-            elif [ "$HOUR" -eq 23 ]; then
+            # 2. 22시~01시(UTC) -> 한국 아침 07시~10시 -> 미국 주식(US) 분석
+            # (전날 22시 ~ 당일 01시 사이)
+            elif [ "$HOUR" -ge 22 ] || [ "$HOUR" -le 1 ]; then
               MODE="daily"
               TARGET="US"
               
-            # 3. 09시(UTC) -> 한국 저녁 18시 -> 한국 주식(KR) 분석
-            elif [ "$HOUR" -eq 09 ]; then
+            # 3. 09시~12시(UTC) -> 한국 저녁 18시~21시 -> 한국 주식(KR) 분석
+            # (지연 실행 고려하여 3시간 범위)
+            elif [ "$HOUR" -ge 9 ] && [ "$HOUR" -le 12 ]; then
               MODE="daily"
               TARGET="KR"
             
-            # 그 외 시간
+            # 그 외 시간 (혹시나 범위를 벗어난 지연 발생 시 안전하게 ALL)
             else
+              echo "⚠️ 실행 시간이 예상 범위를 벗어났습니다. ($HOUR 시). 기본값(ALL)으로 실행합니다."
               MODE="daily"
               TARGET="ALL"
             fi
           fi
           
-          echo "🚀 실행 모드: $MODE / 타겟: $TARGET"
+          echo "🚀 실행 모드: $MODE / 타겟: $TARGET (현재시간 UTC: $(date))"
           
           if [ "$MODE" == "weekly" ]; then
             python daily_stock_scanner.py --mode weekly

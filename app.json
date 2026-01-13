@@ -2,7 +2,7 @@
   "expo": {
     "name": "DailyPick10",
     "slug": "dailypick10",
-    "version": "1.0.5",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "dailypick10",
@@ -15,7 +15,7 @@
     "android": {
       "package": "com.ajazara.dailypick10",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 23, 
+      "versionCode": 24,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -54,7 +54,6 @@
         {
           "android": {
             "usesCleartextTraffic": true,
-            "kotlinVersion": "1.9.23",
             "gradleProperties": {
                 "org.gradle.jvmargs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m"
             }

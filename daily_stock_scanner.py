@@ -29,9 +29,37 @@ def safe_float(val, default=0.0):
         return f
     except: return default
 
-# --- [알림 전송 함수 (수정됨: 개별 전송 방식)] ---
+# --- [Git 강제 업로드 함수] ---
+def git_push_updates(mode_name):
+    """
+    데이터가 생성되자마자 알림보다 먼저 서버에 반영되도록 강제로 Push합니다.
+    """
+    try:
+        print(f"\n⬆️ [Git] 데이터 강제 업로드 시도 ({mode_name})...")
+        os.system("git config --global user.name 'GitHub Action'")
+        os.system("git config --global user.email 'action@github.com'")
+        os.system("git add todays_recommendation.json")
+        os.system(f"git add {DAILY_DATA_DIR}/*.json")
+        os.system(f"git add {WEEKLY_REPORT_DIR}/*.json")
+        os.system("git add history_index.json")
+        
+        # 커밋 및 푸시 (에러 무시)
+        os.system(f"git commit -m 'Auto-update stock data ({mode_name})' || echo 'No changes to commit'")
+        push_result = os.system("git push")
+        
+        if push_result == 0:
+            print("✅ [Git] 업로드 성공! 이제 알림을 보냅니다.")
+            # GitHub Pages 반영을 위해 잠시 대기 (약 15초)
+            print("⏳ 서버 반영 대기 중 (15초)...")
+            time.sleep(15)
+        else:
+            print("⚠️ [Git] 업로드 중 경고 발생 (이미 최신 상태일 수 있음)")
+            
+    except Exception as e:
+        print(f"❌ [Git] 업로드 실패: {e}")
+
+# --- [알림 전송 함수] ---
 def send_push_notification(title, message):
-    # ✅ 사용자님의 푸시 토큰 (최신 배포 버전 토큰으로 업데이트됨)
     user_push_tokens = ["ExponentPushToken[hiUjiJITCNaVruAohWwGtG]"] 
 
     if not user_push_tokens:
@@ -48,7 +76,6 @@ def send_push_notification(title, message):
 
     print(f"📨 알림 전송 시작: '{title}' (대상: {len(user_push_tokens)}명)")
     
-    # 안정성을 위해 한 명씩 개별 전송
     for token in user_push_tokens:
         if not token.startswith("ExponentPushToken"):
             print(f"  ❌ 잘못된 토큰 형식 건너뜀: {token}")
@@ -60,7 +87,7 @@ def send_push_notification(title, message):
             "body": message,
             "sound": "default",
             "priority": "high",
-            "channelId": "default", # 안드로이드 알림 채널 ID 명시
+            "channelId": "default", 
             "badge": 1,
             "_displayInForeground": True
         }
@@ -352,7 +379,6 @@ def analyze_stock(ticker, market_type, target_date=None):
         
         score = 0; reasons = [] 
         
-        # Technical Score
         if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
         elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
@@ -365,7 +391,6 @@ def analyze_stock(ticker, market_type, target_date=None):
         if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
         if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
 
-        # Fundamental Score
         if market_type == 'US':
             if op_margin and op_margin > 0.15: score += 10; reasons.append("이익률 우수")
             if rev_growth and rev_growth > 0.10: score += 10; reasons.append("고성장주")
@@ -418,7 +443,6 @@ def generate_weekly_report(target_date_str):
     if not os.path.exists(WEEKLY_REPORT_DIR):
         os.makedirs(WEEKLY_REPORT_DIR)
 
-    # daily_files 수집 (날짜순 정렬)
     for f in sorted(os.listdir(DAILY_DATA_DIR)):
         if f.endswith('_daily.json'):
             file_date_str = f.split('_')[0]
@@ -502,6 +526,9 @@ def send_weekly_summary_notification():
 
     title = "📊 주간 수익률 결산 도착"
     body = "지난 2주간의 추천 종목 성과 분석이 완료되었습니다.\n지금 앱에서 한국/미국 Top 10 수익률을 확인해보세요!"
+    
+    # [수정] 데이터 업로드 후 알림 전송
+    git_push_updates("weekly")
     send_push_notification(title, body)
 
 # --- [수정] 인덱스 업데이트 ---
@@ -628,8 +655,10 @@ def main():
         with open('todays_recommendation.json', 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
         with open(f"{DAILY_DATA_DIR}/{today_str}_daily.json", 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
 
-        # [수정] 무조건 전송 (date 조건 삭제)
-        send_push_notification(noti_title, noti_body)
+        # [수정] Git 업로드 먼저 수행 후 알림 발송
+        git_push_updates("daily")
+        if noti_body and args.date is None:
+            send_push_notification(noti_title, noti_body)
     
     elif args.mode == 'weekly':
         generate_weekly_report(today_str)

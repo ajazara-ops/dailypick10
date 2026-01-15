@@ -29,7 +29,7 @@ def safe_float(val, default=0.0):
         return f
     except: return default
 
-# --- [Git 강제 업로드 함수 (수정됨: 안정성 강화)] ---
+# --- [Git 강제 업로드 함수 (수정됨: 대기 시간 증가)] ---
 def git_push_updates(mode_name):
     """
     데이터가 생성되자마자 알림보다 먼저 서버에 반영되도록 강제로 Push합니다.
@@ -62,9 +62,10 @@ def git_push_updates(mode_name):
         
         if push_result == 0:
             print("✅ [Git] 업로드 성공!")
-            # GitHub Pages 반영 대기 (90초)
-            print("⏳ 서버 반영 대기 중 (90초)... 알림은 잠시 후에 발송됩니다.")
-            time.sleep(90) 
+            # [수정] GitHub Pages 반영 대기 시간 대폭 증가 (90초 -> 180초)
+            # 웹 반영이 늦어 앱 알림함에 안 뜨는 문제를 확실히 방지하기 위함
+            print("⏳ 서버 반영 대기 중 (180초)... 알림은 잠시 후에 발송됩니다.")
+            time.sleep(180) 
         else:
             print("❌ [Git] 업로드 실패 (Push Error)")
             
@@ -93,11 +94,13 @@ def send_push_notification(title, message):
         if not token.startswith("ExponentPushToken"):
             print(f"  ❌ 잘못된 토큰 형식 건너뜀: {token}")
             continue
-            
+        
+        # [수정] data 필드 추가 (앱이 알림 내용을 더 확실히 받도록 보조)
         payload = {
             "to": token,
             "title": title,
             "body": message,
+            "data": { "title": title, "message": message }, 
             "sound": "default",
             "priority": "high",
             "channelId": "default", 
@@ -673,7 +676,9 @@ def main():
 
         # [수정] Git 업로드 먼저 수행 후 알림 발송
         git_push_updates("daily")
-        if noti_body and args.date is None:
+        
+        # 조건 완화: 날짜 지정 여부와 상관없이 알림 내용이 있으면 무조건 발송
+        if noti_body: 
             send_push_notification(noti_title, noti_body)
     
     elif args.mode == 'weekly':

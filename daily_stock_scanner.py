@@ -560,7 +560,6 @@ def run_backfill(start_date, end_date):
         target_str = current_dt.strftime("%Y-%m-%d")
         print(f"\n📅 [Backfill] 처리 중: {target_str}")
         
-        # 1. 데일리 스캔
         ms = analyze_market_condition(target_date=target_str)
         final_stocks = []
         
@@ -698,10 +697,24 @@ def main():
         
         with open('todays_recommendation.json', 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
         with open(f"{DAILY_DATA_DIR}/{today_str}_daily.json", 'w', encoding='utf-8') as f: json.dump(out, f, indent=2, ensure_ascii=False, allow_nan=False)
-
-        # [수정] 무조건 전송 (date 조건 삭제)
-        send_push_notification(noti_title, noti_body)
+        
+        # [수정] daily 모드에서는 알림 보내지 않음 (나중에 notify 모드로 발송)
+        # if noti_body and args.date is None:
+        #    send_push_notification(noti_title, noti_body)
     
+    elif args.mode == 'notify':
+        # [신규] 저장된 데이터 파일에서 알림 내용만 읽어서 발송
+        try:
+            with open('todays_recommendation.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                noti = data.get('notification', {})
+                if noti.get('title') and noti.get('body'):
+                    send_push_notification(noti['title'], noti['body'])
+                else:
+                    print("🔕 저장된 알림 메시지가 없습니다.")
+        except Exception as e:
+            print(f"❌ 알림 발송 실패: {e}")
+            
     elif args.mode == 'weekly':
         generate_weekly_report(today_str)
         update_history_index()

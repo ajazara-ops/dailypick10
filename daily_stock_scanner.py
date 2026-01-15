@@ -31,11 +31,11 @@ def safe_float(val, default=0.0):
 
 # --- [알림 전송 함수] ---
 def send_push_notification(title, message):
-    # ✅ 사용자님의 푸시 토큰 (업데이트됨: zV04...)
+    # ✅ 사용자님의 푸시 토큰 (앱 설정 화면에서 확인한 것과 일치해야 함!)
     user_push_tokens = ["ExponentPushToken[zV04l8MQjkiB7sHav-xJ5D]"] 
 
     if not user_push_tokens:
-        print(f"⚠️ [알림 시뮬레이션] 전송할 토큰 없음.\n제목: {title}\n내용: {message}")
+        print(f"⚠️ [알림] 전송할 토큰이 없습니다.")
         return
 
     url = "https://exp.host/--/api/v2/push/send"
@@ -46,19 +46,50 @@ def send_push_notification(title, message):
         "content-type": "application/json"
     }
 
-    print(f"📨 알림 전송 시도: {title}")
+    print(f"📨 알림 전송 시도: {title} (수신자 {len(user_push_tokens)}명)")
+    
+    notifications = []
     for token in user_push_tokens:
-        payload = {
+        if not token.startswith("ExponentPushToken"):
+            print(f"  ❌ 잘못된 토큰 형식: {token}")
+            continue
+            
+        notifications.append({
             "to": token,
             "title": title,
             "body": message,
             "sound": "default",
-            "priority": "high"
-        }
-        try:
-            requests.post(url, headers=headers, data=json.dumps(payload))
-        except Exception as e:
-            print(f"  ❌ 전송 에러: {e}")
+            "priority": "high",
+            "channelId": "default", # [중요] 안드로이드 알림 채널 ID 명시
+            "badge": 1,
+            "_displayInForeground": True
+        })
+
+    if not notifications: return
+
+    try:
+        # 한 번에 여러 명에게 전송 가능하도록 리스트로 전송
+        response = requests.post(url, headers=headers, json=notifications)
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            # Expo 서버 응답 확인
+            data_list = res_data.get('data', [])
+            success_count = 0
+            for idx, item in enumerate(data_list):
+                status = item.get('status')
+                if status == 'ok':
+                    success_count += 1
+                else:
+                    print(f"  ❌ 전송 실패 ({user_push_tokens[idx]}): {item.get('message')} - {item.get('details')}")
+            
+            if success_count > 0:
+                print(f"  ✅ 총 {success_count}건 전송 성공!")
+        else:
+            print(f"  ❌ 서버 통신 실패: {response.status_code} - {response.text}")
+            
+    except Exception as e:
+        print(f"  ❌ 전송 중 에러 발생: {e}")
 
 # --- [어제 추천 종목 가져오기] ---
 def get_latest_recommendation_ids():

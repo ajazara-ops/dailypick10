@@ -38,7 +38,7 @@ def safe_float(val, default=0.0):
         return f
     except: return default
 
-# --- [추가] 1. 데이터가 서버에 확실히 올라가도록 돕는 함수 ---
+# --- [Git 강제 업로드 함수] ---
 def git_push_updates(mode_name):
     """
     알림을 보내기 전에 데이터를 서버(GitHub)에 먼저 올리고, 
@@ -79,6 +79,7 @@ def git_push_updates(mode_name):
 # --- [추가] 2. DB에서 모든 사용자 토큰 가져오기 ---
 def get_all_user_tokens():
     if not FIREBASE_AVAILABLE:
+        print("⚠️ [경고] firebase-admin 라이브러리 미설치. (관리자 토큰만 사용)")
         return []
     
     tokens = []
@@ -87,11 +88,20 @@ def get_all_user_tokens():
         if not firebase_admin._apps:
             # GitHub Secrets에 등록된 키 사용
             fb_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
+            
             if fb_creds_json:
-                cred = credentials.Certificate(json.loads(fb_creds_json))
-                firebase_admin.initialize_app(cred)
+                try:
+                    # JSON 문자열을 딕셔너리로 변환 후 인증
+                    cred_dict = json.loads(fb_creds_json)
+                    cred = credentials.Certificate(cred_dict)
+                    firebase_admin.initialize_app(cred)
+                    print("🔥 Firebase 인증 성공 (환경변수)")
+                except Exception as e:
+                    print(f"❌ Firebase 키 파싱 실패: {e}")
+                    return []
             else:
-                return [] # 키가 없으면 빈 목록 반환
+                print("⚠️ [경고] FIREBASE_CREDENTIALS 환경변수가 없습니다. (관리자 토큰만 사용)")
+                return [] 
         
         # 'users' 목록에서 토큰만 쏙쏙 뽑아오기
         db = firestore.client()

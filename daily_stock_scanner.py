@@ -48,10 +48,11 @@ def git_push_updates(mode_name):
         push_result = os.system("git push")
         
         if push_result == 0:
-            print("✅ [Git] 업로드 성공! 이제 알림을 보냅니다.")
-            # GitHub Pages 반영을 위해 잠시 대기 (약 15초)
-            print("⏳ 서버 반영 대기 중 (15초)...")
-            time.sleep(15)
+            print("✅ [Git] 업로드 성공!")
+            # [수정] GitHub Pages 반영 대기 시간 대폭 증가 (15초 -> 90초)
+            # 웹에 반영될 시간을 충분히 주어야 앱에서 알림함에 데이터가 뜹니다.
+            print("⏳ 서버 반영 대기 중 (90초)... 알림은 잠시 후에 발송됩니다.")
+            time.sleep(90) 
         else:
             print("⚠️ [Git] 업로드 중 경고 발생 (이미 최신 상태일 수 있음)")
             
@@ -379,6 +380,7 @@ def analyze_stock(ticker, market_type, target_date=None):
         
         score = 0; reasons = [] 
         
+        # Technical Score
         if cur_rsi < 30: score += 40; reasons.append("RSI 과매도(강력)")
         elif cur_rsi < 45: score += 20; reasons.append("단기 과매도")
         elif cur_rsi < 60: score += 5; reasons.append("눌림목 구간")
@@ -391,6 +393,7 @@ def analyze_stock(ticker, market_type, target_date=None):
         if cur_k < 20: score += 15; reasons.append("스토캐스틱 과매도")
         if not pd.isna(ma120) and cur_p >= ma120: score += 10; reasons.append("장기 상승 추세")
 
+        # Fundamental Score
         if market_type == 'US':
             if op_margin and op_margin > 0.15: score += 10; reasons.append("이익률 우수")
             if rev_growth and rev_growth > 0.10: score += 10; reasons.append("고성장주")
@@ -443,6 +446,7 @@ def generate_weekly_report(target_date_str):
     if not os.path.exists(WEEKLY_REPORT_DIR):
         os.makedirs(WEEKLY_REPORT_DIR)
 
+    # daily_files 수집 (날짜순 정렬)
     for f in sorted(os.listdir(DAILY_DATA_DIR)):
         if f.endswith('_daily.json'):
             file_date_str = f.split('_')[0]

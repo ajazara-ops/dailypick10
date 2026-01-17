@@ -407,11 +407,12 @@
                                         <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 2</span>
                                         <div>
                                             <p className="text-gray-400 text-sm mb-1">
-                                                <strong>이메일 요청:</strong> 아래 버튼을 클릭하여 가입한 이메일 주소와 함께 삭제 요청을 보내주세요.
+                                                <strong>이메일 요청:</strong> 아래 주소로 계정 삭제를 요청해주세요.
                                             </p>
-                                            <a href="mailto:dailypick10.help@gmail.com?subject=계정 삭제 요청" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-medium mt-1 transition-colors">
-                                                <Icon name="arrowRight" size={16} /> 이메일로 삭제 요청하기
-                                            </a>
+                                            {/* [수정] 이메일 주소 텍스트로 표시 (링크 X, 버튼 X) */}
+                                            <p className="text-indigo-400 font-bold mt-1 select-all">
+                                                dailypick10.help@gmail.com
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

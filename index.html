@@ -42,9 +42,6 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        
-
-        // --- 약관 내용 ---
         const { useState, useEffect } = React;
 
         // --- 수정된 약관 (전체 내용) ---
@@ -104,6 +101,7 @@
 - 이메일: dailypick10.help@gmail.com
 
 (시행일) 본 방침은 2026년 1월 1일부터 시행합니다.`;
+
         // 아이콘 컴포넌트
         const Icon = ({ name, size = 24, className }) => {
             const icons = {
@@ -352,10 +350,10 @@
                                         </div>
                                     ))}
                                     <div className="pt-4 pb-2 text-center">
-                                        <a href={googlePlayUrl} target="_blank" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                                            <span>앱에서 전체 보기</span>
-                                            <Icon name="arrowRight" size={14} />
-                                        </a>
+                                            <a href={googlePlayUrl} target="_blank" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                                                <span>앱에서 전체 보기</span>
+                                                <Icon name="arrowRight" size={14} />
+                                            </a>
                                     </div>
                                 </div>
                             </div>
@@ -388,13 +386,49 @@
 
                     <HowItWorks />
                     <FAQ />
+                    
+                    {/* [추가] 계정 삭제 안내 섹션 (구글 플레이 정책 대응) */}
+                    <section id="delete-account" className="w-full py-16 px-6 bg-slate-900 border-t border-slate-800">
+                        <div className="max-w-3xl mx-auto text-center">
+                            <h2 className="text-2xl font-bold text-white mb-6">계정 삭제 요청</h2>
+                            <div className="bg-gray-800/40 p-8 rounded-2xl border border-gray-700 text-left">
+                                <p className="text-gray-300 mb-4 leading-relaxed">
+                                    DailyPick10은 사용자의 개인정보 자기결정권을 존중합니다.<br/>
+                                    계정 및 관련 데이터의 영구 삭제를 원하시는 경우, 아래 두 가지 방법 중 하나를 선택하여 진행하실 수 있습니다.
+                                </p>
+                                <div className="space-y-4 mt-6">
+                                    <div className="flex items-start gap-3">
+                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 1</span>
+                                        <p className="text-gray-400 text-sm">
+                                            <strong>앱 내 삭제:</strong> 앱 실행 &gt; 설정 &gt; 계정 관리 &gt; '회원 탈퇴' 버튼 클릭 (즉시 삭제)
+                                        </p>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 2</span>
+                                        <div>
+                                            <p className="text-gray-400 text-sm mb-1">
+                                                <strong>이메일 요청:</strong> 아래 버튼을 클릭하여 가입한 이메일 주소와 함께 삭제 요청을 보내주세요.
+                                            </p>
+                                            <a href="mailto:dailypick10.help@gmail.com?subject=계정 삭제 요청" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-medium mt-1 transition-colors">
+                                                <Icon name="arrowRight" size={16} /> 이메일로 삭제 요청하기
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-700/50">
+                                    * 요청 시 수집된 개인정보(이메일, UID 등)는 지체 없이 파기되며 복구할 수 없습니다.<br/>
+                                    * 관계 법령에 의해 보관이 의무화된 정보는 해당 기간 동안 안전하게 보관 후 파기됩니다.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
 
                     <footer className="w-full py-12 text-center text-gray-500 text-sm bg-gray-900 border-t border-gray-800">
                         <div className="flex items-center justify-center gap-2 mb-4 opacity-70">
                              <Icon name="swing" size={24} className="text-gray-500" />
                              <span className="font-bold text-gray-400">DailyPick10</span>
                         </div>
-                        <p className="mb-6 text-xs">© 2024 DailyPick10. All rights reserved.</p>
+                        <p className="mb-6 text-xs">© 2026 DailyPick10. All rights reserved.</p>
                         <div className="flex justify-center gap-6 text-xs font-medium">
                             <button onClick={() => openTerms('terms')} className="hover:text-gray-300 transition-colors">이용약관</button>
                             <button onClick={() => openTerms('privacy')} className="hover:text-gray-300 transition-colors">개인정보처리방침</button>
@@ -408,6 +442,4 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
-
 </html>
-

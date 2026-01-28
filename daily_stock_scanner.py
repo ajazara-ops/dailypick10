@@ -10,8 +10,10 @@ import os
 import sys
 import re
 import argparse 
+import random
 from collections import Counter
 from datetime import datetime, timedelta
+from io import StringIO
 
 # [추가] Firebase 라이브러리 (여러 사람에게 알림 보내기 위해 필요)
 try:
@@ -37,6 +39,33 @@ def safe_float(val, default=0.0):
         if math.isnan(f) or math.isinf(f): return default
         return f
     except: return default
+
+# --- [네트워크 요청 재시도 함수] ---
+def fetch_with_retry(url, headers=None, retries=3, delay=2):
+    """
+    네트워크 요청 실패 시 재시도하는 함수
+    """
+    if headers is None:
+        # 일반적인 브라우저 헤더 (차단 방지용)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5"
+        }
+    
+    for i in range(retries):
+        try:
+            response = requests.get(url, headers=headers, timeout=15)
+            if response.status_code == 200:
+                return response
+            else:
+                print(f"⚠️ 요청 실패 ({response.status_code}): {url} (재시도 {i+1}/{retries})")
+        except Exception as e:
+            print(f"⚠️ 연결 에러: {e} (재시도 {i+1}/{retries})")
+        
+        time.sleep(delay + random.random()) # 랜덤 딜레이 추가
+    
+    return None
 
 # --- [Git 강제 업로드 함수] ---
 def git_push_updates(mode_name):
@@ -236,68 +265,155 @@ def analyze_market_condition(target_date=None):
             market_status[key] = {'status': 'UNKNOWN', 'change': 0.0, 'message': '분석 실패'}
     return market_status
 
-# --- [2] 종목 리스트 ---
+# --- [2] 종목 리스트 (다중 백업 소스 적용 및 하드코딩 제거) ---
 def get_sp500_tickers():
+    tickers = []
+    
+    # 1순위: 위키피디아 시도
     try:
+        print("🔍 [S&P 500] 1순위: 위키피디아 시도...")
         url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers)
-        table = pd.read_html(response.text)
-        tickers = table[0]['Symbol'].tolist()
-        return [t.replace('.', '-') for t in tickers]
-    except: return ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META']
+        response = fetch_with_retry(url)
+        if response:
+            table = pd.read_html(StringIO(response.text))
+            tickers = table[0]['Symbol'].tolist()
+            return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ 위키피디아 실패: {e}")
+
+    # 2순위: GitHub Datasets 시도 (오픈 데이터셋 사용)
+    try:
+        print("🔄 [S&P 500] 2순위: GitHub 데이터셋 시도...")
+        url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
+        response = fetch_with_retry(url)
+        if response:
+            df = pd.read_csv(StringIO(response.text))
+            tickers = df['Symbol'].tolist()
+            return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ GitHub 데이터셋 실패: {e}")
+
+    # 3순위: Slickcharts 시도
+    try:
+        print("🔄 [S&P 500] 3순위: Slickcharts 시도...")
+        url = 'https://www.slickcharts.com/sp500'
+        response = fetch_with_retry(url)
+        if response:
+            tables = pd.read_html(StringIO(response.text))
+            tickers = tables[0]['Symbol'].tolist()
+            return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ Slickcharts 실패: {e}")
+
+    # 4순위: StockAnalysis.com 시도
+    try:
+        print("🔄 [S&P 500] 4순위: StockAnalysis 시도...")
+        url = 'https://stockanalysis.com/list/sp-500-stocks/'
+        response = fetch_with_retry(url)
+        if response:
+            dfs = pd.read_html(StringIO(response.text))
+            for df in dfs:
+                if 'Symbol' in df.columns:
+                    tickers = df['Symbol'].tolist()
+                    return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ StockAnalysis 실패: {e}")
+
+    print("🚨 [S&P 500] 모든 데이터 소스 연결 실패. 종목을 가져올 수 없습니다.")
+    return []
 
 def get_nasdaq100_tickers():
+    tickers = []
+    
+    # 1순위: 위키피디아 시도
     try:
+        print("🔍 [NASDAQ 100] 1순위: 위키피디아 시도...")
         url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers)
-        tables = pd.read_html(response.text)
-        for table in tables:
-            if 'Ticker' in table.columns:
-                return [str(t).replace('.', '-') for t in table['Ticker'].tolist()]
-            elif 'Symbol' in table.columns:
-                return [str(t).replace('.', '-') for t in table['Symbol'].tolist()]
-        return []
+        response = fetch_with_retry(url)
+        if response:
+            tables = pd.read_html(StringIO(response.text))
+            for table in tables:
+                if 'Ticker' in table.columns:
+                    return [str(t).replace('.', '-') for t in table['Ticker'].tolist()]
+                elif 'Symbol' in table.columns:
+                    return [str(t).replace('.', '-') for t in table['Symbol'].tolist()]
     except Exception as e:
-        print(f"⚠️ 나스닥 100 목록 가져오기 실패: {e}")
-        return []
+        print(f"⚠️ 위키피디아 실패: {e}")
+
+    # 2순위: Slickcharts 시도
+    try:
+        print("🔄 [NASDAQ 100] 2순위: Slickcharts 시도...")
+        url = 'https://www.slickcharts.com/nasdaq100'
+        response = fetch_with_retry(url)
+        if response:
+            tables = pd.read_html(StringIO(response.text))
+            tickers = tables[0]['Symbol'].tolist()
+            return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ Slickcharts 실패: {e}")
+
+    # 3순위: StockAnalysis.com 시도
+    try:
+        print("🔄 [NASDAQ 100] 3순위: StockAnalysis 시도...")
+        url = 'https://stockanalysis.com/list/nasdaq-100-stocks/'
+        response = fetch_with_retry(url)
+        if response:
+            dfs = pd.read_html(StringIO(response.text))
+            for df in dfs:
+                if 'Symbol' in df.columns:
+                    tickers = df['Symbol'].tolist()
+                    return [t.replace('.', '-') for t in tickers]
+    except Exception as e:
+        print(f"⚠️ StockAnalysis 실패: {e}")
+
+    print("🚨 [NASDAQ 100] 모든 데이터 소스 연결 실패. 종목을 가져올 수 없습니다.")
+    return []
 
 def get_korea_tickers():
     tickers = []
+    
+    # 1. 네이버 금융 (코스피)
     try:
+        print("🔍 [KR] 네이버 금융에서 코스피 종목 가져오는 중...")
         url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=0&page=1'
-        res = requests.get(url)
-        codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
-        seen = set()
-        unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
-        for code in unique_codes[:50]: tickers.append(f"{code}.KS")
+        res = fetch_with_retry(url)
+        if res:
+            codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
+            seen = set()
+            unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
+            for code in unique_codes[:50]: tickers.append(f"{code}.KS")
     except Exception as e: print(f"⚠️ 코스피 목록 실패: {e}")
 
+    # 2. 네이버 금융 (코스닥)
     try:
+        print("🔍 [KR] 네이버 금융에서 코스닥 종목 가져오는 중...")
         url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=1&page=1'
-        res = requests.get(url)
-        codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
-        seen = set()
-        unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
-        for code in unique_codes[:50]: tickers.append(f"{code}.KQ")
+        res = fetch_with_retry(url)
+        if res:
+            codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
+            seen = set()
+            unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
+            for code in unique_codes[:50]: tickers.append(f"{code}.KQ")
     except Exception as e: print(f"⚠️ 코스닥 목록 실패: {e}")
 
     if not tickers:
-        return ['005930.KS', '000660.KS', '373220.KS', '005380.KS', '000270.KS', '068270.KS', '005490.KS', '035420.KS']
-    return tickers
+        print("🚨 [KR] 한국 종목 목록 가져오기 실패. (네이버 & 다음 모두 실패)")
+        return []
+        
+    return list(set(tickers)) # 중복 제거
 
 # --- [신규] 네이버 금융 재무 데이터 크롤링 ---
 def get_kr_fundamental(ticker):
-    """네이버 금융에서 PER, PBR, 영업이익률 등을 크롤링합니다."""
     try:
         code = ticker.split('.')[0] # 005930.KS -> 005930
         url = f"https://finance.naver.com/item/main.naver?code={code}"
         
         # 네이버 금융은 EUC-KR 사용
-        dfs = pd.read_html(url, encoding='euc-kr')
+        response = fetch_with_retry(url)
+        if not response: return None
         
-        # '기업실적분석' 테이블 찾기
+        dfs = pd.read_html(StringIO(response.content.decode('euc-kr', 'replace')))
+        
         fin_df = None
         for df in dfs:
             if df.shape[1] > 1 and '영업이익률' in str(df.iloc[:, 0].values):
@@ -336,16 +452,18 @@ def get_kr_fundamental(ticker):
 def get_news_from_google_kr(ticker):
     try:
         url = f"https://news.google.com/rss/search?q={ticker.split('.')[0]}+주가&hl=ko&gl=KR&ceid=KR:ko"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=3); root = ET.fromstring(response.content)
+        response = fetch_with_retry(url); 
+        if not response: return []
+        root = ET.fromstring(response.content)
         return [{'title': item.find('title').text, 'link': item.find('link').text, 'publisher': item.find('source').text} for item in root.findall('./channel/item')[:3]]
     except: return []
 
 def get_news_from_google_us(ticker):
     try:
         url = f"https://news.google.com/rss/search?q={ticker}+stock&hl=en-US&gl=US&ceid=US:en"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=3); root = ET.fromstring(response.content)
+        response = fetch_with_retry(url);
+        if not response: return []
+        root = ET.fromstring(response.content)
         return [{'title': item.find('title').text, 'link': item.find('link').text, 'publisher': item.find('source').text} for item in root.findall('./channel/item')[:3]]
     except: return []
 
@@ -458,10 +576,6 @@ def analyze_stock(ticker, market_type, target_date=None):
             if per and per > 0 and per < 20: score += 5; reasons.append("적정 PER")
             if pbr and pbr > 0 and pbr < 1.5: score += 5; reasons.append("저PBR")
             if op_margin and op_margin > 0: score += 5; reasons.append("흑자 기업")
-        
-        # ✅ [수정] 무조건 10개를 채우기 위해 점수 커트라인(40점 미만 탈락)을 제거합니다.
-        # cutoff = 40 
-        # if score < cutoff: return None
         
         name = info.get('shortName', ticker) if info else ticker
         price_val = safe_float(round(cur_p, 2))
@@ -656,78 +770,87 @@ def main():
             sp500 = get_sp500_tickers()
             nasdaq100 = get_nasdaq100_tickers()
             us_tickers = list(set(sp500 + nasdaq100))
-            print(f"\n🇺🇸 미국 분석 (대상: {len(us_tickers)}개)...")
-            usc = []
-            for i, t in enumerate(us_tickers): 
-                d = analyze_stock(t, 'US', target_date=today_str)
-                if d: usc.append(d)
             
-            # ✅ [수정] 10개 미만일 때 차순위로 강제 채우기 로직 (미국)
-            usc.sort(key=lambda x: x['score'], reverse=True)
-            
-            # 1. 40점 이상인 종목들 먼저 선택
-            high_score_stocks = [s for s in usc if s['score'] >= 40]
-            
-            ust = []
-            if len(high_score_stocks) >= 10:
-                ust = high_score_stocks[:10]
+            if not us_tickers:
+                print("❌ [미국] 종목 목록을 가져오지 못했습니다. (네트워크/소스 오류)")
+                # 미국 종목 추가 안 함 -> final_stocks에 US 없음
             else:
-                # 2. 부족하면 40점 미만 종목으로 채우기 (이미 usc는 점수순 정렬됨)
-                ust = high_score_stocks[:] # 40점 이상 복사
-                needed = 10 - len(ust)
+                print(f"\n🇺🇸 미국 분석 (대상: {len(us_tickers)}개)...")
+                usc = []
+                for i, t in enumerate(us_tickers): 
+                    d = analyze_stock(t, 'US', target_date=today_str)
+                    if d: usc.append(d)
                 
-                # 40점 미만인 애들 중에서 needed만큼 가져옴
-                fillers = [s for s in usc if s['score'] < 40][:needed]
+                # ✅ [수정] 10개 미만일 때 차순위로 강제 채우기 로직 (미국)
+                usc.sort(key=lambda x: x['score'], reverse=True)
                 
-                for f in fillers:
-                    f['aiReason'] = "AI 점수 우수 (매수 조건 근접) + " + f['aiReason']
-                    ust.append(f)
-            
-            # 최종 점수순 재정렬 (혹시 섞였을까봐) 및 10개 자르기
-            ust.sort(key=lambda x: x['score'], reverse=True)
-            ust = ust[:10]
+                # 1. 40점 이상인 종목들 먼저 선택
+                high_score_stocks = [s for s in usc if s['score'] >= 40]
+                
+                ust = []
+                if len(high_score_stocks) >= 10:
+                    ust = high_score_stocks[:10]
+                else:
+                    # 2. 부족하면 40점 미만 종목으로 채우기 (이미 usc는 점수순 정렬됨)
+                    ust = high_score_stocks[:] # 40점 이상 복사
+                    needed = 10 - len(ust)
+                    
+                    # 40점 미만인 애들 중에서 needed만큼 가져옴
+                    fillers = [s for s in usc if s['score'] < 40][:needed]
+                    
+                    for f in fillers:
+                        f['aiReason'] = "AI 점수 우수 (매수 조건 근접) + " + f['aiReason']
+                        ust.append(f)
+                
+                # 최종 점수순 재정렬 (혹시 섞였을까봐) 및 10개 자르기
+                ust.sort(key=lambda x: x['score'], reverse=True)
+                ust = ust[:10]
 
-            for i, item in enumerate(ust): item['rank'] = i + 1
-            process_news_for_list(ust)
-            final_stocks.extend(ust)
+                for i, item in enumerate(ust): item['rank'] = i + 1
+                process_news_for_list(ust)
+                final_stocks.extend(ust)
         else:
             us_kept = [s for s in existing_stocks if s['market'] == 'US']
             final_stocks.extend(us_kept)
 
         if args.target in ['KR', 'ALL']:
             kr = get_korea_tickers()
-            krc = []
-            print(f"\n🇰🇷 한국 분석 (대상: {len(kr)}개)...")
-            for i, t in enumerate(kr): 
-                d = analyze_stock(t, 'KR', target_date=today_str)
-                if d: krc.append(d)
             
-            # ✅ [수정] 10개 미만일 때 차순위로 강제 채우기 로직 (한국)
-            krc.sort(key=lambda x: x['score'], reverse=True)
-            
-            # 1. 40점 이상인 종목들 먼저 선택
-            high_score_stocks_kr = [s for s in krc if s['score'] >= 40]
-            
-            krt = []
-            if len(high_score_stocks_kr) >= 10:
-                krt = high_score_stocks_kr[:10]
+            if not kr:
+                print("❌ [한국] 종목 목록을 가져오지 못했습니다. (네트워크/소스 오류)")
             else:
-                # 2. 부족하면 40점 미만 종목으로 채우기
-                krt = high_score_stocks_kr[:] 
-                needed = 10 - len(krt)
+                krc = []
+                print(f"\n🇰🇷 한국 분석 (대상: {len(kr)}개)...")
+                for i, t in enumerate(kr): 
+                    d = analyze_stock(t, 'KR', target_date=today_str)
+                    if d: krc.append(d)
                 
-                fillers_kr = [s for s in krc if s['score'] < 40][:needed]
+                # ✅ [수정] 10개 미만일 때 차순위로 강제 채우기 로직 (한국)
+                krc.sort(key=lambda x: x['score'], reverse=True)
                 
-                for f in fillers_kr:
-                    f['aiReason'] = "AI 점수 우수 (매수 조건 근접) + " + f['aiReason']
-                    krt.append(f)
-            
-            krt.sort(key=lambda x: x['score'], reverse=True)
-            krt = krt[:10]
+                # 1. 40점 이상인 종목들 먼저 선택
+                high_score_stocks_kr = [s for s in krc if s['score'] >= 40]
+                
+                krt = []
+                if len(high_score_stocks_kr) >= 10:
+                    krt = high_score_stocks_kr[:10]
+                else:
+                    # 2. 부족하면 40점 미만 종목으로 채우기
+                    krt = high_score_stocks_kr[:] 
+                    needed = 10 - len(krt)
+                    
+                    fillers_kr = [s for s in krc if s['score'] < 40][:needed]
+                    
+                    for f in fillers_kr:
+                        f['aiReason'] = "AI 점수 우수 (매수 조건 근접) + " + f['aiReason']
+                        krt.append(f)
+                
+                krt.sort(key=lambda x: x['score'], reverse=True)
+                krt = krt[:10]
 
-            for i, item in enumerate(krt): item['rank'] = i + 1
-            process_news_for_list(krt)
-            final_stocks.extend(krt)
+                for i, item in enumerate(krt): item['rank'] = i + 1
+                process_news_for_list(krt)
+                final_stocks.extend(krt)
         else:
             kr_kept = [s for s in existing_stocks if s['market'] == 'KR']
             final_stocks.extend(kr_kept)
@@ -750,7 +873,13 @@ def main():
                 top = ", ".join([s['symbol'] for s in target_market_stocks[:2]])
                 noti_body = f"오늘의 {market_name} 추천: {top} 등 (순위 변동)"
         else:
-            noti_body = f"오늘의 {market_name} 추천 종목이 없습니다. (시장 관망 필요 📉)"
+            # 🚨 종목을 하나도 못 가져온 경우 (네트워크 오류 등)
+            if not final_stocks and args.target == 'ALL':
+                 noti_body = f"⚠️ 데이터 수집 실패: 서버 연결 상태를 확인해주세요."
+            elif not final_stocks:
+                 noti_body = f"오늘의 {market_name} 추천 종목이 없습니다. (시장 관망 필요 📉)"
+            else:
+                 noti_body = f"오늘의 {market_name} 추천 종목이 없습니다."
 
         out = {
             "market_status": ms, "stocks": final_stocks, "dominant_sectors": dominant_sectors, 

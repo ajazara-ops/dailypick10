@@ -7,7 +7,7 @@
     <meta property="og:title" content="DailyPick10 - AI 주식 추천">
     <meta property="og:description" content="매일 아침/저녁, AI가 분석한 Top 10 종목을 받아보세요.">
     <meta property="og:image" content="./assets/images/icon.png">
-    <meta property="og:url" content="https://ajazara-ops.github.io/dailypick10/">
+    <meta property="og:url" content="https://ajazara.xyz/">
     <title>DailyPick10 - AI 스마트 스윙 투자</title>
     
     <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
@@ -140,6 +140,7 @@
                     <a href="#preview" className="hover:text-white transition-colors">오늘의 추천</a>
                     <a href="#performance" className="hover:text-white transition-colors">성과 리포트</a>
                     <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+                    <a href="#about" className="hover:text-white transition-colors">AJAZARA 소개</a>
                 </div>
             </nav>
         );
@@ -247,6 +248,48 @@
                             <p className="text-gray-400 leading-relaxed">DailyPick10은 기술적 분석(RSI, 볼린저밴드 등)과 기본적 분석(재무제표)을 결합한 알고리즘을 사용합니다. 또한, 앱 내 '성과 리포트' 메뉴에서 과거 추천 종목들의 실제 수익률을 투명하게 공개하고 있습니다.</p>
                         </div>
                     </div>
+                </div>
+            </section>
+        );
+
+        // AJAZARA 개발사 및 프로젝트 소개 — DailyPick10 소개 내용과 분리
+        const CompanySection = () => (
+            <section id="about" className="w-full py-20 px-6 bg-slate-900/50 border-t border-slate-800">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <p className="text-sm font-semibold tracking-widest text-indigo-400 mb-3">ABOUT AJAZARA</p>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5">AJAZARA 소개</h2>
+                        <p className="text-gray-300 leading-relaxed mb-3">
+                            AJAZARA는 AI 기반 애플리케이션과 자동화 솔루션을 개발하는 소규모 소프트웨어 사업자입니다.
+                        </p>
+                        <p lang="en" className="text-gray-400 text-sm leading-relaxed">
+                            AJAZARA is an independent software business developing AI-powered applications and automation solutions.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
+                            <span className="inline-block text-xs font-bold text-green-300 bg-green-500/10 border border-green-600/30 rounded-full px-3 py-1 mb-4">출시 · Released</span>
+                            <h3 className="text-xl font-bold text-white mb-3">DailyPick10</h3>
+                            <p className="text-gray-400 text-sm leading-relaxed mb-5">
+                                한국과 미국 주식의 기술적 지표를 분석하고 투자 참고 정보를 제공하는 모바일 앱입니다.
+                            </p>
+                            <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-indigo-300 hover:text-indigo-200">
+                                Google Play에서 보기 →
+                            </a>
+                        </div>
+                        <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
+                            <span className="inline-block text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-600/30 rounded-full px-3 py-1 mb-4">개발 중 · In development</span>
+                            <h3 className="text-xl font-bold text-white mb-3">DOGGAEVI</h3>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                AI 에이전트와 자동화 도구를 연계해 콘텐츠 제작 및 반복 업무를 효율화하는 시스템을 개발하고 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p className="text-center text-sm text-gray-500 mt-9 leading-relaxed">
+                        소규모 개발 체제로 운영하며, 일부 개발 업무는 협력자와 함께 진행합니다.
+                    </p>
                 </div>
             </section>
         );
@@ -386,6 +429,7 @@
 
                     <HowItWorks />
                     <FAQ />
+                    <CompanySection />
                     
                     {/* [추가] 계정 삭제 안내 섹션 (구글 플레이 정책 대응) */}
                     <section id="delete-account" className="w-full py-16 px-6 bg-slate-900 border-t border-slate-800">
@@ -430,7 +474,8 @@
                              <span className="font-bold text-gray-400">DailyPick10</span>
                         </div>
                         <p className="mb-6 text-xs">© 2026 AJAZARA. All rights reserved.</p>
-                        <div className="flex justify-center gap-6 text-xs font-medium">
+                        <div className="flex flex-wrap justify-center gap-6 text-xs font-medium">
+                            <a href="#about" className="hover:text-gray-300 transition-colors">AJAZARA 소개</a>
                             <button onClick={() => openTerms('terms')} className="hover:text-gray-300 transition-colors">이용약관</button>
                             <button onClick={() => openTerms('privacy')} className="hover:text-gray-300 transition-colors">개인정보처리방침</button>
                             <a href="mailto:contact@ajazara.xyz" className="hover:text-gray-300 transition-colors">문의하기</a>

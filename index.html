@@ -1,52 +1,108 @@
 <!DOCTYPE html>
-<html lang="ko" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DailyPick10 - AI가 매일 찾아주는 상승 예상 종목. 미국/한국 주식 스윙 투자 필수 앱.">
-    <meta property="og:title" content="DailyPick10 - AI 주식 추천">
-    <meta property="og:description" content="매일 아침/저녁, AI가 분석한 Top 10 종목을 받아보세요.">
-    <meta property="og:image" content="./assets/images/icon.png">
-    <meta property="og:url" content="https://ajazara.xyz/">
-    <title>DailyPick10 - AI 스마트 스윙 투자</title>
-    
-    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<html data-title-en="AJAZARA | Building Ideas Into Reality" data-title-ko="AJAZARA | Building Ideas Into Reality" data-description-en="AJAZARA builds mobile applications and AI-powered automation tools." data-description-ko="AJAZARA는 한국에 기반을 둔 소프트웨어 개발사입니다. 출시된 DailyPick10과 개발 중인 DOGGAEVI AI 자동화 프로젝트를 소개합니다." lang="en" data-default-language="en" data-company-page="true" data-site-lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="AJAZARA builds mobile applications and AI-powered automation tools."><meta name="theme-color" content="#0f172a"><meta property="og:type" content="website"><meta property="og:title" content="AJAZARA | Building Ideas Into Reality"><meta property="og:description" content="AJAZARA builds mobile applications and AI-powered automation tools."><meta property="og:url" content="https://ajazara.xyz/"><link rel="canonical" href="https://ajazara.xyz/"><title>AJAZARA | Building Ideas Into Reality</title><style>
+    :root{color-scheme:dark;--bg:#0f172a;--surface:#111c32;--card:#1e293b;--line:#334155;--text:#f8fafc;--muted:#a8b5c9;--blue:#60a5fa;--violet:#a78bfa;--green:#86efac;--amber:#fcd34d}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.72}
+    a{color:inherit}a:focus-visible{outline:2px solid var(--blue);outline-offset:4px;border-radius:3px}
+    .container{width:min(1100px,calc(100% - 40px));margin:auto}
+    .topbar{border-bottom:1px solid rgba(148,163,184,.14);background:#0f172ae8}
+    .nav{min-height:79px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{font-size:1.2rem;letter-spacing:.015em;font-weight:820;text-decoration:none;display:flex;align-items:center;gap:11px}
+    .brand-mark{width:33px;height:33px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(125deg,#2563eb,#6d28d9);font-size:14px;font-weight:900;color:#fff}
+    .links{display:flex;align-items:center;gap:25px;font-size:.88rem;color:#c7d2e2}
+    .links a{text-decoration:none}.links a:hover{color:#fff}.links .active{color:var(--blue)}
+    .hero{padding:98px 0 89px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid rgba(148,163,184,.12)}
+    .hero:before{content:"";position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:850px;height:640px;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse,rgba(59,130,246,.12) 0%,rgba(107,33,168,.09) 45%,transparent 73%)}
+    .hero .container{position:relative}
+    .eyebrow{text-transform:uppercase;letter-spacing:.18em;color:#98baff;font-size:.77rem;font-weight:800;margin:0 0 19px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:clamp(2.55rem,6vw,4.8rem);letter-spacing:-.052em;line-height:1.15;margin-bottom:24px;font-weight:850}
+    .gradient{background:linear-gradient(90deg,#60a5fa,#a78bfa);color:transparent;background-clip:text;-webkit-background-clip:text}
+    .hero-sub{font-size:clamp(1.02rem,2vw,1.25rem);max-width:735px;color:#bfcbda;margin:0 auto 30px;line-height:1.8}
+    .hero-en{font-size:1.04rem;max-width:740px;color:#c3cedd;margin:0 auto 14px;line-height:1.85}
+    .hero-ko{font-size:.87rem;max-width:735px;color:#94a3b8;margin:19px auto 35px;line-height:1.85}
+    .hero-sub{font-size:.97rem;letter-spacing:.045em;font-weight:650;max-width:735px;color:#a6b8d7;margin:0 auto 29px;line-height:1.8}
+    .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border:1px solid #475569;border-radius:12px;text-decoration:none;font-size:.89rem;font-weight:720;background:#1e293b;color:#e8eef6;transition:transform .2s,border-color .2s}
+    .btn.primary{background:linear-gradient(125deg,#2563eb,#4f46e5);border-color:transparent;color:#fff}
+    .btn:hover{transform:translateY(-2px);border-color:#93c5fd}
+    section{padding:77px 0}.section-alt{background:#111a2e;border-top:1px solid rgba(148,163,184,.11);border-bottom:1px solid rgba(148,163,184,.11)}
+    h2{font-size:clamp(1.75rem,3vw,2.25rem);line-height:1.25;letter-spacing:-.035em;margin-bottom:12px}
+    h3{font-size:1.22rem;line-height:1.4;margin-bottom:12px}
+    .section-lead{color:var(--muted);max-width:780px;margin-bottom:32px;font-size:1rem}
+    .info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .info{padding:23px 24px;border:1px solid var(--line);background:rgba(30,41,59,.6);border-radius:17px}
+    .info dt{font-size:.82rem;color:#a8b5c9;margin-bottom:6px}.info dd{margin:0;font-size:1.02rem;font-weight:750;line-height:1.35}
+    .info dd small{display:block;font-weight:450;font-size:.77rem;margin-top:7px;color:#9caec8}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+    .card{padding:31px;border:1px solid #38475e;background:linear-gradient(135deg,rgba(30,41,59,.85),rgba(17,24,39,.9));border-radius:20px;display:flex;flex-direction:column;align-items:flex-start;min-height:300px}
+    .status{font-size:.72rem;font-weight:780;padding:5px 11px;border-radius:999px;margin-bottom:20px;border:1px solid}
+    .released{color:var(--green);background:rgba(34,197,94,.08);border-color:rgba(74,222,128,.3)}
+    .development{color:var(--amber);background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.3)}
+    .card p{font-size:.92rem;color:#b8c6d9;margin-bottom:12px}
+    .card .en{font-size:.85rem;color:#9aafc9}
+    .card a{margin-top:auto;color:#a6c6ff;font-size:.87rem;font-weight:780;text-decoration:none}.card a:hover{text-decoration:underline}
+    .statement{max-width:850px;margin:0 auto;text-align:center}
+    .statement p{color:#b6c5d9}.statement .en{font-size:.93rem;color:#99adc6}
+    .contact{border:1px solid #3a4960;border-radius:20px;background:rgba(30,41,59,.55);padding:32px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .contact h2{margin-bottom:8px}.contact p{color:#a6b7cb;margin:0;font-size:.93rem}
+    .contact a{color:#c6d9ff;overflow-wrap:anywhere;font-weight:700;text-decoration:none}.contact a:hover{text-decoration:underline}
+    footer{border-top:1px solid #273447;padding:28px 0;text-align:center;color:#8393ac;font-size:.8rem}
+    footer a{color:#becde0;text-decoration:none}
+    @media(max-width:720px){.container{width:min(100% - 32px,1100px)}.nav{min-height:69px}.links{gap:13px;font-size:.78rem}.hero{padding:75px 0 68px}section{padding:56px 0}.info-grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.card{min-height:0}.contact{flex-direction:column;align-items:flex-start}.hero-sub{font-size:1rem}}
+    @media(max-width:410px){.links a:nth-child(2){display:none}.nav{gap:10px}.brand{font-size:1rem}.brand-mark{width:29px;height:29px}}
+  .home-intro{max-width:740px;margin:auto;text-align:center}.product-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto}.card .btn{margin-top:12px;color:#fff}.company-link{color:#a6c6ff;font-weight:700}.support{max-width:850px;margin:auto}.support details{padding:20px 0;border-top:1px solid #334155}.support summary{cursor:pointer;font-weight:700;color:#c6d9ff}.policy-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85;font: .94rem/1.85 inherit;color:#c3cedd;margin-top:24px}.legacy-links{display:flex;gap:16px;flex-wrap:wrap;margin-top:24px}.legacy-links a{color:#a6c6ff;font-size:.85rem}@media(max-width:720px){.card{padding:25px}.contact{padding:25px}}</style><link rel="stylesheet" href="/assets/site.css"><script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "AJAZARA",
+    "alternateName": "아자자라",
+    "legalName": "아자자라",
+    "url": "https://ajazara.xyz/",
+    "description": "An independent software studio in South Korea developing mobile applications and AI-powered automation tools.",
+    "foundingDate": "2026-01",
+    "address": {"@type": "PostalAddress", "addressCountry": "KR"},
+    "email": "contact@ajazara.xyz",
+    "sameAs": ["https://play.google.com/store/apps/details?id=com.ajazara.dailypick10"]
+  }
+  </script><script>
+// Preserve old root/index.html bookmarks and fragment changes without touching query parameters.
+(function(){const productHashes=['features','preview','performance','faq','how-it-works','about'];const supportHashes=['privacy','terms','delete-account'];function route(){const key=location.hash.slice(1);if(productHashes.includes(key)){location.replace('/dailypick10/'+location.search+location.hash);}else if(supportHashes.includes(key)){location.replace('/dailypick10/'+key+'/'+location.search+location.hash);}}route();addEventListener('hashchange',route);})();
+</script><script>(function(){var lang=document.documentElement.getAttribute('data-default-language');try{var saved=localStorage.getItem('ajazara.language');if(saved==='en'||saved==='ko')lang=saved;}catch(e){}document.documentElement.setAttribute('data-site-lang',lang);if(document.documentElement.getAttribute('data-company-page')==='true')document.documentElement.lang=lang;})();</script><script src="/assets/language.js" defer></script></head><body id="root"><header class="site-topbar"><nav class="site-nav" aria-label="Main navigation / 주요 메뉴"><a class="site-brand" href="/" aria-label="AJAZARA home"><span class="site-mark" aria-hidden="true">A</span>AJAZARA</a><div class="site-links"><a href="/" aria-current="page"><span class="locale-en" lang="en">Home</span><span class="locale-ko" lang="ko">홈</span></a><a href="/#products"><span class="locale-en" lang="en">Projects</span><span class="locale-ko" lang="ko">프로젝트</span></a><a href="/dailypick10/">DailyPick10</a><a href="/about/"><span class="locale-en" lang="en">About</span><span class="locale-ko" lang="ko">회사 소개</span></a><a href="/#contact"><span class="locale-en" lang="en">Contact</span><span class="locale-ko" lang="ko">문의</span></a></div><div class="language-switch" role="group" aria-label="Language / 언어"><button type="button" data-language="en" aria-label="English">EN</button><button type="button" data-language="ko" aria-label="한국어">한국어</button></div></nav></header><main><section class="hero" aria-labelledby="page-title"><div class="container"><p class="eyebrow"><span class="locale-en" lang="en">AJAZARA · SOFTWARE &amp; AI AUTOMATION</span><span class="locale-ko" lang="ko">AJAZARA · 소프트웨어 개발 &amp; AI 자동화</span></p><h1 id="page-title">Building Ideas<br><span class="gradient">Into Reality.</span></h1><p class="hero-sub"><span class="locale-en" lang="en">Software Development &amp; AI Automation</span><span class="locale-ko" lang="ko">소프트웨어 개발 &amp; AI 자동화</span></p><p class="hero-en"><span class="locale-en" lang="en">We turn ideas into useful applications and AI-powered tools.</span><span class="locale-ko" lang="ko">아이디어를 실용적인 애플리케이션과 AI 도구로 구현합니다.</span></p><p class="hero-en"><span class="locale-en" lang="en">An independent software studio based in South Korea, building mobile products and intelligent automation.</span><span class="locale-ko" lang="ko">한국에 기반을 둔 독립 소프트웨어 개발사로, 모바일 제품과 지능형 자동화 도구를 개발합니다.</span></p><div class="actions"><a class="btn primary" href="#products"><span class="locale-en" lang="en">Explore Our Work →</span><span class="locale-ko" lang="ko">제품과 프로젝트 보기 →</span></a><a class="btn" href="/about/"><span class="locale-en" lang="en">About AJAZARA</span><span class="locale-ko" lang="ko">AJAZARA 소개</span></a></div></div></section>
+<section class="section-alt" id="products" aria-labelledby="products-title"><div class="container"><p class="eyebrow"><span class="locale-en" lang="en">OUR WORK</span><span class="locale-ko" lang="ko">제품과 프로젝트</span></p><h2 id="products-title"><span class="locale-en" lang="en">Products &amp; Projects</span><span class="locale-ko" lang="ko">제품과 프로젝트</span></h2><p class="section-lead"><span class="locale-en" lang="en">A released mobile app and an AI automation system in development.</span><span class="locale-ko" lang="ko">출시된 모바일 앱과 개발 중인 AI 자동화 시스템을 소개합니다.</span></p><div class="cards"><article class="card"><span class="status released"><span class="locale-en" lang="en">Released</span><span class="locale-ko" lang="ko">출시</span></span><h3>DailyPick10</h3><p><span class="locale-en" lang="en">A mobile application that presents stock-analysis information for South Korean and US markets using technical indicators and market data.</span><span class="locale-ko" lang="ko">한국과 미국 주식의 기술적 지표 및 시장 데이터를 분석해 투자 참고 정보를 제공하는 모바일 앱입니다.</span></p><p class="en"><span class="locale-en" lang="en">Available on Google Play. Information is provided for investment reference.</span><span class="locale-ko" lang="ko">Google Play에서 이용할 수 있습니다. 제공되는 정보는 투자 참고용입니다.</span></p><div class="product-actions"><a class="btn primary" href="/dailypick10/"><span class="locale-en" lang="en">Explore DailyPick10 →</span><span class="locale-ko" lang="ko">DailyPick10 자세히 보기 →</span></a><a class="btn" href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10" target="_blank" rel="noopener noreferrer"><span class="locale-en" lang="en">Google Play ↗</span><span class="locale-ko" lang="ko">Google Play에서 보기 ↗</span></a></div></article><article class="card"><span class="status development"><span class="locale-en" lang="en">In Development</span><span class="locale-ko" lang="ko">개발 중</span></span><h3>DOGGAEVI</h3><p><span class="locale-en" lang="en">An AI-agent orchestration and workflow automation system under development, focused on research, content production, software development, and quality assurance.</span><span class="locale-ko" lang="ko">AI 에이전트와 자동화 도구를 연결해 조사, 콘텐츠 제작, 소프트웨어 개발, 품질 검증을 지원하는 시스템을 개발하고 있습니다.</span></p><p class="en" style="margin-top:auto"><span class="locale-en" lang="en">Currently in development. Not a released commercial product.</span><span class="locale-ko" lang="ko">현재 개발 단계이며, 출시된 상용 제품이 아닙니다.</span></p></article></div></div></section>
+<section aria-labelledby="studio-title"><div class="container home-intro"><p class="eyebrow"><span class="locale-en" lang="en">THE STUDIO</span><span class="locale-ko" lang="ko">AJAZARA의 방향</span></p><h2 id="studio-title"><span class="locale-en" lang="en">Useful software. Thoughtful automation.</span><span class="locale-ko" lang="ko">실용적인 소프트웨어, 신뢰할 수 있는 자동화.</span></h2><p class="section-lead"><span class="locale-en" lang="en">AJAZARA develops applications and explores how AI can reduce repetitive work and improve product development and operations. Our direction is reliable, maintainable, and cost-efficient software.</span><span class="locale-ko" lang="ko">AJAZARA는 애플리케이션을 개발하고, AI로 반복 업무를 줄이며 제품 개발과 운영의 효율을 높이는 방법을 연구하고 적용합니다. 신뢰성, 유지보수성, 비용 효율을 갖춘 소프트웨어를 지향합니다.</span></p><a class="company-link" href="/about/"><span class="locale-en" lang="en">Meet AJAZARA →</span><span class="locale-ko" lang="ko">AJAZARA 소개 보기 →</span></a></div></section>
+<section class="section-alt" id="contact" aria-labelledby="contact-title"><div class="container"><div class="contact"><div><h2 id="contact-title"><span class="locale-en" lang="en">Contact AJAZARA</span><span class="locale-ko" lang="ko">AJAZARA 문의</span></h2><p><span class="locale-en" lang="en">For product enquiries and development collaboration.</span><span class="locale-ko" lang="ko">제품 및 개발 협력 관련 문의를 보내주세요.</span></p></div><a href="mailto:contact@ajazara.xyz">contact@ajazara.xyz ↗</a></div></div></section>
+<section aria-labelledby="support-title"><div class="container support"><p class="eyebrow"><span class="locale-en" lang="en">DAILYPICK10 SUPPORT</span><span class="locale-ko" lang="ko">DAILYPICK10 고객 지원</span></p><h2 id="support-title"><span class="locale-en" lang="en">Privacy &amp; Product Support</span><span class="locale-ko" lang="ko">개인정보 보호 및 제품 지원</span></h2><p class="section-lead"><span class="locale-en" lang="en">DailyPick10 policy documents and account deletion guidance.</span><span class="locale-ko" lang="ko">DailyPick10의 정책 문서와 계정 삭제 방법을 안내합니다.</span></p><details id="privacy"><summary><span class="locale-en" lang="en">DailyPick10 Privacy Policy (Korean)</span><span class="locale-ko" lang="ko">DailyPick10 개인정보처리방침</span></summary><p lang="ko" class="policy-text">1. 개인정보의 수집 및 이용 목적
+회사는 회원가입, 원활한 고객상담, 서비스 제공을 위해 최소한의 개인정보를 수집하고 있습니다.
+- 회원 식별 및 가입 의사 확인
+- 유료 서비스 제공 및 결제 내역 관리
+- 서비스 이용 기록 분석을 통한 품질 개선
 
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .gradient-text { background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .download-btn { background: linear-gradient(135deg, #2563eb, #4f46e5); transition: transform 0.2s, box-shadow 0.2s; }
-        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); }
-        
-        /* Modal Animation */
-        .modal-enter { opacity: 0; transform: scale(0.9); }
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
-        .modal-exit { opacity: 1; transform: scale(1); }
-        .modal-exit-active { opacity: 0; transform: scale(0.9); transition: opacity 300ms, transform 300ms; }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+2. 수집하는 개인정보의 항목
+- 필수항목: 이메일 주소, 비밀번호(암호화 저장), 로그인 ID(UID)
+- 선택항목: 광고 식별자(ADID/IDFA)
+- 자동수집: 접속 로그, 쿠키, 기기 정보
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+3. 개인정보의 제3자 제공 및 위탁
+회사는 원칙적으로 이용자의 동의 없이 개인정보를 외부에 제공하지 않습니다. 단, 서비스 제공을 위해 아래와 같은 외부 전문 업체에 위탁하여 운영하고 있습니다.
+- Google Firebase: 회원 인증, 데이터 저장, 푸시 알림 발송
+- Google AdMob: 맞춤형 광고 제공
+- RevenueCat: 인앱 결제 관리
 
-        // --- 수정된 약관 (전체 내용) ---
-        const TERMS_CONTENT = `제1조 (목적)
-본 약관은 DailyPick10(이하 "회사")이 제공하는 주식 정보 서비스(이하 "서비스")의 이용조건 및 절차, 이용자와 회사의 권리, 의무, 책임사항을 규정함을 목적으로 합니다.
+4. 개인정보의 보유 및 이용 기간
+회원 탈퇴 시 수집된 개인정보는 지체 없이 파기합니다. 단, 관계 법령에 의하여 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.
+- 소비자의 불만 또는 분쟁처리에 관한 기록: 3년
+
+5. 이용자의 권리
+이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보 이용 동의를 철회할 수 있습니다. 설정 메뉴의 &#x27;회원 탈퇴&#x27; 기능을 이용하거나 고객센터로 요청하시면 즉시 조치됩니다.
+
+6. 개인정보 보호책임자 및 문의
+서비스 이용 중 발생하는 모든 개인정보보호 관련 민원은 아래의 이메일로 신고하실 수 있습니다.
+- 이메일: dailypick10.help@gmail.com
+
+(시행일) 본 방침은 2026년 1월 1일부터 시행합니다.</p><a href="/dailypick10/privacy/" class="company-link"><span class="locale-en" lang="en">Open policy page →</span><span class="locale-ko" lang="ko">정책 전문 보기 →</span></a></details><details id="terms"><summary><span class="locale-en" lang="en">DailyPick10 Terms of Use (Korean)</span><span class="locale-ko" lang="ko">DailyPick10 이용약관</span></summary><p lang="ko" class="policy-text">제1조 (목적)
+본 약관은 DailyPick10(이하 &quot;회사&quot;)이 제공하는 주식 정보 서비스(이하 &quot;서비스&quot;)의 이용조건 및 절차, 이용자와 회사의 권리, 의무, 책임사항을 규정함을 목적으로 합니다.
 
 제2조 (면책조항)
 1. 본 서비스에서 제공하는 모든 주식 정보, AI 분석 점수, 추천 종목 등은 투자 참고용 자료이며, 투자의 최종 책임은 이용자 본인에게 있습니다.
@@ -69,425 +125,4 @@
 제6조 (준거법 및 관할)
 본 약관은 대한민국 법률에 따라 규율되며, 서비스와 관련하여 발생한 분쟁은 회사의 본점 소재지를 관할하는 법원을 전속 관할로 합니다.
 
-(시행일) 본 약관은 2026년 1월 1일부터 시행합니다.`;
-
-        // --- 수정된 개인정보 처리방침 (전체 내용) ---
-        const PRIVACY_CONTENT = `1. 개인정보의 수집 및 이용 목적
-회사는 회원가입, 원활한 고객상담, 서비스 제공을 위해 최소한의 개인정보를 수집하고 있습니다.
-- 회원 식별 및 가입 의사 확인
-- 유료 서비스 제공 및 결제 내역 관리
-- 서비스 이용 기록 분석을 통한 품질 개선
-
-2. 수집하는 개인정보의 항목
-- 필수항목: 이메일 주소, 비밀번호(암호화 저장), 로그인 ID(UID)
-- 선택항목: 광고 식별자(ADID/IDFA)
-- 자동수집: 접속 로그, 쿠키, 기기 정보
-
-3. 개인정보의 제3자 제공 및 위탁
-회사는 원칙적으로 이용자의 동의 없이 개인정보를 외부에 제공하지 않습니다. 단, 서비스 제공을 위해 아래와 같은 외부 전문 업체에 위탁하여 운영하고 있습니다.
-- Google Firebase: 회원 인증, 데이터 저장, 푸시 알림 발송
-- Google AdMob: 맞춤형 광고 제공
-- RevenueCat: 인앱 결제 관리
-
-4. 개인정보의 보유 및 이용 기간
-회원 탈퇴 시 수집된 개인정보는 지체 없이 파기합니다. 단, 관계 법령에 의하여 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.
-- 소비자의 불만 또는 분쟁처리에 관한 기록: 3년
-
-5. 이용자의 권리
-이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보 이용 동의를 철회할 수 있습니다. 설정 메뉴의 '회원 탈퇴' 기능을 이용하거나 고객센터로 요청하시면 즉시 조치됩니다.
-
-6. 개인정보 보호책임자 및 문의
-서비스 이용 중 발생하는 모든 개인정보보호 관련 민원은 아래의 이메일로 신고하실 수 있습니다.
-- 이메일: dailypick10.help@gmail.com
-
-(시행일) 본 방침은 2026년 1월 1일부터 시행합니다.`;
-
-        // 아이콘 컴포넌트
-        const Icon = ({ name, size = 24, className }) => {
-            const icons = {
-                chart: <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />,
-                bolt: <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />,
-                check: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
-                download: <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />,
-                menu: <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />,
-                swing: <path strokeLinecap="round" strokeLinejoin="round" d="M2 15c3.33-6 6.67-6 10 0s6.67 6 10 0M17 5l5 0 0 5" />,
-                x: <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />,
-                arrowRight: <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            };
-            return (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={size} height={size} className={className}>
-                    {icons[name]}
-                </svg>
-            );
-        };
-
-        const Navbar = () => (
-            <nav className="w-full flex items-center justify-between px-6 py-4 max-w-6xl mx-auto absolute top-0 left-0 right-0 z-50">
-                <div className="flex items-center gap-3">
-                     <img 
-                        src="./assets/images/icon.png" 
-                        alt="Logo" 
-                        className="w-10 h-10 rounded-xl shadow-lg border border-white/10"
-                        onError={(e) => {e.target.style.display='none'; e.target.nextSibling.style.display='flex';}}
-                     />
-                     <div className="w-10 h-10 bg-indigo-600 rounded-xl hidden items-center justify-center shadow-lg border border-white/10">
-                        <Icon name="swing" size={24} className="text-white" />
-                     </div>
-                     <span className="text-xl font-extrabold text-white tracking-tight">DailyPick10</span>
-                </div>
-                <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-                    <a href="#features" className="hover:text-white transition-colors">주요 기능</a>
-                    <a href="#preview" className="hover:text-white transition-colors">오늘의 추천</a>
-                    <a href="#performance" className="hover:text-white transition-colors">성과 리포트</a>
-                    <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-                    <a href="/about/" className="hover:text-white transition-colors">AJAZARA 소개</a>
-                </div>
-            </nav>
-        );
-
-        const TermsModal = ({ visible, title, content, onClose }) => {
-            if (!visible) return null;
-            return (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 animate-in">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
-                    <div className="relative bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 shadow-2xl flex flex-col max-h-[80vh]">
-                        <div className="flex items-center justify-between p-6 border-b border-gray-800">
-                            <h3 className="text-xl font-bold text-white">{title}</h3>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors"><Icon name="x" size={20} className="text-gray-400" /></button>
-                        </div>
-                        <div className="p-6 overflow-y-auto custom-scrollbar">
-                            <pre className="whitespace-pre-wrap font-sans text-sm text-gray-300 leading-relaxed">{content}</pre>
-                        </div>
-                        <div className="p-4 border-t border-gray-800 flex justify-end">
-                            <button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">닫기</button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // [New] 차트 없는 성과 리포트 안내 섹션
-        const PerformanceInfoSection = () => (
-            <section id="performance" className="w-full py-20 px-6">
-                <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 sm:p-12 border border-gray-700 relative overflow-hidden text-center">
-                    <div className="absolute top-0 left-0 w-full h-full bg-opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] -z-0"></div>
-                    <div className="relative z-10">
-                        <div className="inline-flex items-center justify-center p-3 bg-green-500/20 rounded-xl mb-6">
-                            <Icon name="chart" size={32} className="text-green-400" />
-                        </div>
-                        <h2 className="text-3xl font-bold text-white mb-4">투명한 성과 리포트</h2>
-                        <p className="text-gray-400 max-w-2xl mx-auto mb-8 text-lg leading-relaxed">
-                            AI가 추천한 종목들이 실제로 얼마나 올랐을까요?<br/>
-                            매주 토요일, 지난 2주간의 <strong>실제 수익률</strong>을 분석한 성과 리포트를 앱에서 투명하게 공개합니다.
-                        </p>
-                        <div className="flex flex-col sm:flex-row justify-center gap-4">
-                             <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/80 px-4 py-2 rounded-lg border border-gray-600">
-                                <Icon name="check" size={16} className="text-green-500" />
-                                <span>실제 시장 데이터 기반</span>
-                             </div>
-                             <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/80 px-4 py-2 rounded-lg border border-gray-600">
-                                <Icon name="check" size={16} className="text-green-500" />
-                                <span>미국/한국 수익률 Top 10 공개</span>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-
-        const HowItWorks = () => (
-            <section id="how-it-works" className="w-full py-24 px-6 bg-slate-900/50 border-t border-slate-800">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-white mb-4">어떻게 수익을 내나요?</h2>
-                        <p className="text-gray-400">복잡한 과정 없이, 딱 3단계로 끝나는 스마트한 투자</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                        <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 -z-10"></div>
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                <Icon name="chart" size={40} className="text-blue-400" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">1. AI 시장 분석</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">장 마감 후 AI가 전체 종목의 RSI, 거래량, 수급을 분석하여 상승 시그널을 포착합니다.</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                <Icon name="bolt" size={40} className="text-yellow-400" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">2. Top 10 알림</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">가장 상승 확률이 높은 10개 종목을 엄선해 매일 아침/저녁 푸시 알림으로 배달해 드립니다.</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                <Icon name="check" size={40} className="text-green-400" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">3. 수익 실현</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">제시된 매수가/목표가를 참고해 투자하고, 2주 뒤 투명하게 공개되는 성과 리포트로 검증하세요.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-
-        const FAQ = () => (
-            <section id="faq" className="w-full py-24 px-6 border-t border-slate-800">
-                <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl font-bold text-center mb-12 text-white">자주 묻는 질문</h2>
-                    <div className="space-y-4">
-                        <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 정말 무료인가요?</h3>
-                            <p className="text-gray-400 leading-relaxed">네, 앱 다운로드와 오늘의 추천 종목 확인은 모두 무료입니다. 서버 운영을 위해 일부 광고가 포함되어 있으며, 광고 제거 및 프리미엄 기능을 원하시면 구독하실 수 있습니다.</p>
-                        </div>
-                        <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 미국 주식도 추천해주나요?</h3>
-                            <p className="text-gray-400 leading-relaxed">물론입니다. 한국 주식(코스피/코스닥)뿐만 아니라 미국 주식(S&P500, 나스닥) 추천 종목도 매일 아침 8시에 제공됩니다.</p>
-                        </div>
-                        <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. AI 분석은 믿을 수 있나요?</h3>
-                            <p className="text-gray-400 leading-relaxed">DailyPick10은 기술적 분석(RSI, 볼린저밴드 등)과 기본적 분석(재무제표)을 결합한 알고리즘을 사용합니다. 또한, 앱 내 '성과 리포트' 메뉴에서 과거 추천 종목들의 실제 수익률을 투명하게 공개하고 있습니다.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-
-        // AJAZARA 개발사 및 프로젝트 소개 — DailyPick10 소개 내용과 분리
-        const CompanySection = () => (
-            <section id="about" className="w-full py-20 px-6 bg-slate-900/50 border-t border-slate-800">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center max-w-3xl mx-auto mb-12">
-                        <p className="text-sm font-semibold tracking-widest text-indigo-400 mb-3">ABOUT AJAZARA</p>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5">AJAZARA 소개</h2>
-                        <p className="text-gray-300 leading-relaxed mb-3">
-                            AJAZARA는 AI 기반 애플리케이션과 자동화 솔루션을 개발하는 소규모 소프트웨어 사업자입니다.
-                        </p>
-                        <p lang="en" className="text-gray-400 text-sm leading-relaxed">
-                            AJAZARA is an independent software business developing AI-powered applications and automation solutions.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
-                            <span className="inline-block text-xs font-bold text-green-300 bg-green-500/10 border border-green-600/30 rounded-full px-3 py-1 mb-4">출시 · Released</span>
-                            <h3 className="text-xl font-bold text-white mb-3">DailyPick10</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed mb-5">
-                                한국과 미국 주식의 기술적 지표를 분석하고 투자 참고 정보를 제공하는 모바일 앱입니다.
-                            </p>
-                            <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-indigo-300 hover:text-indigo-200">
-                                Google Play에서 보기 →
-                            </a>
-                        </div>
-                        <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
-                            <span className="inline-block text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-600/30 rounded-full px-3 py-1 mb-4">개발 중 · In development</span>
-                            <h3 className="text-xl font-bold text-white mb-3">DOGGAEVI</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">
-                                AI 에이전트와 자동화 도구를 연계해 콘텐츠 제작 및 반복 업무를 효율화하는 시스템을 개발하고 있습니다.
-                            </p>
-                        </div>
-                    </div>
-
-                    <p className="text-center text-sm text-gray-500 mt-9 leading-relaxed">
-                        소규모 개발 체제로 운영하며, 일부 개발 업무는 협력자와 함께 진행합니다.
-                    </p>
-                </div>
-            </section>
-        );
-
-        const App = () => {
-            // [수정] 예시 데이터 (고정된 3개 종목)
-            const [topStocks] = useState([
-                { symbol: 'NVDA', name: 'NVIDIA Corp', market: 'US', currentPrice: 485.09, score: 94 },
-                { symbol: 'IONQ', name: 'IonQ Inc', market: 'US', currentPrice: 12.5, score: 89 },
-                { symbol: '005930', name: '삼성전자', market: 'KR', currentPrice: 72500, score: 85 }
-            ]);
-            // [수정] 날짜는 오늘 날짜로 고정
-            const [dataDate] = useState(new Date().toLocaleDateString());
-
-            const [modalOpen, setModalOpen] = useState(false);
-            const [modalContent, setModalContent] = useState({ title: '', content: '' });
-
-            const googlePlayUrl = "https://play.google.com/store/apps/details?id=com.ajazara.dailypick10"; 
-
-            const openTerms = (type) => {
-                if (type === 'terms') {
-                    setModalContent({ title: '이용약관', content: TERMS_CONTENT });
-                } else {
-                    setModalContent({ title: '개인정보 처리방침', content: PRIVACY_CONTENT });
-                }
-                setModalOpen(true);
-            };
-
-            return (
-                <div className="min-h-screen flex flex-col items-center bg-gray-900">
-                    <TermsModal 
-                        visible={modalOpen} 
-                        title={modalContent.title} 
-                        content={modalContent.content} 
-                        onClose={() => setModalOpen(false)} 
-                    />
-
-                    <Navbar />
-                    
-                    {/* Hero Section */}
-                    <header className="w-full max-w-5xl px-6 pt-40 pb-20 text-center relative">
-                        <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-wider text-indigo-400 uppercase bg-indigo-950/50 rounded-full border border-indigo-500/30 shadow-lg shadow-indigo-900/20">
-                            ✨ AI Based Stock Picking
-                        </div>
-                        <h1 className="text-5xl sm:text-7xl font-extrabold mb-8 tracking-tight leading-tight text-white">
-                            매일 아침, <br/>
-                            <span className="gradient-text">상승 예상 종목</span>을 배달합니다
-                        </h1>
-                        <p className="text-gray-400 text-lg sm:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-                            복잡한 차트 분석은 AI에게 맡기세요.<br/>
-                            RSI, 볼린저밴드, 거래량을 분석하여 <strong>스윙 투자</strong>에 최적화된 종목을 찾아냅니다.
-                        </p>
-                        
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href={googlePlayUrl} target="_blank" className="download-btn flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg shadow-xl shadow-blue-900/30 hover:scale-105 transition-all">
-                                <Icon name="download" /> Google Play에서 무료 다운로드
-                            </a>
-                        </div>
-                    </header>
-
-                    {/* Preview Section (Top 3 Mock Data) */}
-                    <section id="preview" className="w-full max-w-md px-4 mb-24 relative z-10">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/10 blur-[100px] -z-10 rounded-full"></div>
-                        
-                        <div className="glass-panel rounded-3xl p-2 shadow-2xl border border-white/10 bg-gray-800/50">
-                            <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                                <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
-                                    <div>
-                                        <h3 className="font-bold text-gray-100 flex items-center gap-2 text-lg">
-                                            <span className="bg-yellow-500/20 text-yellow-500 p-1 rounded-lg"><Icon name="bolt" size={18} /></span> 
-                                            {/* [수정] 텍스트 변경: 오늘의 추천종목 */}
-                                            오늘의 추천종목
-                                        </h3>
-                                        {/* [수정] 예시임을 표시 */}
-                                        <p className="text-xs text-gray-500 mt-1 pl-1">AI 알고리즘 분석 결과 (예시)</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-3">
-                                    {topStocks.map((stock, idx) => (
-                                        <div key={idx} className="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex justify-between items-center hover:bg-gray-750 transition-colors">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${idx < 3 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black' : 'bg-gray-700 text-gray-300'}`}>
-                                                    {idx + 1}
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="font-bold text-base text-gray-100">{stock.symbol}</p>
-                                                        <span className="text-[10px] bg-gray-700 px-1.5 py-0.5 rounded text-gray-400">{stock.market}</span>
-                                                    </div>
-                                                    <p className="text-xs text-gray-400 truncate max-w-[100px]">{stock.name}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                 <p className="text-base font-bold text-white tracking-tight">{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</p>
-                                                 <div className="flex items-center justify-end gap-1">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                                                    <p className="text-xs text-indigo-400 font-bold">AI {stock.score}점</p>
-                                                 </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div className="pt-4 pb-2 text-center">
-                                            <a href={googlePlayUrl} target="_blank" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                                                <span>앱에서 전체 보기</span>
-                                                <Icon name="arrowRight" size={14} />
-                                            </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    {/* [New] 성과 리포트 섹션 (그래프 없음) */}
-                    <PerformanceInfoSection />
-
-                    {/* Features Section */}
-                    <section id="features" className="w-full bg-gray-900 py-16 px-6 border-t border-slate-800">
-                        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
-                                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="chart" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">기술적 분석 자동화</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">RSI 과매도, 볼린저밴드 하단 등 검증된 지표를 AI가 매일매일 자동으로 분석합니다.</p>
-                            </div>
-                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
-                                <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="check" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">투명한 성과 공개</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">과거에 추천했던 종목들이 2주 뒤 실제로 얼마나 올랐는지 수익률을 숨김없이 공개합니다.</p>
-                            </div>
-                            <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
-                                <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="bolt" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">놓치지 않는 타이밍</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">미국장은 아침 8시, 한국장은 저녁 6시. 장 마감 직후 분석 완료 알림을 보내드립니다.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <HowItWorks />
-                    <FAQ />
-                    <CompanySection />
-                    
-                    {/* [추가] 계정 삭제 안내 섹션 (구글 플레이 정책 대응) */}
-                    <section id="delete-account" className="w-full py-16 px-6 bg-slate-900 border-t border-slate-800">
-                        <div className="max-w-3xl mx-auto text-center">
-                            <h2 className="text-2xl font-bold text-white mb-6">계정 삭제 요청</h2>
-                            <div className="bg-gray-800/40 p-8 rounded-2xl border border-gray-700 text-left">
-                                <p className="text-gray-300 mb-4 leading-relaxed">
-                                    DailyPick10은 사용자의 개인정보 자기결정권을 존중합니다.<br/>
-                                    계정 및 관련 데이터의 영구 삭제를 원하시는 경우, 아래 두 가지 방법 중 하나를 선택하여 진행하실 수 있습니다.
-                                </p>
-                                <div className="space-y-4 mt-6">
-                                    <div className="flex items-start gap-3">
-                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 1</span>
-                                        <p className="text-gray-400 text-sm">
-                                            <strong>앱 내 삭제:</strong> 앱 실행 &gt; 설정 &gt; 계정 관리 &gt; '회원 탈퇴' 버튼 클릭 (즉시 삭제)
-                                        </p>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 2</span>
-                                        <div>
-                                            <p className="text-gray-400 text-sm mb-1">
-                                                <strong>이메일 요청:</strong> 아래 주소로 계정 삭제를 요청해주세요.
-                                            </p>
-                                            {/* [수정] 이메일 주소 텍스트로 표시 (링크 X, 버튼 X) */}
-                                            <p className="text-indigo-400 font-bold mt-1 select-all">
-                                                contact@ajazara.xyz
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-700/50">
-                                    * 요청 시 수집된 개인정보(이메일, UID 등)는 지체 없이 파기되며 복구할 수 없습니다.<br/>
-                                    * 관계 법령에 의해 보관이 의무화된 정보는 해당 기간 동안 안전하게 보관 후 파기됩니다.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <footer className="w-full py-12 text-center text-gray-500 text-sm bg-gray-900 border-t border-gray-800">
-                        <div className="flex items-center justify-center gap-2 mb-4 opacity-70">
-                             <Icon name="swing" size={24} className="text-gray-500" />
-                             <span className="font-bold text-gray-400">DailyPick10</span>
-                        </div>
-                        <p className="mb-6 text-xs">© 2026 AJAZARA. All rights reserved.</p>
-                        <div className="flex flex-wrap justify-center gap-6 text-xs font-medium">
-                            <a href="/about/" className="hover:text-gray-300 transition-colors">AJAZARA 소개</a>
-                            <button onClick={() => openTerms('terms')} className="hover:text-gray-300 transition-colors">이용약관</button>
-                            <button onClick={() => openTerms('privacy')} className="hover:text-gray-300 transition-colors">개인정보처리방침</button>
-                            <a href="mailto:contact@ajazara.xyz" className="hover:text-gray-300 transition-colors">문의하기</a>
-                        </div>
-                    </footer>
-                </div>
-            );
-        };
-
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
-</body>
-</html>
-
-
+(시행일) 본 약관은 2026년 1월 1일부터 시행합니다.</p><a href="/dailypick10/terms/" class="company-link"><span class="locale-en" lang="en">Open policy page →</span><span class="locale-ko" lang="ko">정책 전문 보기 →</span></a></details><details id="delete-account"><summary><span class="locale-en" lang="en">DailyPick10 Account Deletion</span><span class="locale-ko" lang="ko">DailyPick10 계정 삭제 안내</span></summary><p><span class="locale-en" lang="en">To request account deletion, open the app &gt; Settings &gt; Account Management &gt; Delete Account, or contact contact@ajazara.xyz.</span><span class="locale-ko" lang="ko">앱 실행 &gt; 설정 &gt; 계정 관리 &gt; 회원 탈퇴 또는 contact@ajazara.xyz로 계정 삭제를 요청할 수 있습니다.</span></p><a href="/dailypick10/delete-account/" class="company-link"><span class="locale-en" lang="en">Full account deletion guidance →</span><span class="locale-ko" lang="ko">전체 계정 삭제 안내 →</span></a></details><noscript><p lang="ko"><span class="locale-en" lang="en">Previous DailyPick10 sections are available through the links below.</span><span class="locale-ko" lang="ko">이전 DailyPick10 바로가기는 아래 링크에서 확인할 수 있습니다.</span></p></noscript><div class="legacy-links"><a id="features" href="/dailypick10/#features" lang="ko"><span class="locale-en" lang="en">Features</span><span class="locale-ko" lang="ko">주요 기능</span></a><a id="preview" href="/dailypick10/#preview" lang="ko"><span class="locale-en" lang="en">Product Preview</span><span class="locale-ko" lang="ko">제품 예시</span></a><a id="performance" href="/dailypick10/#performance" lang="ko"><span class="locale-en" lang="en">Performance Reports</span><span class="locale-ko" lang="ko">성과 리포트</span></a><a id="faq" href="/dailypick10/#faq" lang="ko">FAQ</a><a id="how-it-works" href="/dailypick10/#how-it-works" lang="ko"><span class="locale-en" lang="en">How It Works</span><span class="locale-ko" lang="ko">이용 방법</span></a><a id="about" href="/dailypick10/#about" lang="ko"><span class="locale-en" lang="en">Developer</span><span class="locale-ko" lang="ko">개발사 소개</span></a></div></div></section></main><footer class="site-footer">© 2026 AJAZARA (아자자라). <span class="locale-en" lang="en">All rights reserved.</span><span class="locale-ko" lang="ko">모든 권리 보유.</span><div class="site-footer-links"><a href="/about/"><span class="locale-en" lang="en"><span class="locale-en" lang="en">About AJAZARA</span><span class="locale-ko" lang="ko">AJAZARA 소개</span></span><span class="locale-ko" lang="ko">AJAZARA 소개</span></a><a href="/dailypick10/">DailyPick10</a><a href="/dailypick10/privacy/"><span class="locale-en" lang="en">Privacy Policy</span><span class="locale-ko" lang="ko">개인정보처리방침</span></a><a href="/dailypick10/terms/"><span class="locale-en" lang="en">Terms of Use</span><span class="locale-ko" lang="ko">이용약관</span></a><a href="/dailypick10/delete-account/"><span class="locale-en" lang="en">Account Deletion</span><span class="locale-ko" lang="ko">계정 삭제 안내</span></a><a href="mailto:contact@ajazara.xyz"><span class="locale-en" lang="en">Contact</span><span class="locale-ko" lang="ko">문의</span></a></div></footer></body></html>

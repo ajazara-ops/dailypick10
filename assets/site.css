@@ -1,0 +1,23 @@
+/* AJAZARA shared navigation and controls; based on the approved About page. */
+.site-topbar{width:100%;border-bottom:1px solid #273447;background:#0f172a;color:#f8fafc}
+.site-nav{width:min(1100px,calc(100% - 40px));min-height:79px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-brand{font:820 1.2rem/1.4 Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:.015em;text-decoration:none;display:flex;align-items:center;gap:11px;white-space:nowrap}
+.site-mark{width:33px;height:33px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(125deg,#2563eb,#6d28d9);font-size:14px;font-weight:900;color:#fff}
+.site-links{display:flex;align-items:center;gap:25px;font:.88rem/1.5 Inter,ui-sans-serif,system-ui,sans-serif;color:#c7d2e2}
+.site-links a{text-decoration:none;padding:10px 0}.site-links a:hover{color:#fff}.site-links [aria-current=page]{color:#60a5fa}
+.site-topbar a:focus-visible,.site-footer a:focus-visible{outline:2px solid #60a5fa;outline-offset:4px}
+.site-footer{width:100%;border-top:1px solid #273447;padding:28px 20px;text-align:center;color:#a8b5c9;font: .8rem/1.8 Inter,ui-sans-serif,system-ui,sans-serif;background:#0f172a}
+.site-footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 24px;margin-top:12px}.site-footer a{color:#becde0;text-decoration:none}
+.download-btn{background:linear-gradient(125deg,#2563eb,#4f46e5)!important;border-radius:12px!important}
+html{scroll-behavior:smooth}section[id]{scroll-margin-top:24px}
+#root{overflow-x:clip}
+.product-menu{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px;padding:12px 20px;background:#111c32;border-bottom:1px solid #273447;color:#c7d2e2;font-size:.8rem}.product-menu a{padding:6px 0}
+@media(max-width:720px){.site-nav{width:calc(100% - 32px);min-height:69px;flex-wrap:wrap;justify-content:center;gap:4px;padding:14px 0}.site-links{width:100%;justify-content:center;gap:18px;font-size:.78rem}.site-brand{font-size:1.1rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Both language copies remain in static company HTML for search engines and no-JS use. */
+html[data-site-lang=en] .locale-ko,html[data-site-lang=ko] .locale-en{display:none}
+.language-switch{display:flex;gap:5px;align-items:center}.language-switch button{cursor:pointer;min-height:34px;padding:6px 9px;border:1px solid #475569;border-radius:8px;background:#1e293b;color:#c7d2e2;font:700 .78rem/1.4 Inter,ui-sans-serif,system-ui,sans-serif}
+html[data-site-lang=en] [data-language=en],html[data-site-lang=ko] [data-language=ko]{background:#2563eb;color:#fff;border-color:#60a5fa}
+.language-switch button:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
+@media(max-width:720px){.site-nav{gap:12px 16px}.site-links{order:3;gap:clamp(10px,3vw,18px)}.language-switch{order:2}.site-brand{order:1}}

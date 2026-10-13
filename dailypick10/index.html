@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="ko" data-default-language="ko" data-company-page="false" data-site-lang="ko">
+<html class="dark" lang="ko" data-default-language="ko" data-company-page="true" data-site-lang="ko" data-title-en="DailyPick10 | AI Stock Analysis" data-title-ko="DailyPick10 - AI 스마트 스윙 투자" data-description-en="DailyPick10 provides technical stock analysis, example picks and performance reports for US and Korean markets." data-description-ko="DailyPick10 - AI가 매일 찾아주는 상승 예상 종목. 미국/한국 주식 스윙 투자 필수 앱.">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="/assets/site.css">
 <script>(function(){var lang=document.documentElement.getAttribute('data-default-language');try{var saved=localStorage.getItem('ajazara.language');if(saved==='en'||saved==='ko')lang=saved;}catch(e){}document.documentElement.setAttribute('data-site-lang',lang);if(document.documentElement.getAttribute('data-company-page')==='true')document.documentElement.lang=lang;})();</script><script src="/assets/language.js" defer></script></head>
 <body>
-    <div id="root"></div><noscript><p style="padding:24px;color:#f8fafc">DailyPick10 <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10">Google Play</a> · <a href="/dailypick10/privacy/">개인정보처리방침</a> · <a href="/dailypick10/terms/">이용약관</a> · <a href="/dailypick10/delete-account/">계정 삭제 안내</a></p></noscript>
+    <div id="root"></div><noscript><p style="padding:24px;color:#f8fafc">DailyPick10 <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10">Google Play</a> · <a href="/dailypick10/privacy/">개인정보처리방침</a> · <a href="/dailypick10/terms/">이용약관</a> · <a href="/dailypick10/delete-account/"><span className="locale-en" lang="en">Account Deletion</span><span className="locale-ko" lang="ko">계정 삭제 안내</span></a></p></noscript>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
@@ -149,14 +149,14 @@
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
                     <div className="relative bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 shadow-2xl flex flex-col max-h-[80vh]">
                         <div className="flex items-center justify-between p-6 border-b border-gray-800">
-                            <h3 className="text-xl font-bold text-white">{title}</h3>
+                            <h3 className="text-xl font-bold text-white"><span className="locale-en" lang="en">{title === "이용약관" ? "Terms of Use" : "Privacy Policy"}</span><span className="locale-ko" lang="ko">{title}</span></h3>
                             <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition-colors"><Icon name="x" size={20} className="text-gray-400" /></button>
                         </div>
                         <div className="p-6 overflow-y-auto custom-scrollbar">
-                            <pre className="whitespace-pre-wrap font-sans text-sm text-gray-300 leading-relaxed">{content}</pre>
+                            <p className="locale-en text-xs text-blue-200 mb-3" lang="en">The official policy text is provided in Korean.</p><pre lang="ko" className="whitespace-pre-wrap font-sans text-sm text-gray-300 leading-relaxed">{content}</pre>
                         </div>
                         <div className="p-4 border-t border-gray-800 flex justify-end">
-                            <button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">닫기</button>
+                            <button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"><span className="locale-en" lang="en">Close</span><span className="locale-ko" lang="ko">닫기</span></button>
                         </div>
                     </div>
                 </div>
@@ -172,19 +172,19 @@
                         <div className="inline-flex items-center justify-center p-3 bg-green-500/20 rounded-xl mb-6">
                             <Icon name="chart" size={32} className="text-green-400" />
                         </div>
-                        <h2 className="text-3xl font-bold text-white mb-4">투명한 성과 리포트</h2>
+                        <h2 className="text-3xl font-bold text-white mb-4"><span className="locale-en" lang="en">Transparent Performance Reports</span><span className="locale-ko" lang="ko">투명한 성과 리포트</span></h2>
                         <p className="text-gray-400 max-w-2xl mx-auto mb-8 text-lg leading-relaxed">
-                            AI가 추천한 종목들이 실제로 얼마나 올랐을까요?<br/>
-                            매주 토요일, 지난 2주간의 <strong>실제 수익률</strong>을 분석한 성과 리포트를 앱에서 투명하게 공개합니다.
+                            <span className="locale-en" lang="en">How did the suggested stocks perform?</span><span className="locale-ko" lang="ko">AI가 추천한 종목들이 실제로 얼마나 올랐을까요?</span><br/>
+                            <span className="locale-en" lang="en">Every Saturday, the app publishes a report reviewing the <strong>actual returns</strong> of picks from the previous two weeks.</span><span className="locale-ko" lang="ko">매주 토요일, 지난 2주간의 <strong>실제 수익률</strong>을 분석한 성과 리포트를 앱에서 투명하게 공개합니다.</span>
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
                              <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/80 px-4 py-2 rounded-lg border border-gray-600">
                                 <Icon name="check" size={16} className="text-green-500" />
-                                <span>실제 시장 데이터 기반</span>
+                                <span><span className="locale-en" lang="en">Based on actual market data</span><span className="locale-ko" lang="ko">실제 시장 데이터 기반</span></span>
                              </div>
                              <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/80 px-4 py-2 rounded-lg border border-gray-600">
                                 <Icon name="check" size={16} className="text-green-500" />
-                                <span>미국/한국 수익률 Top 10 공개</span>
+                                <span><span className="locale-en" lang="en">Top 10 performance results for US and Korean stocks</span><span className="locale-ko" lang="ko">미국/한국 수익률 Top 10 공개</span></span>
                              </div>
                         </div>
                     </div>
@@ -196,8 +196,8 @@
             <section id="how-it-works" className="w-full py-24 px-6 bg-slate-900/50 border-t border-slate-800">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-white mb-4">어떻게 수익을 내나요?</h2>
-                        <p className="text-gray-400">복잡한 과정 없이, 딱 3단계로 끝나는 스마트한 투자</p>
+                        <h2 className="text-3xl font-bold text-white mb-4"><span className="locale-en" lang="en">How It Works</span><span className="locale-ko" lang="ko">어떻게 수익을 내나요?</span></h2>
+                        <p className="text-gray-400"><span className="locale-en" lang="en">A simple three-step approach to using the app for investment research</span><span className="locale-ko" lang="ko">복잡한 과정 없이, 딱 3단계로 끝나는 스마트한 투자</span></p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
                         <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 -z-10"></div>
@@ -205,22 +205,22 @@
                             <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
                                 <Icon name="chart" size={40} className="text-blue-400" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">1. AI 시장 분석</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">장 마감 후 AI가 전체 종목의 RSI, 거래량, 수급을 분석하여 상승 시그널을 포착합니다.</p>
+                            <h3 className="text-xl font-bold mb-3 text-gray-100"><span className="locale-en" lang="en">1. AI Market Analysis</span><span className="locale-ko" lang="ko">1. AI 시장 분석</span></h3>
+                            <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">After market close, the system examines RSI, trading volume, and market flows to identify potential upward signals.</span><span className="locale-ko" lang="ko">장 마감 후 AI가 전체 종목의 RSI, 거래량, 수급을 분석하여 상승 시그널을 포착합니다.</span></p>
                         </div>
                         <div className="flex flex-col items-center text-center group">
                             <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
                                 <Icon name="bolt" size={40} className="text-yellow-400" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">2. Top 10 알림</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">가장 상승 확률이 높은 10개 종목을 엄선해 매일 아침/저녁 푸시 알림으로 배달해 드립니다.</p>
+                            <h3 className="text-xl font-bold mb-3 text-gray-100"><span className="locale-en" lang="en">2. Top 10 Alerts</span><span className="locale-ko" lang="ko">2. Top 10 알림</span></h3>
+                            <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">The app selects ten promising stocks and sends notifications in the morning and evening.</span><span className="locale-ko" lang="ko">가장 상승 확률이 높은 10개 종목을 엄선해 매일 아침/저녁 푸시 알림으로 배달해 드립니다.</span></p>
                         </div>
                         <div className="flex flex-col items-center text-center group">
                             <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center border-4 border-gray-900 mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
                                 <Icon name="check" size={40} className="text-green-400" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-100">3. 수익 실현</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">제시된 매수가/목표가를 참고해 투자하고, 2주 뒤 투명하게 공개되는 성과 리포트로 검증하세요.</p>
+                            <h3 className="text-xl font-bold mb-3 text-gray-100"><span className="locale-en" lang="en">3. Track Outcomes</span><span className="locale-ko" lang="ko">3. 수익 실현</span></h3>
+                            <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">Use suggested entry and target prices as references for your own decisions, then review the published performance report two weeks later.</span><span className="locale-ko" lang="ko">제시된 매수가/목표가를 참고해 투자하고, 2주 뒤 투명하게 공개되는 성과 리포트로 검증하세요.</span></p>
                         </div>
                     </div>
                 </div>
@@ -230,19 +230,19 @@
         const FAQ = () => (
             <section id="faq" className="w-full py-24 px-6 border-t border-slate-800">
                 <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl font-bold text-center mb-12 text-white">자주 묻는 질문</h2>
+                    <h2 className="text-3xl font-bold text-center mb-12 text-white"><span className="locale-en" lang="en">Frequently Asked Questions</span><span className="locale-ko" lang="ko">자주 묻는 질문</span></h2>
                     <div className="space-y-4">
                         <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 정말 무료인가요?</h3>
-                            <p className="text-gray-400 leading-relaxed">네, 앱 다운로드와 오늘의 추천 종목 확인은 모두 무료입니다. 서버 운영을 위해 일부 광고가 포함되어 있으며, 광고 제거 및 프리미엄 기능을 원하시면 구독하실 수 있습니다.</p>
+                            <h3 className="font-bold text-lg mb-2 text-indigo-300"><span className="locale-en" lang="en">Q. Is the app free?</span><span className="locale-ko" lang="ko">Q. 정말 무료인가요?</span></h3>
+                            <p className="text-gray-400 leading-relaxed"><span className="locale-en" lang="en">Yes. Downloading the app and viewing daily picks are free. Some ads help support the service, and an optional subscription offers ad removal and premium features.</span><span className="locale-ko" lang="ko">네, 앱 다운로드와 오늘의 추천 종목 확인은 모두 무료입니다. 서버 운영을 위해 일부 광고가 포함되어 있으며, 광고 제거 및 프리미엄 기능을 원하시면 구독하실 수 있습니다.</span></p>
                         </div>
                         <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. 미국 주식도 추천해주나요?</h3>
-                            <p className="text-gray-400 leading-relaxed">물론입니다. 한국 주식(코스피/코스닥)뿐만 아니라 미국 주식(S&P500, 나스닥) 추천 종목도 매일 아침 8시 15분에 제공됩니다.</p>
+                            <h3 className="font-bold text-lg mb-2 text-indigo-300"><span className="locale-en" lang="en">Q. Does it cover US stocks?</span><span className="locale-ko" lang="ko">Q. 미국 주식도 추천해주나요?</span></h3>
+                            <p className="text-gray-400 leading-relaxed"><span className="locale-en" lang="en">Yes. It covers Korean stocks (KOSPI/KOSDAQ) and US stocks (S&P 500 and Nasdaq). US market picks are provided at 8:15 a.m. Korea time.</span><span className="locale-ko" lang="ko">물론입니다. 한국 주식(코스피/코스닥)뿐만 아니라 미국 주식(S&P500, 나스닥) 추천 종목도 매일 아침 8시 15분에 제공됩니다.</span></p>
                         </div>
                         <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 hover:bg-gray-800/60 transition-colors">
-                            <h3 className="font-bold text-lg mb-2 text-indigo-300">Q. AI 분석은 믿을 수 있나요?</h3>
-                            <p className="text-gray-400 leading-relaxed">DailyPick10은 기술적 분석(RSI, 볼린저밴드 등)과 기본적 분석(재무제표)을 결합한 알고리즘을 사용합니다. 또한, 앱 내 '성과 리포트' 메뉴에서 과거 추천 종목들의 실제 수익률을 투명하게 공개하고 있습니다.</p>
+                            <h3 className="font-bold text-lg mb-2 text-indigo-300"><span className="locale-en" lang="en">Q. How can I evaluate the analysis?</span><span className="locale-ko" lang="ko">Q. AI 분석은 믿을 수 있나요?</span></h3>
+                            <p className="text-gray-400 leading-relaxed"><span className="locale-en" lang="en">DailyPick10 combines technical indicators (such as RSI and Bollinger Bands) with fundamental data (such as financial statements). You can review historical results in the app’s Performance Reports section.</span><span className="locale-ko" lang="ko">DailyPick10은 기술적 분석(RSI, 볼린저밴드 등)과 기본적 분석(재무제표)을 결합한 알고리즘을 사용합니다. 또한, 앱 내 '성과 리포트' 메뉴에서 과거 추천 종목들의 실제 수익률을 투명하게 공개하고 있습니다.</span></p>
                         </div>
                     </div>
                 </div>
@@ -255,37 +255,35 @@
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center max-w-3xl mx-auto mb-12">
                         <p className="text-sm font-semibold tracking-widest text-indigo-400 mb-3">ABOUT AJAZARA</p>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5">AJAZARA 소개</h2>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5"><span className="locale-en" lang="en">About AJAZARA</span><span className="locale-ko" lang="ko">AJAZARA 소개</span></h2>
                         <p className="text-gray-300 leading-relaxed mb-3">
-                            AJAZARA는 AI 기반 애플리케이션과 자동화 솔루션을 개발하는 소규모 소프트웨어 사업자입니다.
+                            <span className="locale-en" lang="en">AJAZARA is a small software business developing AI-powered applications and automation tools.</span><span className="locale-ko" lang="ko">AJAZARA는 AI 기반 애플리케이션과 자동화 솔루션을 개발하는 소규모 소프트웨어 사업자입니다.</span>
                         </p>
-                        <p lang="en" className="text-gray-400 text-sm leading-relaxed">
-                            AJAZARA is an independent software business developing AI-powered applications and automation solutions.
-                        </p>
+                        <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">AJAZARA is an independent software studio based in South Korea.</span><span className="locale-ko" lang="ko">AJAZARA는 한국에 기반을 둔 독립 소프트웨어 개발사입니다.</span></p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
-                            <span className="inline-block text-xs font-bold text-green-300 bg-green-500/10 border border-green-600/30 rounded-full px-3 py-1 mb-4">출시 · Released</span>
+                            <span className="inline-block text-xs font-bold text-green-300 bg-green-500/10 border border-green-600/30 rounded-full px-3 py-1 mb-4"><span className="locale-en" lang="en">Released</span><span className="locale-ko" lang="ko">출시 · Released</span></span>
                             <h3 className="text-xl font-bold text-white mb-3">DailyPick10</h3>
                             <p className="text-gray-400 text-sm leading-relaxed mb-5">
-                                한국과 미국 주식의 기술적 지표를 분석하고 투자 참고 정보를 제공하는 모바일 앱입니다.
+                                <span className="locale-en" lang="en">A released mobile app providing stock-analysis information for Korean and US markets.</span><span className="locale-ko" lang="ko">한국과 미국 주식의 기술적 지표를 분석하고 투자 참고 정보를 제공하는 모바일 앱입니다.</span>
                             </p>
                             <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-indigo-300 hover:text-indigo-200">
-                                Google Play에서 보기 →
+                                <span className="locale-en" lang="en">View on Google Play →</span><span className="locale-ko" lang="ko">Google Play에서 보기 →</span>
                             </a>
                         </div>
                         <div className="bg-gray-800/40 border border-gray-700 rounded-2xl p-7">
-                            <span className="inline-block text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-600/30 rounded-full px-3 py-1 mb-4">개발 중 · In development</span>
+                            <span className="inline-block text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-600/30 rounded-full px-3 py-1 mb-4"><span className="locale-en" lang="en">In development</span><span className="locale-ko" lang="ko">개발 중 · In development</span></span>
                             <h3 className="text-xl font-bold text-white mb-3">DOGGAEVI</h3>
                             <p className="text-gray-400 text-sm leading-relaxed">
-                                AI 에이전트와 자동화 도구를 연계해 콘텐츠 제작 및 반복 업무를 효율화하는 시스템을 개발하고 있습니다.
+                                <span className="locale-en" lang="en">An AI agent and workflow automation system under development, aimed at streamlining content production and repetitive work.</span><span className="locale-ko" lang="ko">AI 에이전트와 자동화 도구를 연계해 콘텐츠 제작 및 반복 업무를 효율화하는 시스템을 개발하고 있습니다.</span>
                             </p>
                         </div>
                     </div>
 
                     <p className="text-center text-sm text-gray-500 mt-9 leading-relaxed">
-                        소규모 개발 체제로 운영하며, 일부 개발 업무는 협력자와 함께 진행합니다.
+                        <span className="locale-en" lang="en">We work as a small development team, with collaborators supporting selected tasks.</span><span className="locale-ko" lang="ko">소규모 개발 체제로 운영하며, 일부 개발 업무는 협력자와 함께 진행합니다.</span>
                     </p>
                 </div>
             </section>
@@ -346,30 +344,28 @@
                         <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-wider text-indigo-400 uppercase bg-indigo-950/50 rounded-full border border-indigo-500/30 shadow-lg shadow-indigo-900/20">
                             ✨ AI Based Stock Picking
                         </div>
-                        <p className="text-sm font-bold text-green-300 mb-4">DailyPick10 · 출시 · Released</p>
+                        <p className="text-sm font-bold text-green-300 mb-4"><span className="locale-en" lang="en">DailyPick10 · Released</span><span className="locale-ko" lang="ko">DailyPick10 · 출시 · Released</span></p>
                         <h1 className="text-5xl sm:text-7xl font-extrabold mb-8 tracking-tight leading-tight text-white">
-                            매일 아침, <br/>
-                            <span className="gradient-text">상승 예상 종목</span>을 배달합니다
+                            <span className="locale-en" lang="en">Discover Stocks<br/><strong className="gradient-text">With Growth Potential</strong> Every Day.</span><span className="locale-ko" lang="ko">매일 아침, <br/><strong className="gradient-text">상승 예상 종목</strong>을 배달합니다</span>
                         </h1>
                         <p className="text-gray-400 text-lg sm:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-                            복잡한 차트 분석은 AI에게 맡기세요.<br/>
-                            RSI, 볼린저밴드, 거래량을 분석하여 <strong>스윙 투자</strong>에 최적화된 종목을 찾아냅니다.
+                            <span className="locale-en" lang="en">Let our analysis tools do the chart work.<br/>DailyPick10 examines RSI, Bollinger Bands and trading volume to identify potential <strong>swing trading</strong> opportunities.</span><span className="locale-ko" lang="ko">복잡한 차트 분석은 AI에게 맡기세요.<br/>RSI, 볼린저밴드, 거래량을 분석하여 <strong>스윙 투자</strong>에 최적화된 종목을 찾아냅니다.</span>
                         </p>
                         
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <a href={googlePlayUrl} target="_blank" rel="noopener noreferrer" className="download-btn flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg shadow-xl shadow-blue-900/30 hover:scale-105 transition-all">
-                                <Icon name="download" /> Google Play에서 무료 다운로드
+                                <Icon name="download" /> <span className="locale-en" lang="en">Download Free on Google Play</span><span className="locale-ko" lang="ko">Google Play에서 무료 다운로드</span>
                             </a>
                         </div>
                     </header>
 
                     {/* Product-specific navigation belongs inside the product page, not the global header. */}
                     <nav className="product-menu" aria-label="DailyPick10 제품 메뉴">
-                        <a href="#features">주요 기능</a>
-                        <a href="#preview">제품 예시</a>
-                        <a href="#performance">성과 리포트</a>
+                        <a href="#features"><span className="locale-en" lang="en">Features</span><span className="locale-ko" lang="ko">주요 기능</span></a>
+                        <a href="#preview"><span className="locale-en" lang="en">Preview</span><span className="locale-ko" lang="ko">제품 예시</span></a>
+                        <a href="#performance"><span className="locale-en" lang="en">Performance Reports</span><span className="locale-ko" lang="ko">성과 리포트</span></a>
                         <a href="#faq">FAQ</a>
-                        <a href="/dailypick10/delete-account/">계정 삭제 안내</a>
+                        <a href="/dailypick10/delete-account/"><span className="locale-en" lang="en">Account Deletion</span><span className="locale-ko" lang="ko">계정 삭제 안내</span></a>
                     </nav>
 
                     {/* Preview Section (Top 3 Mock Data) */}
@@ -383,10 +379,10 @@
                                         <h3 className="font-bold text-gray-100 flex items-center gap-2 text-lg">
                                             <span className="bg-yellow-500/20 text-yellow-500 p-1 rounded-lg"><Icon name="bolt" size={18} /></span> 
                                             {/* [수정] 텍스트 변경: 오늘의 추천종목 */}
-                                            오늘의 추천종목
+                                            <span className="locale-en" lang="en">Today’s Stock Picks</span><span className="locale-ko" lang="ko">오늘의 추천종목</span>
                                         </h3>
                                         {/* [수정] 예시임을 표시 */}
-                                        <p className="text-xs text-gray-500 mt-1 pl-1">AI 알고리즘 분석 결과 (예시)</p>
+                                        <p className="text-xs text-gray-500 mt-1 pl-1"><span className="locale-en" lang="en">Illustrative AI analysis (sample)</span><span className="locale-ko" lang="ko">AI 알고리즘 분석 결과 (예시)</span></p>
                                     </div>
                                 </div>
                                 
@@ -409,14 +405,14 @@
                                                  <p className="text-base font-bold text-white tracking-tight">{stock.market === 'US' ? '$' : '₩'}{stock.currentPrice.toLocaleString()}</p>
                                                  <div className="flex items-center justify-end gap-1">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                                                    <p className="text-xs text-indigo-400 font-bold">AI {stock.score}점</p>
+                                                    <p className="text-xs text-indigo-400 font-bold">AI {stock.score}<span className="locale-en" lang="en"> pts</span><span className="locale-ko" lang="ko">점</span></p>
                                                  </div>
                                             </div>
                                         </div>
                                     ))}
                                     <div className="pt-4 pb-2 text-center">
                                             <a href={googlePlayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                                                <span>앱에서 전체 보기</span>
+                                                <span><span className="locale-en" lang="en">View All in the App</span><span className="locale-ko" lang="ko">앱에서 전체 보기</span></span>
                                                 <Icon name="arrowRight" size={14} />
                                             </a>
                                     </div>
@@ -433,18 +429,18 @@
                         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
                                 <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="chart" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">기술적 분석 자동화</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">RSI 과매도, 볼린저밴드 하단 등 검증된 지표를 AI가 매일매일 자동으로 분석합니다.</p>
+                                <h3 className="text-xl font-bold mb-3 text-white"><span className="locale-en" lang="en">Automated Technical Analysis</span><span className="locale-ko" lang="ko">기술적 분석 자동화</span></h3>
+                                <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">Daily analysis uses indicators including RSI oversold signals and Bollinger Band levels.</span><span className="locale-ko" lang="ko">RSI 과매도, 볼린저밴드 하단 등 검증된 지표를 AI가 매일매일 자동으로 분석합니다.</span></p>
                             </div>
                             <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
                                 <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="check" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">투명한 성과 공개</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">과거에 추천했던 종목들이 2주 뒤 실제로 얼마나 올랐는지 수익률을 숨김없이 공개합니다.</p>
+                                <h3 className="text-xl font-bold mb-3 text-white"><span className="locale-en" lang="en">Performance Transparency</span><span className="locale-ko" lang="ko">투명한 성과 공개</span></h3>
+                                <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">The app publishes the returns of previously suggested stocks after two weeks.</span><span className="locale-ko" lang="ko">과거에 추천했던 종목들이 2주 뒤 실제로 얼마나 올랐는지 수익률을 숨김없이 공개합니다.</span></p>
                             </div>
                             <div className="p-8 rounded-3xl bg-gray-800/40 border border-gray-700/50 hover:bg-gray-800/60 transition-colors group">
                                 <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform"><Icon name="bolt" size={32} /></div>
-                                <h3 className="text-xl font-bold mb-3 text-white">놓치지 않는 타이밍</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">미국장은 아침 8시 15분, 한국장은 저녁 6시 30분. 장 마감 직후 분석 완료 알림을 보내드립니다.</p>
+                                <h3 className="text-xl font-bold mb-3 text-white"><span className="locale-en" lang="en">Timely Updates</span><span className="locale-ko" lang="ko">놓치지 않는 타이밍</span></h3>
+                                <p className="text-gray-400 text-sm leading-relaxed"><span className="locale-en" lang="en">Analysis updates are sent at 8:15 a.m. for US markets and 6:30 p.m. for Korean markets (Korea time).</span><span className="locale-ko" lang="ko">미국장은 아침 8시 15분, 한국장은 저녁 6시 30분. 장 마감 직후 분석 완료 알림을 보내드립니다.</span></p>
                             </div>
                         </div>
                     </section>
@@ -456,24 +452,23 @@
                     {/* [추가] 계정 삭제 안내 섹션 (구글 플레이 정책 대응) */}
                     <section id="delete-account" className="w-full py-16 px-6 bg-slate-900 border-t border-slate-800">
                         <div className="max-w-3xl mx-auto text-center">
-                            <h2 className="text-2xl font-bold text-white mb-6">계정 삭제 요청</h2>
+                            <h2 className="text-2xl font-bold text-white mb-6"><span className="locale-en" lang="en">Request Account Deletion</span><span className="locale-ko" lang="ko">계정 삭제 요청</span></h2>
                             <div className="bg-gray-800/40 p-8 rounded-2xl border border-gray-700 text-left">
                                 <p className="text-gray-300 mb-4 leading-relaxed">
-                                    DailyPick10은 사용자의 개인정보 자기결정권을 존중합니다.<br/>
-                                    계정 및 관련 데이터의 영구 삭제를 원하시는 경우, 아래 두 가지 방법 중 하나를 선택하여 진행하실 수 있습니다.
+                                    <span className="locale-en" lang="en">DailyPick10 respects your right to control your personal data.<br/>To request permanent deletion of your account and associated data, choose one of the options below.</span><span className="locale-ko" lang="ko">DailyPick10은 사용자의 개인정보 자기결정권을 존중합니다.<br/>계정 및 관련 데이터의 영구 삭제를 원하시는 경우, 아래 두 가지 방법 중 하나를 선택하여 진행하실 수 있습니다.</span>
                                 </p>
                                 <div className="space-y-4 mt-6">
                                     <div className="flex items-start gap-3">
-                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 1</span>
+                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center"><span className="locale-en" lang="en">Option 1</span><span className="locale-ko" lang="ko">방법 1</span></span>
                                         <p className="text-gray-400 text-sm">
-                                            <strong>앱 내 삭제:</strong> 앱 실행 &gt; 설정 &gt; 계정 관리 &gt; '회원 탈퇴' 버튼 클릭 (즉시 삭제)
+                                            <span className="locale-en" lang="en"><strong>Delete in the app:</strong> Open the app &gt; Settings &gt; Account Management &gt; Delete Account (immediate deletion).</span><span className="locale-ko" lang="ko"><strong>앱 내 삭제:</strong> 앱 실행 &gt; 설정 &gt; 계정 관리 &gt; '회원 탈퇴' 버튼 클릭 (즉시 삭제)</span>
                                         </p>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center">방법 2</span>
+                                        <span className="bg-indigo-500/20 text-indigo-400 font-bold px-2 py-0.5 rounded text-sm min-w-[60px] text-center"><span className="locale-en" lang="en">Option 2</span><span className="locale-ko" lang="ko">방법 2</span></span>
                                         <div>
                                             <p className="text-gray-400 text-sm mb-1">
-                                                <strong>이메일 요청:</strong> 아래 주소로 계정 삭제를 요청해주세요.
+                                                <span className="locale-en" lang="en"><strong>Request by email:</strong> Send your account deletion request to the address below.</span><span className="locale-ko" lang="ko"><strong>이메일 요청:</strong> 아래 주소로 계정 삭제를 요청해주세요.</span>
                                             </p>
                                             {/* [수정] 이메일 주소 텍스트로 표시 (링크 X, 버튼 X) */}
                                             <p className="text-indigo-400 font-bold mt-1 select-all">
@@ -483,8 +478,7 @@
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-700/50">
-                                    * 요청 시 수집된 개인정보(이메일, UID 등)는 지체 없이 파기되며 복구할 수 없습니다.<br/>
-                                    * 관계 법령에 의해 보관이 의무화된 정보는 해당 기간 동안 안전하게 보관 후 파기됩니다.
+                                    <span className="locale-en" lang="en">Requested personal data (such as email and UID) will be deleted without undue delay and cannot be recovered.<br/>Information required by law to be retained will be stored securely for the required period and then deleted.</span><span className="locale-ko" lang="ko">* 요청 시 수집된 개인정보(이메일, UID 등)는 지체 없이 파기되며 복구할 수 없습니다.<br/>* 관계 법령에 의해 보관이 의무화된 정보는 해당 기간 동안 안전하게 보관 후 파기됩니다.</span>
                                 </p>
                             </div>
                         </div>

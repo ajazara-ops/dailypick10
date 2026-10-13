@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" class="dark">
+<html class="dark" lang="ko" data-default-language="ko" data-company-page="false" data-site-lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,7 @@
     </style>
     <link rel="canonical" href="https://ajazara.xyz/dailypick10/">
     <link rel="stylesheet" href="/assets/site.css">
-</head>
+<script>(function(){var lang=document.documentElement.getAttribute('data-default-language');try{var saved=localStorage.getItem('ajazara.language');if(saved==='en'||saved==='ko')lang=saved;}catch(e){}document.documentElement.setAttribute('data-site-lang',lang);if(document.documentElement.getAttribute('data-company-page')==='true')document.documentElement.lang=lang;})();</script><script src="/assets/language.js" defer></script></head>
 <body>
     <div id="root"></div><noscript><p style="padding:24px;color:#f8fafc">DailyPick10 <a href="https://play.google.com/store/apps/details?id=com.ajazara.dailypick10">Google Play</a> · <a href="/dailypick10/privacy/">개인정보처리방침</a> · <a href="/dailypick10/terms/">이용약관</a> · <a href="/dailypick10/delete-account/">계정 삭제 안내</a></p></noscript>
 
@@ -123,7 +123,7 @@
             );
         };
 
-        const Navbar = () => (<><header className="site-topbar"><nav className="site-nav" aria-label="Main navigation"><a className="site-brand" href="/" aria-label="AJAZARA home"><span className="site-mark" aria-hidden="true">A</span>AJAZARA</a><div className="site-links"><a href="/">Home</a><a href="/#products">Projects</a><a href="/dailypick10/" aria-current="page">DailyPick10</a><a href="/about/">About</a><a href="/#contact">Contact</a></div></nav></header><nav className="product-menu" aria-label="DailyPick10 제품 메뉴"><a href="#features">주요 기능</a><a href="#preview">제품 예시</a><a href="#performance">성과 리포트</a><a href="#faq">FAQ</a><a href="/dailypick10/delete-account/">계정 삭제 안내</a></nav></>);
+        const Navbar = () => (<><header className="site-topbar"><nav className="site-nav" aria-label="Main navigation"><a className="site-brand" href="/" aria-label="AJAZARA home"><span className="site-mark" aria-hidden="true">A</span>AJAZARA</a><div className="site-links"><a href="/"><span className="locale-en" lang="en">Home</span><span className="locale-ko" lang="ko">홈</span></a><a href="/#products"><span className="locale-en" lang="en">Projects</span><span className="locale-ko" lang="ko">프로젝트</span></a><a href="/dailypick10/" aria-current="page">DailyPick10</a><a href="/about/"><span className="locale-en" lang="en">About</span><span className="locale-ko" lang="ko">회사 소개</span></a><a href="/#contact"><span className="locale-en" lang="en">Contact</span><span className="locale-ko" lang="ko">문의</span></a></div></nav></header><nav className="product-menu" aria-label="DailyPick10 제품 메뉴"><a href="#features">주요 기능</a><a href="#preview">제품 예시</a><a href="#performance">성과 리포트</a><a href="#faq">FAQ</a><a href="/dailypick10/delete-account/">계정 삭제 안내</a></nav></>);
 
         const TermsModal = ({ visible, title, content, onClose }) => {
             if (!visible) return null;
@@ -464,7 +464,7 @@
                         </div>
                     </section>
 
-                    <footer className="site-footer">© 2026 AJAZARA (아자자라). All rights reserved.<div className="site-footer-links"><a href="/about/">About AJAZARA</a><a href="/dailypick10/">DailyPick10</a><a href="/dailypick10/privacy/">개인정보처리방침</a><a href="/dailypick10/terms/">이용약관</a><a href="/dailypick10/delete-account/">계정 삭제 안내</a><a href="mailto:contact@ajazara.xyz">Contact</a></div></footer>
+                    <footer className="site-footer">© 2026 AJAZARA (아자자라). <span className="locale-en" lang="en">All rights reserved.</span><span className="locale-ko" lang="ko">모든 권리 보유.</span><div className="site-footer-links"><a href="/about/"><span className="locale-en" lang="en">About AJAZARA</span><span className="locale-ko" lang="ko">AJAZARA 소개</span></a><a href="/dailypick10/">DailyPick10</a><a href="/dailypick10/privacy/"><span className="locale-en" lang="en">Privacy Policy</span><span className="locale-ko" lang="ko">개인정보처리방침</span></a><a href="/dailypick10/terms/"><span className="locale-en" lang="en">Terms of Use</span><span className="locale-ko" lang="ko">이용약관</span></a><a href="/dailypick10/delete-account/"><span className="locale-en" lang="en">Account Deletion</span><span className="locale-ko" lang="ko">계정 삭제 안내</span></a><a href="mailto:contact@ajazara.xyz"><span className="locale-en" lang="en">Contact</span><span className="locale-ko" lang="ko">문의</span></a></div></footer>
                 </div>
             );
         };

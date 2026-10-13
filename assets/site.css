@@ -14,3 +14,10 @@ html{scroll-behavior:smooth}section[id]{scroll-margin-top:24px}
 .product-menu{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px;padding:12px 20px;background:#111c32;border-bottom:1px solid #273447;color:#c7d2e2;font-size:.8rem}.product-menu a{padding:6px 0}
 @media(max-width:720px){.site-nav{width:calc(100% - 32px);min-height:69px;flex-wrap:wrap;justify-content:center;gap:4px;padding:14px 0}.site-links{width:100%;justify-content:center;gap:18px;font-size:.78rem}.site-brand{font-size:1.1rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Both language copies remain in static company HTML for search engines and no-JS use. */
+html[data-site-lang=en] .locale-ko,html[data-site-lang=ko] .locale-en{display:none}
+.language-switch{display:flex;gap:5px;align-items:center}.language-switch button{cursor:pointer;min-height:34px;padding:6px 9px;border:1px solid #475569;border-radius:8px;background:#1e293b;color:#c7d2e2;font:700 .78rem/1.4 Inter,ui-sans-serif,system-ui,sans-serif}
+html[data-site-lang=en] [data-language=en],html[data-site-lang=ko] [data-language=ko]{background:#2563eb;color:#fff;border-color:#60a5fa}
+.language-switch button:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
+@media(max-width:720px){.site-nav{gap:12px 16px}.site-links{order:3;gap:clamp(10px,3vw,18px)}.language-switch{order:2}.site-brand{order:1}}

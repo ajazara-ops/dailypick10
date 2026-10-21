@@ -1,0 +1,1676 @@
+{
+  "market_status": {
+    "US": {
+      "name": "S&P 500",
+      "current": 7712.57,
+      "change": 0.28,
+      "status": "GOOD",
+      "message": "상승세 📈"
+    },
+    "KR": {
+      "name": "KOSPI",
+      "current": 5701.62,
+      "change": 2.68,
+      "status": "VERY_GOOD",
+      "message": "강한 상승 🔥"
+    },
+    "VIX": {
+      "name": "공포지수",
+      "current": 17.31,
+      "change": -6.13,
+      "status": "NEUTRAL",
+      "message": "안정적 😌"
+    }
+  },
+  "stocks": [
+    {
+      "id": "KLAC",
+      "rank": 1,
+      "symbol": "KLAC",
+      "name": "KLA Corporation",
+      "market": "US",
+      "currentPrice": 161.74,
+      "changePercent": -2.8,
+      "buyZoneTop": 164.97,
+      "buyZoneBottom": 158.51,
+      "targetPrice": 177.91,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 거래량 증가 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 21.6,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 187.86,
+          "bb_upper": 192.63,
+          "bb_lower": 163.43
+        },
+        {
+          "time": "09-24",
+          "price": 187.11,
+          "bb_upper": 193.14,
+          "bb_lower": 163.25
+        },
+        {
+          "time": "09-25",
+          "price": 187.92,
+          "bb_upper": 193.78,
+          "bb_lower": 163.02
+        },
+        {
+          "time": "09-28",
+          "price": 189.17,
+          "bb_upper": 195.12,
+          "bb_lower": 163.04
+        },
+        {
+          "time": "09-29",
+          "price": 196.53,
+          "bb_upper": 197.86,
+          "bb_lower": 162.42
+        },
+        {
+          "time": "09-30",
+          "price": 194.93,
+          "bb_upper": 199.67,
+          "bb_lower": 163.01
+        },
+        {
+          "time": "10-01",
+          "price": 200.33,
+          "bb_upper": 202.4,
+          "bb_lower": 163.09
+        },
+        {
+          "time": "10-02",
+          "price": 206.89,
+          "bb_upper": 206.27,
+          "bb_lower": 162.61
+        },
+        {
+          "time": "10-05",
+          "price": 206.85,
+          "bb_upper": 209.53,
+          "bb_lower": 161.47
+        },
+        {
+          "time": "10-06",
+          "price": 197.46,
+          "bb_upper": 210.51,
+          "bb_lower": 161.35
+        },
+        {
+          "time": "10-07",
+          "price": 196.83,
+          "bb_upper": 211.63,
+          "bb_lower": 161.62
+        },
+        {
+          "time": "10-08",
+          "price": 196.72,
+          "bb_upper": 212.58,
+          "bb_lower": 162.62
+        },
+        {
+          "time": "10-09",
+          "price": 195.57,
+          "bb_upper": 213.34,
+          "bb_lower": 163.35
+        },
+        {
+          "time": "10-12",
+          "price": 190.12,
+          "bb_upper": 212.69,
+          "bb_lower": 166.1
+        },
+        {
+          "time": "10-13",
+          "price": 184.0,
+          "bb_upper": 211.41,
+          "bb_lower": 168.98
+        },
+        {
+          "time": "10-14",
+          "price": 178.81,
+          "bb_upper": 209.9,
+          "bb_lower": 171.63
+        },
+        {
+          "time": "10-15",
+          "price": 174.46,
+          "bb_upper": 208.98,
+          "bb_lower": 173.1
+        },
+        {
+          "time": "10-16",
+          "price": 165.74,
+          "bb_upper": 210.82,
+          "bb_lower": 170.14
+        },
+        {
+          "time": "10-19",
+          "price": 166.4,
+          "bb_upper": 212.48,
+          "bb_lower": 166.72
+        },
+        {
+          "time": "10-20",
+          "price": 161.74,
+          "bb_upper": 214.33,
+          "bb_lower": 162.21
+        }
+      ],
+      "news": [
+        {
+          "title": "KLA (KLAC) Stock Sinks As Market Gains: Here's Why - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQdEkzMmFEekxyYmNiUGJMallxVDRhd2hMVEJZUUJiYkFyRmJ0dko0OXRpTm1fcDBrVTBlSVlqWDNpTXduZUNFZHBfc3pJakR3OENEZGNXeGx2RWN5TDdjUVBGUnJRRzNUTzFHVVNRdnlUN1VLMDRXTTdZYllidjVzWUhYcXhzQnI3Ui1aemxpZDNQbVRFbHRv?oc=5",
+          "sentiment": "positive",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "KLA Corporation $KLAC Stock: Sumitomo Mitsui DS Asset Management Company Ltd Grows Stake - MarketBeat",
+          "link": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQREpVaTJNQkNaX24taXU0UnZEX1dzOGU2NUdwZXJWM05McW4zb3hCMnQwS0hNaTJDV3B6MnFqOHNyMGlVc2M2RDZJMktBZEVjQlNfUS14dTBocl84U0RhbDFyb2plQzdoNjNTOHNkdHpXTmx1LWRUN3pUUlRuM1VDYVNlNFNlWkg3NkM1a01sTmFSeTVvUE5jd0lSWXR2ZTY5eUZrWVE4Z2VWMUhNdmsyUXkwa25iX2xwR3pFTjUyMWZ1V2RkaFVhRXdnbVZQazlaS2FsdEljME96NkdpV3RnOQ?oc=5",
+          "sentiment": "neutral",
+          "publisher": "MarketBeat"
+        },
+        {
+          "title": "KLA (KLAC) Stock Is Caught In A Historic Chip Equipment Losing Streak - Simply Wall Street",
+          "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxORDRZTDFXOEpYY2ZIS2hrSVJtVXZsNVYxbnkyZHB6NXdUaVFJMVNMUE5QbG1Idl8zb0Qzdlo3REthaWRZNWJsbndvb1BjczVZTHB0YjlGTDk2RnFzejV5YTl2YVp2UlppNkNxMmN5VUV5R0VlQ1lfMW5NazlaVVhVSE1vNF9ZbUx2RWNBQmpaVDZwbUFHcWVrS3YwU2dTZVkxSTBjbkpfUUJOdFVYaDl2OXZjU2ZNWnllcExVRmM2R2lOa0h5clBn0gHMAUFVX3lxTE15Z1pNcy1mZWJlWEtyWFFjelJNUHJIei1FRGI5UWJWQmRUeUg2aWY0bmpqc2ZpcHZkRHVmQnBUOEJlX1Z3UWdrN3owcWY2bG9VZUFyR2VVTUtJUTZUbGtNb1pFNUl0bUVzVlBzNUlrV1FWTFY1dVZPeVRxSDVqRjdoVUcxWWZ4V0ZNYUtzQUFPNDlkRU04SVVEV2h4WXlXeGQ3MFJCREEwalB1Q0RINkhYUEV0YnZBQ05mT0Nuek9iMGtpZ3MyWnhheW05UA?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Simply Wall Street"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.42486,
+        "rev_growth": 0.152,
+        "per": 23.995646
+      },
+      "sector": "Technology",
+      "rvol": 1.35
+    },
+    {
+      "id": "ETN",
+      "rank": 2,
+      "symbol": "ETN",
+      "name": "Eaton Corporation, PLC",
+      "market": "US",
+      "currentPrice": 381.98,
+      "changePercent": -2.43,
+      "buyZoneTop": 389.62,
+      "buyZoneBottom": 374.34,
+      "targetPrice": 420.18,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 거래량 증가 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 26.57,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 438.76,
+          "bb_upper": 444.19,
+          "bb_lower": 379.39
+        },
+        {
+          "time": "09-24",
+          "price": 440.0,
+          "bb_upper": 447.47,
+          "bb_lower": 378.17
+        },
+        {
+          "time": "09-25",
+          "price": 439.98,
+          "bb_upper": 450.73,
+          "bb_lower": 377.31
+        },
+        {
+          "time": "09-28",
+          "price": 431.41,
+          "bb_upper": 452.54,
+          "bb_lower": 378.35
+        },
+        {
+          "time": "09-29",
+          "price": 433.27,
+          "bb_upper": 454.35,
+          "bb_lower": 379.68
+        },
+        {
+          "time": "09-30",
+          "price": 429.71,
+          "bb_upper": 454.55,
+          "bb_lower": 383.38
+        },
+        {
+          "time": "10-01",
+          "price": 437.28,
+          "bb_upper": 455.16,
+          "bb_lower": 387.41
+        },
+        {
+          "time": "10-02",
+          "price": 436.11,
+          "bb_upper": 455.72,
+          "bb_lower": 390.76
+        },
+        {
+          "time": "10-05",
+          "price": 432.6,
+          "bb_upper": 456.51,
+          "bb_lower": 392.14
+        },
+        {
+          "time": "10-06",
+          "price": 445.09,
+          "bb_upper": 458.94,
+          "bb_lower": 392.0
+        },
+        {
+          "time": "10-07",
+          "price": 431.33,
+          "bb_upper": 459.48,
+          "bb_lower": 393.07
+        },
+        {
+          "time": "10-08",
+          "price": 424.51,
+          "bb_upper": 459.28,
+          "bb_lower": 394.81
+        },
+        {
+          "time": "10-09",
+          "price": 429.65,
+          "bb_upper": 459.5,
+          "bb_lower": 395.02
+        },
+        {
+          "time": "10-12",
+          "price": 426.69,
+          "bb_upper": 456.92,
+          "bb_lower": 400.95
+        },
+        {
+          "time": "10-13",
+          "price": 428.31,
+          "bb_upper": 452.84,
+          "bb_lower": 408.63
+        },
+        {
+          "time": "10-14",
+          "price": 408.85,
+          "bb_upper": 450.25,
+          "bb_lower": 412.32
+        },
+        {
+          "time": "10-15",
+          "price": 402.48,
+          "bb_upper": 451.76,
+          "bb_lower": 410.11
+        },
+        {
+          "time": "10-16",
+          "price": 391.25,
+          "bb_upper": 456.56,
+          "bb_lower": 401.96
+        },
+        {
+          "time": "10-19",
+          "price": 391.5,
+          "bb_upper": 458.96,
+          "bb_lower": 395.17
+        },
+        {
+          "time": "10-20",
+          "price": 381.98,
+          "bb_upper": 460.87,
+          "bb_lower": 387.21
+        }
+      ],
+      "news": [
+        {
+          "title": "Eaton (ETN): Will Its Electrical Backlog Translate Into Lasting Earnings Power? - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxONzBncDdtVW16VWhJcW04NlFBQ1QxNHB1cjR0ai1IeGpUbjZDdFBuOE5MdkdHSDZtek1ET25wMVBPaGxtRjhlWnNjV1lMd01OLTAtSm0wMUdvZW5XZk1hNW1tSXpubGx6SUFsVFhSSXpJMllEcGhneWZvVmRjMTdmdWktVW9lMGh5SUJ4VVFqRWpKdG5vM0hYOXdGMjlZWVpkZkJFcWNB?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "What Could Eaton Stock Be Worth In Three Years? - Trefis",
+          "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOYlQteWRuencwQllUT1RRMkxoZVhfTlM4TEU0MzRXZ2VvaHA1VHBsSzNfdi1uRFF4R3dXcmZEd0ZkMUFLay1QTzNobmpWYjV4X3JIdzhQVm82NUxfb2dHcjRuYWZoVjIzRUJ2c1NGSkczV0p2ejMtQVd1QWhncTlYSVUycHJ0WUZHSG5rR0ZxcWJCbEd1b2dRMlVXM0FYUzhRYzRLakhHbWZUdw?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Trefis"
+        },
+        {
+          "title": "Why Eaton (ETN) Stock Is Down Today - Quiver Quantitative",
+          "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBJWmZfTDd4LVc2UWVFTjduazdVRHl5a2k0Wm1ZQ2RHS2pnRmRxUDY2bHZnTjVhLU95OFkybFRLX0xMRFg3bXcxWGZwMXIzRFNGQTZPYk95OFVjM095ZUY1S2lhMTE2VjNOMTFlWHlkTERYTXNHcmZr?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Quiver Quantitative"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.16563,
+        "rev_growth": 0.214,
+        "per": 23.440798
+      },
+      "sector": "Industrials",
+      "rvol": 1.3
+    },
+    {
+      "id": "UAL",
+      "rank": 3,
+      "symbol": "UAL",
+      "name": "United Airlines Holdings, Inc.",
+      "market": "US",
+      "currentPrice": 97.77,
+      "changePercent": 2.27,
+      "buyZoneTop": 99.73,
+      "buyZoneBottom": 95.81,
+      "targetPrice": 107.55,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 거래량 폭발(1.6배) + 스토캐스틱 과매도 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 27.37,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 110.72,
+          "bb_upper": 115.36,
+          "bb_lower": 103.57
+        },
+        {
+          "time": "09-24",
+          "price": 111.19,
+          "bb_upper": 114.69,
+          "bb_lower": 103.88
+        },
+        {
+          "time": "09-25",
+          "price": 113.99,
+          "bb_upper": 115.01,
+          "bb_lower": 103.73
+        },
+        {
+          "time": "09-28",
+          "price": 111.51,
+          "bb_upper": 115.11,
+          "bb_lower": 103.71
+        },
+        {
+          "time": "09-29",
+          "price": 112.65,
+          "bb_upper": 115.48,
+          "bb_lower": 103.81
+        },
+        {
+          "time": "09-30",
+          "price": 110.95,
+          "bb_upper": 115.31,
+          "bb_lower": 104.61
+        },
+        {
+          "time": "10-01",
+          "price": 111.78,
+          "bb_upper": 115.49,
+          "bb_lower": 104.78
+        },
+        {
+          "time": "10-02",
+          "price": 112.51,
+          "bb_upper": 115.73,
+          "bb_lower": 104.91
+        },
+        {
+          "time": "10-05",
+          "price": 110.0,
+          "bb_upper": 115.64,
+          "bb_lower": 104.87
+        },
+        {
+          "time": "10-06",
+          "price": 111.87,
+          "bb_upper": 115.78,
+          "bb_lower": 105.09
+        },
+        {
+          "time": "10-07",
+          "price": 110.17,
+          "bb_upper": 115.71,
+          "bb_lower": 105.47
+        },
+        {
+          "time": "10-08",
+          "price": 107.44,
+          "bb_upper": 115.61,
+          "bb_lower": 105.66
+        },
+        {
+          "time": "10-09",
+          "price": 107.46,
+          "bb_upper": 115.68,
+          "bb_lower": 105.36
+        },
+        {
+          "time": "10-12",
+          "price": 104.44,
+          "bb_upper": 116.1,
+          "bb_lower": 104.49
+        },
+        {
+          "time": "10-13",
+          "price": 103.23,
+          "bb_upper": 116.56,
+          "bb_lower": 103.65
+        },
+        {
+          "time": "10-14",
+          "price": 98.96,
+          "bb_upper": 117.75,
+          "bb_lower": 101.73
+        },
+        {
+          "time": "10-15",
+          "price": 101.31,
+          "bb_upper": 118.25,
+          "bb_lower": 100.6
+        },
+        {
+          "time": "10-16",
+          "price": 96.1,
+          "bb_upper": 119.44,
+          "bb_lower": 98.14
+        },
+        {
+          "time": "10-19",
+          "price": 95.6,
+          "bb_upper": 119.68,
+          "bb_lower": 96.03
+        },
+        {
+          "time": "10-20",
+          "price": 97.77,
+          "bb_upper": 119.09,
+          "bb_lower": 94.88
+        }
+      ],
+      "news": [
+        {
+          "title": "UAL Stock In Focus: Retail Bullish Ahead Of Earnings, Asks CEO Scott Kirby To 'Donate All His Wealth' After Inheritance Tax Comment - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQX1pmWkxlbkxQN0NwcnFLT1dCQ182TGhqMEsteF8wZVhEUHNPUG5kUVVXczlWLTVqVjVfTUtFX2dUc1A4LW11ZnpuTkswNEpBU2lkSWNrcXlUWXNRaGhIYnpyUnVPOGlxcDhUZE9VaFRSeTk5V3JpalZNcDh3NFpDU05PSkt6SUFRLWpEY0ZTRVRrVm1zc0ZoWGJYVQ?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "United Airlines slashes 2026 profit outlook on fuel prices, but travelers keep booking despite higher fares - CNBC",
+          "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBLMVhhMlVReDFPbkRjZlAzMmFUNE1pNXVMaWNrNUJvRXRZSHZLbDZSTVZ6a2xJS0lHbndqd1h4UkNqN09sWFF2UGdpWGxtdGlRYlpZbmtCNzNrYVBTZHdrWFlQaFNEUkhVRURNNWJZTUZQblBIZzZ4aTRfUFYyd9IBgwFBVV95cUxOblZ4MmZEY2lsdDdMOXpkX19kemhaTFNneWwtNndKNEQ5R0x5UFNud203SHk0czU3dGdwZFlrT3ZhOS1FWjFTbFNsS0g3NktoREd3LWRMd0twcXBhS3FJajI4ZllnRXlEU1hiUF9ITktoYWFQU0xJY1lNMG1LTndfNF9pQQ?oc=5",
+          "sentiment": "positive",
+          "publisher": "CNBC"
+        },
+        {
+          "title": "Stocks to watch after hours: NFLX, SPCX, UAL, and CB - Seeking Alpha",
+          "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxOZTZSX0t6TDlodU5ZeGowQWZpTnB2ZnBNSndPalhPZ1oyaEZXMF9nRTBLR004cWVCb0NnakgyV2d1cEpZMVQwbGRNUUh2YUVMS1QzT2RSYms0RXNGd1pnZl8wSXgtMzlOTVhyVzd1NVRCaEZQaFdEUjBIRjU4Z3phSERHTkJKWnRKMmE3emdDcw?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Seeking Alpha"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.05534,
+        "rev_growth": 0.16,
+        "per": 7.8246045
+      },
+      "sector": "Industrials",
+      "rvol": 1.6
+    },
+    {
+      "id": "NVDA",
+      "rank": 4,
+      "symbol": "NVDA",
+      "name": "NVIDIA Corporation",
+      "market": "US",
+      "currentPrice": 216.47,
+      "changePercent": -0.29,
+      "buyZoneTop": 220.8,
+      "buyZoneBottom": 212.14,
+      "targetPrice": 238.12,
+      "aiReason": "단기 과매도 + 볼린저밴드 하단 근접 + 60일선 지지 + 스토캐스틱 과매도 + 장기 상승 추세 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 36.45,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 225.51,
+          "bb_upper": 233.59,
+          "bb_lower": 208.47
+        },
+        {
+          "time": "09-24",
+          "price": 224.58,
+          "bb_upper": 233.17,
+          "bb_lower": 210.41
+        },
+        {
+          "time": "09-25",
+          "price": 225.07,
+          "bb_upper": 232.8,
+          "bb_lower": 210.51
+        },
+        {
+          "time": "09-28",
+          "price": 228.86,
+          "bb_upper": 233.63,
+          "bb_lower": 210.84
+        },
+        {
+          "time": "09-29",
+          "price": 227.21,
+          "bb_upper": 234.14,
+          "bb_lower": 210.99
+        },
+        {
+          "time": "09-30",
+          "price": 228.38,
+          "bb_upper": 234.69,
+          "bb_lower": 211.56
+        },
+        {
+          "time": "10-01",
+          "price": 230.86,
+          "bb_upper": 235.53,
+          "bb_lower": 211.39
+        },
+        {
+          "time": "10-02",
+          "price": 233.95,
+          "bb_upper": 236.54,
+          "bb_lower": 210.95
+        },
+        {
+          "time": "10-05",
+          "price": 238.9,
+          "bb_upper": 238.43,
+          "bb_lower": 209.95
+        },
+        {
+          "time": "10-06",
+          "price": 239.24,
+          "bb_upper": 240.63,
+          "bb_lower": 209.12
+        },
+        {
+          "time": "10-07",
+          "price": 237.47,
+          "bb_upper": 242.28,
+          "bb_lower": 208.88
+        },
+        {
+          "time": "10-08",
+          "price": 230.48,
+          "bb_upper": 242.66,
+          "bb_lower": 209.71
+        },
+        {
+          "time": "10-09",
+          "price": 229.28,
+          "bb_upper": 242.83,
+          "bb_lower": 210.64
+        },
+        {
+          "time": "10-12",
+          "price": 226.32,
+          "bb_upper": 241.8,
+          "bb_lower": 213.21
+        },
+        {
+          "time": "10-13",
+          "price": 228.52,
+          "bb_upper": 240.66,
+          "bb_lower": 215.98
+        },
+        {
+          "time": "10-14",
+          "price": 221.3,
+          "bb_upper": 239.56,
+          "bb_lower": 217.82
+        },
+        {
+          "time": "10-15",
+          "price": 217.23,
+          "bb_upper": 239.87,
+          "bb_lower": 217.3
+        },
+        {
+          "time": "10-16",
+          "price": 214.13,
+          "bb_upper": 240.92,
+          "bb_lower": 215.44
+        },
+        {
+          "time": "10-19",
+          "price": 217.09,
+          "bb_upper": 241.34,
+          "bb_lower": 213.99
+        },
+        {
+          "time": "10-20",
+          "price": 216.47,
+          "bb_upper": 241.58,
+          "bb_lower": 212.5
+        }
+      ],
+      "news": [
+        {
+          "title": "Dear Nvidia Stock Fans, Mark Your Calendars for October 20 - Barchart.com",
+          "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNUzFjZUtJeHZLcVItTzI0eWUzZlNJR205ZFBLR1doeHRVNEVsTS1vSlBrY3l0OEYzNWhadUNITlprTTJMSjJpSVF5RnlNQnpnWUJrdHY0VXJtVFRqSVg5U3dXaHBoUC11eGxLbk1Wb24wR29ncFhJaWpYdzE3V3dkMnpJZ3I5TDJnSmktSEV6bmxJbzRwbU82RHBWQkNVVElRcUtV?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Barchart.com"
+        },
+        {
+          "title": "Not Even Rumors of a Big China Chip Purchase Can Lift Nvidia Stock - Barron's",
+          "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1oeXdGdlJLZWg4QWFrdDdoTFI5WWs1b1A4R1R0U2NCNmR2RkNSMnJZb2RBZVprejQwSmV3OHRVOFhmTGxTa3R0b1A2bE5Yb1VTbVB2QmJYajNZQWNPZWlsdVdhSXVQRW1abl82WEtBMGpJaFI3LTR1S1dSTlY?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Barron's"
+        },
+        {
+          "title": "Nvidia Reportedly Just Landed $35 Billion In Chip Orders From Chinese Companies. Here's Why That Could Be Great News for the Stock - The Motley Fool",
+          "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxPQzRGV0hXSU9UUkFyeVFmQ1lqaC15clpqaWFnRkFJdm5TRjg5cVZfdVpRN2toc1FnaXJWZHdybzAwS1I2U3RwblA5NU80T21NVFBrYko1M1BsOXQxemJGRERHc1hnNmxsOVVPQXZqd2c3TnZBZ3NxZENsUFhabFJiRFJERjUzSnFSR0tVQ21fS3VRdFJWOUtLZXhYYUhzTmxjV3gzZHhSM0V2SzVLWnRMTk9LeVN0Umx5OWk5YVR3YlhJaW0wUnRSUTgtMFV4a0NvNkJydFVWd25EdE9TNmh2WkhXczZqcTFrU1pNZHFVNEs2amdNaF9OLWdmMF9OTnI1TGozcw?oc=5",
+          "sentiment": "neutral",
+          "publisher": "The Motley Fool"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.66236997,
+        "rev_growth": 1.059,
+        "per": 13.601975
+      },
+      "sector": "Technology",
+      "rvol": 0.76
+    },
+    {
+      "id": "CRWD",
+      "rank": 5,
+      "symbol": "CRWD",
+      "name": "CrowdStrike Holdings, Inc.",
+      "market": "US",
+      "currentPrice": 227.37,
+      "changePercent": -0.32,
+      "buyZoneTop": 231.92,
+      "buyZoneBottom": 222.82,
+      "targetPrice": 250.11,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 60일선 지지 + 스토캐스틱 과매도 + 장기 상승 추세 + 고성장주",
+      "score": 125,
+      "rsi": 29.48,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 262.49,
+          "bb_upper": 264.44,
+          "bb_lower": 186.66
+        },
+        {
+          "time": "09-24",
+          "price": 259.67,
+          "bb_upper": 266.84,
+          "bb_lower": 191.31
+        },
+        {
+          "time": "09-25",
+          "price": 252.13,
+          "bb_upper": 269.42,
+          "bb_lower": 191.14
+        },
+        {
+          "time": "09-28",
+          "price": 259.25,
+          "bb_upper": 273.08,
+          "bb_lower": 191.57
+        },
+        {
+          "time": "09-29",
+          "price": 262.74,
+          "bb_upper": 276.87,
+          "bb_lower": 190.96
+        },
+        {
+          "time": "09-30",
+          "price": 264.75,
+          "bb_upper": 280.49,
+          "bb_lower": 192.3
+        },
+        {
+          "time": "10-01",
+          "price": 266.09,
+          "bb_upper": 282.66,
+          "bb_lower": 196.4
+        },
+        {
+          "time": "10-02",
+          "price": 270.04,
+          "bb_upper": 285.84,
+          "bb_lower": 198.73
+        },
+        {
+          "time": "10-05",
+          "price": 272.67,
+          "bb_upper": 288.56,
+          "bb_lower": 201.97
+        },
+        {
+          "time": "10-06",
+          "price": 278.86,
+          "bb_upper": 291.14,
+          "bb_lower": 206.27
+        },
+        {
+          "time": "10-07",
+          "price": 265.44,
+          "bb_upper": 289.96,
+          "bb_lower": 213.21
+        },
+        {
+          "time": "10-08",
+          "price": 263.01,
+          "bb_upper": 287.23,
+          "bb_lower": 221.36
+        },
+        {
+          "time": "10-09",
+          "price": 275.04,
+          "bb_upper": 283.21,
+          "bb_lower": 232.21
+        },
+        {
+          "time": "10-12",
+          "price": 263.01,
+          "bb_upper": 282.4,
+          "bb_lower": 235.78
+        },
+        {
+          "time": "10-13",
+          "price": 261.21,
+          "bb_upper": 281.99,
+          "bb_lower": 238.06
+        },
+        {
+          "time": "10-14",
+          "price": 249.29,
+          "bb_upper": 281.23,
+          "bb_lower": 239.62
+        },
+        {
+          "time": "10-15",
+          "price": 244.57,
+          "bb_upper": 281.34,
+          "bb_lower": 239.39
+        },
+        {
+          "time": "10-16",
+          "price": 227.39,
+          "bb_upper": 283.5,
+          "bb_lower": 236.2
+        },
+        {
+          "time": "10-19",
+          "price": 228.1,
+          "bb_upper": 286.06,
+          "bb_lower": 231.52
+        },
+        {
+          "time": "10-20",
+          "price": 227.37,
+          "bb_upper": 288.15,
+          "bb_lower": 227.16
+        }
+      ],
+      "news": [
+        {
+          "title": "Another CrowdStrike Stock Bull Signal Now Flashing - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOZG9zUmRwUDV6TjRCUmdjWDl1aE9qNVJXaGpxbFBZaVNSSVR6UjZWM2p4Y1g2dll0M0RyejIxWm9Kdlc4U043VmNhSEc2SENwVk5wbG9yel9DQk1PMjl1REhjV1RxYUdIWFpwTlR1U1hCbnM1TTYzUldhY3hsWUxwR09sdHVvZXFtNmptNXdickx0Qkd2UFBfMlVIanNqeS1sY0VUSA?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "Mapping the Market: Bulls beware — CrowdStrike shares could be in for more losses - Reuters",
+          "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNVzhyTExkaER4WEJ3VXV5MnMyVjNxMW16aVE3YXFlRDkwSGtseDVfUzJOVkZLci04NG1KTFlfWTB4RlFmZmFxdUs3blpoOVJDTjJ2VTFRMXJDZjY4OWFSQ0hEbUN0UnZGUGh4TDZfbFF4Ui1qZGhLbWxOdjd6OHZ5MnktMA?oc=5",
+          "sentiment": "negative",
+          "publisher": "Reuters"
+        },
+        {
+          "title": "Is CrowdStrike (CRWD) Still Priced for Perfection After the October Selloff? - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRGc4bG8zMGhUSjZCa1hLSmpwQkVnZ3YtLVVEZ0FRSExxM0VPMHhEYXlHWVZvZ3FTbjA4OHFaaUtRMkJ6cmN6QmIyTFM0RG5uQVdzb3FhOGJvQzMyWVhHY0NBbkZoVmlSZFdIMWtkN1QxbVh5eFdYTGUzLUU5UC0tUElON0ljdmRIUXI4ekE2dEtSRDg4RWpmT3ZlanVRUGJvbWc1RzZFMWI?oc=5",
+          "sentiment": "negative",
+          "publisher": "Yahoo Finance"
+        }
+      ],
+      "financials": {
+        "op_margin": -0.02259,
+        "rev_growth": 0.258,
+        "per": 141.11578
+      },
+      "sector": "Technology",
+      "rvol": 0.95
+    },
+    {
+      "id": "FLEX",
+      "rank": 6,
+      "symbol": "FLEX",
+      "name": "Flex Ltd.",
+      "market": "US",
+      "currentPrice": 87.49,
+      "changePercent": -0.06,
+      "buyZoneTop": 89.24,
+      "buyZoneBottom": 85.74,
+      "targetPrice": 96.24,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 거래량 폭발(1.8배) + 스토캐스틱 과매도 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 29.72,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 112.3,
+          "bb_upper": 116.3,
+          "bb_lower": 104.5
+        },
+        {
+          "time": "09-24",
+          "price": 112.4,
+          "bb_upper": 116.36,
+          "bb_lower": 104.49
+        },
+        {
+          "time": "09-25",
+          "price": 114.68,
+          "bb_upper": 116.23,
+          "bb_lower": 104.57
+        },
+        {
+          "time": "09-28",
+          "price": 113.04,
+          "bb_upper": 116.47,
+          "bb_lower": 104.57
+        },
+        {
+          "time": "09-29",
+          "price": 113.83,
+          "bb_upper": 116.85,
+          "bb_lower": 104.66
+        },
+        {
+          "time": "09-30",
+          "price": 109.99,
+          "bb_upper": 116.74,
+          "bb_lower": 105.08
+        },
+        {
+          "time": "10-01",
+          "price": 112.78,
+          "bb_upper": 116.64,
+          "bb_lower": 105.86
+        },
+        {
+          "time": "10-02",
+          "price": 116.61,
+          "bb_upper": 117.34,
+          "bb_lower": 106.04
+        },
+        {
+          "time": "10-05",
+          "price": 116.76,
+          "bb_upper": 118.03,
+          "bb_lower": 106.07
+        },
+        {
+          "time": "10-06",
+          "price": 121.38,
+          "bb_upper": 119.65,
+          "bb_lower": 105.16
+        },
+        {
+          "time": "10-07",
+          "price": 119.34,
+          "bb_upper": 120.62,
+          "bb_lower": 104.85
+        },
+        {
+          "time": "10-08",
+          "price": 114.74,
+          "bb_upper": 120.68,
+          "bb_lower": 105.47
+        },
+        {
+          "time": "10-09",
+          "price": 119.83,
+          "bb_upper": 121.38,
+          "bb_lower": 105.17
+        },
+        {
+          "time": "10-12",
+          "price": 117.24,
+          "bb_upper": 121.66,
+          "bb_lower": 105.78
+        },
+        {
+          "time": "10-13",
+          "price": 110.88,
+          "bb_upper": 121.46,
+          "bb_lower": 106.27
+        },
+        {
+          "time": "10-14",
+          "price": 100.35,
+          "bb_upper": 122.87,
+          "bb_lower": 104.1
+        },
+        {
+          "time": "10-15",
+          "price": 98.5,
+          "bb_upper": 124.36,
+          "bb_lower": 101.56
+        },
+        {
+          "time": "10-16",
+          "price": 90.46,
+          "bb_upper": 127.19,
+          "bb_lower": 96.93
+        },
+        {
+          "time": "10-19",
+          "price": 87.54,
+          "bb_upper": 129.55,
+          "bb_lower": 92.16
+        },
+        {
+          "time": "10-20",
+          "price": 87.49,
+          "bb_upper": 130.81,
+          "bb_lower": 88.2
+        }
+      ],
+      "news": [
+        {
+          "title": "Flex Stock Slides 27% Over 6 Straight Down Days - Trefis",
+          "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQbE8ySVllOXpacHBhLTBTczlmZVJsc29TaEw2YXJ0RG5jMGI5dlFyV2gwU1haSGp6YVZxcFFsNkxKSVNJQ0Z5dnFsSHJydmE3NVdNOWw1OTUxbjFvTjAxajloYk41MXYyek5RT0hwNnd2YTZOMERlelpFMFYtMlVSRzB5R2dsTHhDb2pxbGJFbFRPdmIxLVAzOEhjcFBMcGhfUXVDMlUwS3h6YnM?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Trefis"
+        },
+        {
+          "title": "Can EPC Power Acquisition Boost Flex's AI Infrastructure Growth? - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNaVY0RVFKd1RSQVIyQWsyTUF4WWxuZXkwZndyMG9COTlJc0pXLWtOZEVxM0JYQjVuQVdoa201UVpWRjVRNmpPZ2ZCai14QnNwOTcwMkRyaWg3aklzbllvRm5lc0E3ZklMOGxrMnhFSHFwN1I5alJVRmh2U3o4ZmotNlNvWDFRc2QtREhYRG1VTUUteFlscUNSNlJ1V2ZUZw?oc=5",
+          "sentiment": "positive",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "Flex Ltd. (NASDAQ:FLEX) Stock Has Average Price Target of $119.67 - MarketBeat",
+          "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPbDFFNlZiSnpFTmN2a2lCajZwVXRKQ2VQdHpwaEF4RVR5aEJGVUpwWEdoLUtFeEo4S1JoZ3RQaW9zMFpOUE9mSjhrREhLOFhzWkYxLXFhOXprYkRRaC1CZmZzOVN3S3RrSDFKS3JTSXd2VFI0d1djU295Mlg5VjV2d3Vnc3lNZjBkMFRaeEZtdm1IWkhxSW53WG1qYjJpbkxGVnZSaWlUczBRY3g2OEc3TnNMU3ZQN3pzLTF0Q0Z1b0t0QQ?oc=5",
+          "sentiment": "neutral",
+          "publisher": "MarketBeat"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.0497,
+        "rev_growth": 0.206,
+        "per": 12.396776
+      },
+      "sector": "Technology",
+      "rvol": 1.8
+    },
+    {
+      "id": "VRT",
+      "rank": 7,
+      "symbol": "VRT",
+      "name": "Vertiv Holdings, LLC",
+      "market": "US",
+      "currentPrice": 203.56,
+      "changePercent": -1.22,
+      "buyZoneTop": 207.63,
+      "buyZoneBottom": 199.49,
+      "targetPrice": 223.92,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 거래량 증가 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 125,
+      "rsi": 19.74,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 248.78,
+          "bb_upper": 284.28,
+          "bb_lower": 228.16
+        },
+        {
+          "time": "09-24",
+          "price": 245.3,
+          "bb_upper": 283.53,
+          "bb_lower": 227.07
+        },
+        {
+          "time": "09-25",
+          "price": 253.28,
+          "bb_upper": 281.97,
+          "bb_lower": 227.04
+        },
+        {
+          "time": "09-28",
+          "price": 244.04,
+          "bb_upper": 281.68,
+          "bb_lower": 226.03
+        },
+        {
+          "time": "09-29",
+          "price": 248.34,
+          "bb_upper": 281.17,
+          "bb_lower": 225.5
+        },
+        {
+          "time": "09-30",
+          "price": 241.31,
+          "bb_upper": 280.92,
+          "bb_lower": 224.29
+        },
+        {
+          "time": "10-01",
+          "price": 246.12,
+          "bb_upper": 280.47,
+          "bb_lower": 223.69
+        },
+        {
+          "time": "10-02",
+          "price": 252.18,
+          "bb_upper": 278.54,
+          "bb_lower": 223.97
+        },
+        {
+          "time": "10-05",
+          "price": 253.62,
+          "bb_upper": 273.54,
+          "bb_lower": 226.28
+        },
+        {
+          "time": "10-06",
+          "price": 253.14,
+          "bb_upper": 261.98,
+          "bb_lower": 234.08
+        },
+        {
+          "time": "10-07",
+          "price": 246.49,
+          "bb_upper": 259.3,
+          "bb_lower": 235.12
+        },
+        {
+          "time": "10-08",
+          "price": 243.73,
+          "bb_upper": 259.18,
+          "bb_lower": 234.82
+        },
+        {
+          "time": "10-09",
+          "price": 242.78,
+          "bb_upper": 257.64,
+          "bb_lower": 234.93
+        },
+        {
+          "time": "10-12",
+          "price": 239.36,
+          "bb_upper": 257.44,
+          "bb_lower": 235.33
+        },
+        {
+          "time": "10-13",
+          "price": 237.29,
+          "bb_upper": 257.03,
+          "bb_lower": 236.01
+        },
+        {
+          "time": "10-14",
+          "price": 222.83,
+          "bb_upper": 260.35,
+          "bb_lower": 231.02
+        },
+        {
+          "time": "10-15",
+          "price": 214.75,
+          "bb_upper": 264.49,
+          "bb_lower": 224.22
+        },
+        {
+          "time": "10-16",
+          "price": 206.42,
+          "bb_upper": 268.35,
+          "bb_lower": 216.06
+        },
+        {
+          "time": "10-19",
+          "price": 206.08,
+          "bb_upper": 270.32,
+          "bb_lower": 209.61
+        },
+        {
+          "time": "10-20",
+          "price": 203.56,
+          "bb_upper": 271.17,
+          "bb_lower": 203.77
+        }
+      ],
+      "news": [
+        {
+          "title": "Vertiv Holdings Co. (VRT) Stock Sinks As Market Gains: What You Should Know - Yahoo Finance Australia",
+          "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPRVI3b2xoTWhQLWdyRU1TSnVFT0xXY3l1WG5ranZtMXVtSmFZbVk1dzUyRkJ4WDU4Y3l3SkMzaVk3OUZJbm9hd2RpQThmQ1lQVXpEUHRQR0lORG52YUhKS1FZSVFZbHYtaF9URGdGejdZUWpPVERvVHFNeEFZQm1lak05RQ?oc=5",
+          "sentiment": "positive",
+          "publisher": "Yahoo Finance Australia"
+        },
+        {
+          "title": "Vertiv (NYSE:VRT) Stock Falls 1.4% - Here's What Happened - MarketBeat",
+          "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPczlxVDROX182dzVEdFp6cVFQd3JTUVBRdEl6QVYxVFhnbGJhZVdYUlBINWZPM3RRc3dGMGZQZE0xaVFVOGV4MThLSjZvbEhfTmRRQmlSSW5ldG9ySjdTUjVGMmlJVDY1NkhFT0pVRW1FN1dVS3R0NW5WRDJpQTNONV9GRVFXaDVJVTNMNlltUVNxT0pqc2RuTFVVSWVkMFFkVnJZa192NlZpczBkamRz?oc=5",
+          "sentiment": "negative",
+          "publisher": "MarketBeat"
+        },
+        {
+          "title": "A 10-Day Losing Streak Has Vertiv Stock Down 19% - Trefis",
+          "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPYzRMUGMyMGxRMmdxRWR4aTA5bjcwWW9FclVYV0dVLWxhN0hacHBSTFBSbXpISXlwU3MtbF9XUHQwb1hfYzhTODExUXNnUnJwTll0ZldpVUduZ21RUmd2Vmk3NlpjNy1GNzdIYnBxRTBkNkZ2V1BuRTJnb1NCd1RRblRROTdreVhVUng1Z2hfQ0V3LWZkNjBCQ0ZfOVFPRWxsckcydVk3clF5dWs?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Trefis"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.20362,
+        "rev_growth": 0.241,
+        "per": 22.13937
+      },
+      "sector": "Industrials",
+      "rvol": 1.35
+    },
+    {
+      "id": "CAT",
+      "rank": 8,
+      "symbol": "CAT",
+      "name": "Caterpillar, Inc.",
+      "market": "US",
+      "currentPrice": 725.24,
+      "changePercent": -0.08,
+      "buyZoneTop": 739.74,
+      "buyZoneBottom": 710.74,
+      "targetPrice": 797.76,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 115,
+      "rsi": 28.55,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 812.02,
+          "bb_upper": 831.69,
+          "bb_lower": 776.13
+        },
+        {
+          "time": "09-24",
+          "price": 805.25,
+          "bb_upper": 829.55,
+          "bb_lower": 776.6
+        },
+        {
+          "time": "09-25",
+          "price": 821.58,
+          "bb_upper": 830.36,
+          "bb_lower": 776.25
+        },
+        {
+          "time": "09-28",
+          "price": 819.95,
+          "bb_upper": 832.29,
+          "bb_lower": 776.28
+        },
+        {
+          "time": "09-29",
+          "price": 826.64,
+          "bb_upper": 835.25,
+          "bb_lower": 776.24
+        },
+        {
+          "time": "09-30",
+          "price": 810.79,
+          "bb_upper": 834.1,
+          "bb_lower": 780.56
+        },
+        {
+          "time": "10-01",
+          "price": 826.35,
+          "bb_upper": 836.1,
+          "bb_lower": 781.96
+        },
+        {
+          "time": "10-02",
+          "price": 845.42,
+          "bb_upper": 842.5,
+          "bb_lower": 780.09
+        },
+        {
+          "time": "10-05",
+          "price": 848.14,
+          "bb_upper": 848.3,
+          "bb_lower": 777.71
+        },
+        {
+          "time": "10-06",
+          "price": 863.44,
+          "bb_upper": 856.82,
+          "bb_lower": 773.28
+        },
+        {
+          "time": "10-07",
+          "price": 813.83,
+          "bb_upper": 856.74,
+          "bb_lower": 773.19
+        },
+        {
+          "time": "10-08",
+          "price": 796.18,
+          "bb_upper": 856.92,
+          "bb_lower": 772.13
+        },
+        {
+          "time": "10-09",
+          "price": 800.47,
+          "bb_upper": 856.42,
+          "bb_lower": 770.82
+        },
+        {
+          "time": "10-12",
+          "price": 799.37,
+          "bb_upper": 855.47,
+          "bb_lower": 773.31
+        },
+        {
+          "time": "10-13",
+          "price": 772.78,
+          "bb_upper": 856.87,
+          "bb_lower": 770.83
+        },
+        {
+          "time": "10-14",
+          "price": 748.98,
+          "bb_upper": 862.37,
+          "bb_lower": 761.96
+        },
+        {
+          "time": "10-15",
+          "price": 735.64,
+          "bb_upper": 869.62,
+          "bb_lower": 748.41
+        },
+        {
+          "time": "10-16",
+          "price": 730.76,
+          "bb_upper": 875.09,
+          "bb_lower": 735.12
+        },
+        {
+          "time": "10-19",
+          "price": 725.79,
+          "bb_upper": 878.72,
+          "bb_lower": 722.42
+        },
+        {
+          "time": "10-20",
+          "price": 725.24,
+          "bb_upper": 881.39,
+          "bb_lower": 711.47
+        }
+      ],
+      "news": [
+        {
+          "title": "Is Caterpillar (CAT) Stock Outpacing Its Industrial Products Peers This Year? - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQek92eG96V2FtaVhNZXBYUFB1MDBBOWNkUTdwUG5ia05Yc2tsMGxoNDk3aG9OQk9XVEZTRVBGaHYxZkVLYmdXYW5qNXg0NG9uSzUxUThvOWREWlZ5b1NncXVvVV9sTGRxUTFucnA0Q3BfbnZHMGdRbmo2M21oSXVwZ2FDZWF6ejlwSVlrek56VjgwU1J3TWxEYXJNS2Q5QmlTNzFXYWxuNF9PeVE?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Yahoo Finance"
+        },
+        {
+          "title": "Why is Red Cat stock sliding today? - Investing.com",
+          "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOckthcmFLei01aXpoN0lpS1V0VElXZk5aakQ3emdnLVpQNTFmX3pXR0VySkxETFNHMElHbFpzZkZ6cjNPYTAxLWtUNVl0TERpMEdzUXVDSVBSaHFqUnhCOTVydGgxNXJlcUkxaFdIYlhKcnc1LW1QbEZfR3VIUUJMZkxuS0cyVXBLS0YwMFAxSmYybWRscmQ2VlFZRXY?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Investing.com"
+        },
+        {
+          "title": "Caterpillar (CAT) Expands In North Carolina As Investors Ask If The Stock Is A Bargain - Simply Wall Street",
+          "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPeXV4RTZDTGNLdHJVVDVRUDQ2ak9lSGJ4X2wyQkVPY3F1UlZVdFdteUxQYk1zZ0NjT3pBMW1abXBSWXRKcUlVSzZwZ0hmWG9PZTRoTHBlYTI3TlVNLVhlSVpSLVZ1eTNUeFQxejU2bDB0cXRLS0tmS2xGTFVSZDQtQ0hHV3J5U1ZqbDFoTW5oZ2ZyYy10Yl82LW80MWhLRnpEb2Nkc3pGS3IwS0hDRUMyMWRtaDlCcjJ5OExfVWRLNEV2Z3EyU2hQQTE4QWLSAdIBQVVfeXFMUFBuM2NocmlIc2ZXRHNfMUFZV25pWms2VWhvVXk0Umk0UEZRaEpNdWlIUG54TFpUYjQ2Wk9pLVFsUGJOY0QtN3JNRHJ6T3B2V1A3dDhjNUlrVFN5RUhWOVMzSnl4VWlaNEwtLVBFOXdPNWFnZDEwVTJTajE2VXEta1NWR3FLaXJwUHZBM1dmSGxQM2VSQzVldE1RdnpFcGVieEYzTW9vOVhvdEVJN0pHdWE3cDNiZDUxeHBoellTbkVkaGk5YVNEX3VfdXkzRVg4VDFB?oc=5",
+          "sentiment": "positive",
+          "publisher": "Simply Wall Street"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.22183001,
+        "rev_growth": 0.24,
+        "per": 22.256674
+      },
+      "sector": "Industrials",
+      "rvol": 1.03
+    },
+    {
+      "id": "ALB",
+      "rank": 9,
+      "symbol": "ALB",
+      "name": "Albemarle Corporation",
+      "market": "US",
+      "currentPrice": 95.77,
+      "changePercent": 1.19,
+      "buyZoneTop": 97.69,
+      "buyZoneBottom": 93.85,
+      "targetPrice": 105.35,
+      "aiReason": "RSI 과매도(강력) + 볼린저밴드 하단 근접 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 115,
+      "rsi": 21.05,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 113.47,
+          "bb_upper": 143.48,
+          "bb_lower": 103.69
+        },
+        {
+          "time": "09-24",
+          "price": 108.25,
+          "bb_upper": 142.67,
+          "bb_lower": 101.91
+        },
+        {
+          "time": "09-25",
+          "price": 109.73,
+          "bb_upper": 141.16,
+          "bb_lower": 100.86
+        },
+        {
+          "time": "09-28",
+          "price": 107.39,
+          "bb_upper": 139.1,
+          "bb_lower": 99.97
+        },
+        {
+          "time": "09-29",
+          "price": 107.62,
+          "bb_upper": 137.11,
+          "bb_lower": 99.28
+        },
+        {
+          "time": "09-30",
+          "price": 105.78,
+          "bb_upper": 134.65,
+          "bb_lower": 98.81
+        },
+        {
+          "time": "10-01",
+          "price": 105.03,
+          "bb_upper": 130.93,
+          "bb_lower": 99.3
+        },
+        {
+          "time": "10-02",
+          "price": 104.59,
+          "bb_upper": 128.17,
+          "bb_lower": 99.35
+        },
+        {
+          "time": "10-05",
+          "price": 104.37,
+          "bb_upper": 126.49,
+          "bb_lower": 98.88
+        },
+        {
+          "time": "10-06",
+          "price": 106.35,
+          "bb_upper": 123.23,
+          "bb_lower": 99.86
+        },
+        {
+          "time": "10-07",
+          "price": 102.75,
+          "bb_upper": 120.73,
+          "bb_lower": 100.09
+        },
+        {
+          "time": "10-08",
+          "price": 102.1,
+          "bb_upper": 118.92,
+          "bb_lower": 99.94
+        },
+        {
+          "time": "10-09",
+          "price": 101.27,
+          "bb_upper": 117.97,
+          "bb_lower": 99.26
+        },
+        {
+          "time": "10-12",
+          "price": 98.51,
+          "bb_upper": 117.67,
+          "bb_lower": 97.91
+        },
+        {
+          "time": "10-13",
+          "price": 97.65,
+          "bb_upper": 117.48,
+          "bb_lower": 96.52
+        },
+        {
+          "time": "10-14",
+          "price": 97.97,
+          "bb_upper": 117.57,
+          "bb_lower": 95.28
+        },
+        {
+          "time": "10-15",
+          "price": 98.18,
+          "bb_upper": 116.53,
+          "bb_lower": 94.63
+        },
+        {
+          "time": "10-16",
+          "price": 95.48,
+          "bb_upper": 116.34,
+          "bb_lower": 93.28
+        },
+        {
+          "time": "10-19",
+          "price": 94.64,
+          "bb_upper": 115.62,
+          "bb_lower": 92.18
+        },
+        {
+          "time": "10-20",
+          "price": 95.77,
+          "bb_upper": 113.41,
+          "bb_lower": 92.28
+        }
+      ],
+      "news": [
+        {
+          "title": "symbol__ Stock Quote Price and Forecast - CNN",
+          "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9nWWszUzNWcThZWXZaVzJlR3BKSFpRcVV5bFZIWWpocWV2WUVoZ0hVSHJrNG5idUllM2lnQUI5MlFkSzJTb2MwYmJqWDRFSWM?oc=5",
+          "sentiment": "neutral",
+          "publisher": "CNN"
+        },
+        {
+          "title": "Albemarle (ALB) Stock Looks Expensive Despite Its 55% Five Year Slide - Simply Wall Street",
+          "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxONDRHbU1oN1BJRmtjd3B3TGxjRkVFMUF2QVplcHNENTEzNmFaenVZSmxRcGNDNm1aVl9pN1NscF9SX3lMWEhNNVdCdHZSMlk3OF9UY2xqNFVLblR4bnJYaWlnZUQxWEFiSGZCaWFHNXM5dF9GQ2dzOHRST3JnMjhmUEZRNjNPaDBhaGVMOUVyNlNDRllaN0tTZTJYVEpERHl4SU93NFFXQl8zTktpVzFxTmctLXFsSFp5Q1pmU2d3aDdVRWhv0gHKAUFVX3lxTFBrQnVpbVpkakZHNGRwM2F0dlY1Z1ZiYlFTTTVLaUR1MXFScy11ZE5QTWdpOVM4eElXM2dQRXNMUW53WmtNMG1sQWR3YUN6VWVueDBLVUlHQVhZRTl1dm93eWhQM2R6eWx1eXN6SThZTGhBc0NhVnRDY1RTWW1uRl9LX2RwQnlrTGtJd0M1ZmIzUFpfT0ZzWTNkOUQyN1I5OVFPbk5XakIyd0RqWnlnMzJxSUt2OGZQMTl3RTNVR1NldEEtS3VST2FuX2c?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Simply Wall Street"
+        },
+        {
+          "title": "Albemarle (ALB) Sees a More Significant Dip Than Broader Market: Some Facts to Know - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQc00xYlg1X0pETHBmWmJxSVZCNGF0T1hyS3l6SG9xRkF5cVRnM1FTanFCS09qd3hzTlJTaDA0SVU2c0Y3Vi0wemYxa2J6V0RITGlJcWVjajZyTlRBRnFkaGk5TzRlMHFaamFVbGllajBLUldGX0hadjZkalRNNjM0THhQZTBvUVRPWnpkUF9Zb3ZJZ29HdXlCRjlnYjc2ckxvNmc?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Yahoo Finance"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.2771,
+        "rev_growth": 0.311,
+        "per": 8.559743
+      },
+      "sector": "Basic Materials",
+      "rvol": 0.82
+    },
+    {
+      "id": "KEYS",
+      "rank": 10,
+      "symbol": "KEYS",
+      "name": "Keysight Technologies Inc.",
+      "market": "US",
+      "currentPrice": 334.16,
+      "changePercent": -0.51,
+      "buyZoneTop": 340.84,
+      "buyZoneBottom": 327.48,
+      "targetPrice": 367.58,
+      "aiReason": "단기 과매도 + 볼린저밴드 하단 근접 + 60일선 지지 + 스토캐스틱 과매도 + 이익률 우수 + 고성장주 + 저평가(PER)",
+      "score": 115,
+      "rsi": 35.67,
+      "history": [
+        {
+          "time": "09-23",
+          "price": 353.36,
+          "bb_upper": 349.63,
+          "bb_lower": 307.29
+        },
+        {
+          "time": "09-24",
+          "price": 357.54,
+          "bb_upper": 354.82,
+          "bb_lower": 305.68
+        },
+        {
+          "time": "09-25",
+          "price": 362.15,
+          "bb_upper": 360.35,
+          "bb_lower": 303.78
+        },
+        {
+          "time": "09-28",
+          "price": 359.74,
+          "bb_upper": 364.28,
+          "bb_lower": 303.82
+        },
+        {
+          "time": "09-29",
+          "price": 360.65,
+          "bb_upper": 367.89,
+          "bb_lower": 304.01
+        },
+        {
+          "time": "09-30",
+          "price": 364.04,
+          "bb_upper": 371.46,
+          "bb_lower": 304.92
+        },
+        {
+          "time": "10-01",
+          "price": 373.88,
+          "bb_upper": 376.69,
+          "bb_lower": 304.91
+        },
+        {
+          "time": "10-02",
+          "price": 384.64,
+          "bb_upper": 383.69,
+          "bb_lower": 304.12
+        },
+        {
+          "time": "10-05",
+          "price": 384.17,
+          "bb_upper": 389.54,
+          "bb_lower": 303.96
+        },
+        {
+          "time": "10-06",
+          "price": 388.03,
+          "bb_upper": 395.54,
+          "bb_lower": 303.43
+        },
+        {
+          "time": "10-07",
+          "price": 381.42,
+          "bb_upper": 399.3,
+          "bb_lower": 304.7
+        },
+        {
+          "time": "10-08",
+          "price": 374.67,
+          "bb_upper": 401.08,
+          "bb_lower": 307.83
+        },
+        {
+          "time": "10-09",
+          "price": 382.75,
+          "bb_upper": 404.3,
+          "bb_lower": 309.02
+        },
+        {
+          "time": "10-12",
+          "price": 377.7,
+          "bb_upper": 404.01,
+          "bb_lower": 315.58
+        },
+        {
+          "time": "10-13",
+          "price": 370.22,
+          "bb_upper": 401.24,
+          "bb_lower": 324.04
+        },
+        {
+          "time": "10-14",
+          "price": 357.62,
+          "bb_upper": 398.1,
+          "bb_lower": 330.73
+        },
+        {
+          "time": "10-15",
+          "price": 342.08,
+          "bb_upper": 396.73,
+          "bb_lower": 333.18
+        },
+        {
+          "time": "10-16",
+          "price": 331.21,
+          "bb_upper": 397.32,
+          "bb_lower": 332.2
+        },
+        {
+          "time": "10-19",
+          "price": 335.86,
+          "bb_upper": 398.02,
+          "bb_lower": 330.88
+        },
+        {
+          "time": "10-20",
+          "price": 334.16,
+          "bb_upper": 399.24,
+          "bb_lower": 328.35
+        }
+      ],
+      "news": [
+        {
+          "title": "A tax-related share surrender leaves Keysight Technologies (KEYS) SVP Li holding 33,067 shares. - Stock Titan",
+          "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOb0R0T0toNUdUTzM5SDBNZzRQTmoyYjM4djVpeW1kUnAwSzBBTDFzaGpxTXdYbGF3Y1ZRM2xmSGx0b3ZBZzctODQ2bnFheVl4MERBR2xrOHZ3RnZUalJCcnlyZzlJMVlyLWJEVVFVSXh6MlJ1dll2MDdWNDJFaXVMNlJoUndoemtwdlhpcXdubGI1VGtqRmdGQlhQMUF2RFZpZUwzVnFjYWs4ZWxZR0J0MUUzNWU1NEZQREFJ?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Stock Titan"
+        },
+        {
+          "title": "Does OCP Product Rollout Change The Bull Case For Keysight Technologies (KEYS)? - Simply Wall Street",
+          "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQN0QyOFBRdElrMTFhaWZSU2ROODFZYzNHUUFtNEtyMmU0cmVmZHBtcEFHUHhPWU8zVTNXWWtDc1cwWm5oOVJua0VCcllCbHFtSXROOXVtWEJETzRkY3J0ZUVjUDF5b3RvVkRFelFsR0dvR3FYME5hTzdQWjFDU1hjTTBjRU5LR0lMSXBvSjRHb2t5UXpMZHFfQklQWmZxZktySUZta0dlelJVZWdtb0tPOGpjdWs3WUwwVFNUQzg5eXlvRXdWYkxJR3N6R0Z0TjNTdUZkcdIB1AFBVV95cUxQN0QyOFBRdElrMTFhaWZSU2ROODFZYzNHUUFtNEtyMmU0cmVmZHBtcEFHUHhPWU8zVTNXWWtDc1cwWm5oOVJua0VCcllCbHFtSXROOXVtWEJETzRkY3J0ZUVjUDF5b3RvVkRFelFsR0dvR3FYME5hTzdQWjFDU1hjTTBjRU5LR0lMSXBvSjRHb2t5UXpMZHFfQklQWmZxZktySUZta0dlelJVZWdtb0tPOGpjdWs3WUwwVFNUQzg5eXlvRXdWYkxJR3N6R0Z0TjNTdUZkcQ?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Simply Wall Street"
+        },
+        {
+          "title": "KEYS 261120 430.00C (KEYS261120C430000) Stock Options Chain | Quotes & News - Moomoo",
+          "link": "https://news.google.com/rss/articles/CBMigwNBVV95cUxOMzhLa0pyTGNndElDTjR3ZDd1REF5TEw4Q0xfTlU5WnJSN2dFcDJuc0dKb1NtckhwY0JpSGFrZWZwMUJOTEdaT2hMeTc2b19qcGt6dGthSm5fRUc4SHpncmhkUEdrZTlTVTJxYnlzY09UM2YyQ3JoeHQxdjBseFQ4dEdiS0xaRnNDbEZMZ0pWc1dkSkMtRUt6U3o4bmt4ZlZ6akJQdG1DeU1LQl9IZmxaMmc0Wm0yX1ZLSjBFNFdlSkJaa016UkRiLVc0MzlBWGc2ek4yTld5bDRJMGJ0STU3NERiUTBIS1pFcEltQ2pXa2NoQ2VleEhla1BaUUppTk1IRG8zcGFpUDdKbzczWTEzZUZjaEgtcHEtZTNpQlRtbWMwb0E0cEVYQUE3NzhncHN4aS05MmlRRF9JMmY4NDQzT1RrcnpWWmRJN3ZPZ1RhY0ppS0RodXpJM2cxRkI3UWt0Q1NDY1dERzhhelI3bkpIUTZpdWRxUFRqUEpaWDhvZnlHU2M?oc=5",
+          "sentiment": "neutral",
+          "publisher": "Moomoo"
+        }
+      ],
+      "financials": {
+        "op_margin": 0.25677,
+        "rev_growth": 0.365,
+        "per": 23.981508
+      },
+      "sector": "Technology",
+      "rvol": 0.78
+    }
+  ],
+  "dominant_sectors": [
+    "Technology",
+    "Industrials"
+  ],
+  "timestamp": "2026-10-21 01:40:35",
+  "notification": {
+    "title": "🔔 DailyPick10 알림",
+    "body": "오늘의 미국 추천: ETN, UAL 등 (신규 5건)"
+  }
+}

@@ -178,6 +178,17 @@ class SafeSparkTests(unittest.TestCase):
         self.due(); self.materialize(); self.auth.verify_recorded_consent=None
         self.assertEqual(self.worker.run_once(self.rid)['status'],'needs_review'); self.assertEqual(self.auth.calls,[])
 
+    def test_reflected_completion_requires_both_durable_completed_status_and_phase(self):
+        self.due(); self.materialize()
+        job = self.docs.docs['accountDeletionJobs/' + self.rid]
+        job.update(status='retry_wait', phase='profile')
+        reflected = self.bridge.reflect(self.rid)
+        self.assertEqual(reflected['phase'], 'profile'); self.assertEqual(reflected['completedScope'], [])
+        self.docs.docs['accountDeletionJobs/' + self.rid].update(status='completed', phase='profile')
+        self.assertEqual(self.bridge.reflect(self.rid)['completedScope'], [])
+        self.docs.docs['accountDeletionJobs/' + self.rid].update(phase='complete')
+        self.assertEqual(self.bridge.reflect(self.rid)['completedScope'], ['firebase-auth','users-document'])
+
     def test_sdk_shaped_auth_adapter_checks_current_revocation_and_disabled_state(self):
         sdk=FakeAdmin(self.start); sdk.users['A'].tokens_valid_after_timestamp=0
         adapter=FirebaseAuthAdapter(sdk,'demo-deletion')

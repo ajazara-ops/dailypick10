@@ -136,6 +136,8 @@ class SparkIntentBridge:
             if not job: return None
             path='accountDeletionIntents/'+job['uid']; intent=tx.get(path)
             if not intent or intent['requestId']!=job_id: raise PermissionFailure('Intent generation mismatch')
-            intent.update(status=job['status'] if job['status']!='grace_period' else 'processing')
+            intent.update(status=job['status'] if job['status']!='grace_period' else 'processing',
+                          phase=job['phase'],
+                          completedScope=['firebase-auth','users-document'] if job['status']=='completed' and job['phase']=='complete' else [])
             tx.set(path,intent);return intent
         return self.documents.transaction(transact)

@@ -1,6 +1,8 @@
+diff --git a/app/index.tsx b/app/index.tsx
+index 73a4cbe..337358c 100644
 --- a/app/index.tsx
 +++ b/app/index.tsx
-@@ -5,7 +5,7 @@
+@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  import { SafeAreaProvider, SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
  // ✅ Purchases 라이브러리 필수
  import Purchases, { type PurchasesOffering } from 'react-native-purchases';
@@ -9,7 +11,7 @@
  import * as Notifications from 'expo-notifications';
  import * as WebBrowser from 'expo-web-browser';
  import * as Device from 'expo-device';
-@@ -258,9 +258,7 @@
+@@ -258,9 +258,7 @@ export default function App() {
    }, []);
  
  
@@ -20,7 +22,7 @@
  
    useEffect(() => {
      const unsubscribe = deletionClient.subscribe(setDeletionState);
-@@ -516,7 +514,15 @@
+@@ -516,7 +514,15 @@ export default function App() {
    }, [activeView, isHistoryMode, selectedStock, showGuide, handleGoHome, showAlert]);
  
    useEffect(() => {
@@ -37,7 +39,7 @@
            if (pendingStock) {
                setUnlockedStocks(prev => [...prev, pendingStock.id]);
                setSelectedStock(pendingStock);
-@@ -528,7 +534,7 @@
+@@ -528,7 +534,7 @@ export default function App() {
            }
            if (adsAllowed) load();
        }
@@ -46,7 +48,7 @@
  
    useEffect(() => {
      if (adsAllowed) {
-@@ -540,7 +546,7 @@
+@@ -540,7 +546,7 @@ export default function App() {
      if (!showSplash && adsAllowed && !hasShownInitialAd && isLoaded) {
          const adTimer = setTimeout(() => {
              try {
@@ -55,7 +57,7 @@
                  setHasShownInitialAd(true);
              } catch (e) {
                  console.log("Ad show error:", e);
-@@ -638,7 +644,7 @@
+@@ -638,7 +644,7 @@ export default function App() {
      if (isPremium || index < 2 || unlockedStocks.includes(stock.id)) { setSelectedStock(stock); return; }
      if (!isLoaded) { showAlert(t.alert, t.ad_loading); load(); return; }
      setPendingStock(stock);
@@ -64,7 +66,7 @@
    };
  
    const handleShareApp = async () => {
-@@ -664,7 +670,7 @@
+@@ -664,7 +670,7 @@ export default function App() {
        } else {
            if (isLoaded) {
                setPendingHistory(fileUrl);
@@ -73,404 +75,9 @@
            } else {
                showAlert(t.alert, t.ad_loading);
                load();
---- a/src/components/DeletionStatus.tsx
-+++ b/src/components/DeletionStatus.tsx
-@@ -8,6 +8,7 @@
-   reauthenticating: '탈퇴 요청 전 본인을 확인합니다.', submitting: '탈퇴 요청 접수를 확인하고 있습니다.',
-   grace_period: '탈퇴 신청이 접수되었습니다. 신청 서버시각부터 7일 유예 중이며 일반 서비스와 추천 알림은 중지됩니다. 재로그인만으로 취소되지 않습니다.',
-   queued: '7일 유예가 끝났습니다. 서버 작업 실행을 기다리고 있으며 아직 삭제 완료가 아닙니다. 취소할 수 없습니다.',
-+  cancel_requested: '취소 요청을 접수해 삭제를 보류했습니다. 서버의 본인 확인을 기다리며 일반 서비스와 추천 알림은 아직 중지 상태입니다.',
-   cancelled: '본인 확인 후 탈퇴 신청을 취소했습니다. 일반 서비스를 다시 이용할 수 있습니다.',
-   processing: '삭제 실행이 시작되었습니다. 복구할 수 없으며 아직 정리 완료는 아닙니다.',
-   retry_wait: '일부 정리가 끝나지 않아 서버 재시도를 기다립니다. 요청을 다시 만들 필요는 없습니다.',
---- a/src/domain/deletion.ts
-+++ b/src/domain/deletion.ts
-@@ -1,8 +1,9 @@
- export const DELETION_DISABLED_MESSAGE = '7일 유예 탈퇴 기능은 운영 연결이 보류되어 있습니다. 이 빌드에서는 탈퇴 신청을 접수하거나 실제 계정을 삭제하지 않습니다.';
-+export const DELETION_UNVERIFIED_MESSAGE = '인증 또는 네트워크 문제로 처리 상태를 확인하지 못했습니다. 로그아웃이나 계정 조회 실패만으로 삭제 완료를 판단하지 않습니다. 이 연결은 로그인 없이 완료를 확인하는 경로를 제공하지 않습니다.';
- 
- export type DeletionReceipt = {
-   version: 1; requestId: string;
--  status: 'grace_period' | 'queued' | 'cancelled' | 'processing' | 'retry_wait' | 'needs_review' | 'completed';
-+  status: 'grace_period' | 'queued' | 'cancel_requested' | 'cancelled' | 'processing' | 'retry_wait' | 'needs_review' | 'completed';
-   phase: 'quiesce' | 'auth' | 'profile' | 'complete';
-   requestedAt: number; deleteAfter: number; serverNow: number; cancelAllowed: boolean;
-   completedScope: string[]; subscriptionCancelled: false;
-@@ -10,6 +11,7 @@
- export type DeletionAttempt = {uid: string; requestId: string; recoveryKey: string};
- export interface DeletionTransport {
-   mode: 'disabled' | 'mock' | 'emulator'; // No production transport is shipped.
-+  supportsRecoveryStatus?: boolean; // Explicitly verified mock/local proof path only; default is authenticated-only.
-   subscribeChanges?(listener: () => void): () => void;
-   load(): Promise<DeletionAttempt | null>;
-   save(attempt: DeletionAttempt): Promise<void>;
-@@ -36,12 +38,13 @@
-   const v = value as DeletionReceipt;
-   const phases = ['quiesce', 'auth', 'profile', 'complete'];
-   if (v.version !== 1 || v.requestId !== requestId || v.subscriptionCancelled !== false ||
--      !['grace_period', 'queued', 'cancelled', 'processing', 'retry_wait', 'needs_review', 'completed'].includes(v.status) || !phases.includes(v.phase) ||
-+      !['grace_period', 'queued', 'cancel_requested', 'cancelled', 'processing', 'retry_wait', 'needs_review', 'completed'].includes(v.status) || !phases.includes(v.phase) ||
-       !Array.isArray(v.completedScope)) throw new Error('Invalid receipt');
-   if (![v.requestedAt,v.deleteAfter,v.serverNow].every(n => Number.isSafeInteger(n) && n >= 0 && n <= 8640000000000) || v.deleteAfter-v.requestedAt !== 604800 || v.serverNow < v.requestedAt || typeof v.cancelAllowed !== 'boolean') throw new Error('Invalid server deadline');
-   if (v.cancelAllowed !== (v.status === 'grace_period' && v.serverNow < v.deleteAfter) || (v.status === 'grace_period' && v.serverNow >= v.deleteAfter) || (v.status === 'queued' && v.serverNow < v.deleteAfter)) throw new Error('Invalid cancellation window');
--  if (['queued','cancelled','grace_period'].includes(v.status) && v.phase !== 'quiesce') throw new Error('Invalid phase');
-+  if (['queued','cancel_requested','cancelled','grace_period'].includes(v.status) && v.phase !== 'quiesce') throw new Error('Invalid phase');
-   if (v.status === 'completed') {
-+    if (v.serverNow < v.deleteAfter) throw new Error('Completion precedes deletion deadline');
-     if (v.phase !== 'complete' || v.completedScope.length !== 2 || !v.completedScope.includes('firebase-auth') || !v.completedScope.includes('users-document')) throw new Error('Unconfirmed completion');
-   } else if (v.phase === 'complete' || v.completedScope.length !== 0) throw new Error('Inconsistent receipt');
-   return v;
-@@ -72,7 +75,7 @@
-         catch (error) {
-           // Admin deletion does not immediately clear Firebase's cached currentUser.
-           // A saved receipt can still confirm cleanup without the now-invalid Auth token.
--          if (attempt?.uid !== uid || currentUid() !== uid) throw error;
-+          if (transport.supportsRecoveryStatus !== true || attempt?.uid !== uid || currentUid() !== uid) throw error;
-           expectedId = attempt.requestId;
-           result = await transport.status(attempt.requestId, attempt.recoveryKey);
-         }
-@@ -86,11 +89,12 @@
-         else emit(attempt?.uid === uid ? 'not_found' : 'idle');
-       } else if (attempt) {
-         owner = attempt.uid;
-+        if (transport.supportsRecoveryStatus !== true) throw new Error('Authenticated status unavailable');
-         const result = await transport.status(attempt.requestId, attempt.recoveryKey);
-         if (currentUid() !== null) { owner = null; emit('unknown'); return; }
-         if (result === null) emit('not_found'); else apply(result, attempt.requestId);
-       } else {owner = null; emit('idle');}
--    } catch {owner = uid ?? attempt?.uid ?? null; emit('unknown');}
-+    } catch {owner = uid ?? attempt?.uid ?? null; emit('unknown', transport.supportsRecoveryStatus === true ? undefined : DELETION_UNVERIFIED_MESSAGE);}
-     finally {busy = false;}
-   };
-   return {
---- a/src/services/accountDeletion.ts
-+++ b/src/services/accountDeletion.ts
-@@ -51,6 +51,7 @@
-   };
-   return {
-     mode: 'emulator',
-+    supportsRecoveryStatus: true, // Existing localhost proof endpoint; never a public Firestore rule.
-     async load() {
-       const value = await options.storage.load();
-       if (value !== null && !validAttempt(value)) throw new Error('Invalid recovery record');
---- /dev/null
-+++ b/src/services/interstitialSession.ts
-@@ -0,0 +1,24 @@
-+// One native ad session; consumes both promise rejections and native error events.
-+export type AdSessionState = { isLoaded: boolean; isClosed: boolean; error: boolean };
-+type Ad = { load(): void; show(): Promise<unknown>; addAdEventsListener(listener: (event: {type:string; payload?:unknown}) => void): () => void };
-+const empty = (): AdSessionState => ({isLoaded:false,isClosed:false,error:false});
-+export function createInterstitialSession(ad: Ad, events: {LOADED:string; CLOSED:string; ERROR:string}, notify: (state:AdSessionState)=>void) {
-+  let state=empty(), disposed=false, showing=false;
-+  const update=(next:AdSessionState)=>{state=next;if(!disposed)notify({...state});};
-+  const fail=()=>{showing=false;update({isLoaded:false,isClosed:false,error:true});};
-+  const unsubscribe=ad.addAdEventsListener(({type})=>{
-+    if(disposed)return;
-+    if(type===events.LOADED)update({isLoaded:true,isClosed:false,error:false});
-+    if(type===events.ERROR)fail();
-+    if(type===events.CLOSED && showing){showing=false;update({isLoaded:false,isClosed:true,error:false});}
-+  });
-+  return {
-+    load(){if(disposed || showing)return;update(empty());try{ad.load();}catch{fail();}},
-+    async show(){
-+      if(disposed || showing || !state.isLoaded)return false;
-+      showing=true;update({...state,isClosed:false});
-+      try{await ad.show();return !disposed && !state.error;}catch{if(!disposed)fail();return false;}
-+    },
-+    dispose(){disposed=true;showing=false;unsubscribe();},
-+  };
-+}
---- /dev/null
-+++ b/src/services/sparkDeletionIntake.ts
-@@ -0,0 +1,72 @@
-+// Local candidate: actual Auth/Firestore SDK, no HTTP server and no production binding.
-+// The application's default accountDeletionTransport remains disabled.
-+import { type Auth } from 'firebase/auth';
-+import { type Firestore, doc, getDoc, runTransaction, serverTimestamp } from 'firebase/firestore/lite';
-+
-+export function createLocalSparkIntake(auth: Auth, db: Firestore) {
-+  if (auth.app.options.projectId !== 'demo-dailypick10-deletion' || db.app !== auth.app
-+      || auth.emulatorConfig?.host !== '127.0.0.1' || auth.emulatorConfig?.port !== 19099) {
-+    throw new Error('Only the explicit local demo Auth/Firestore binding is allowed');
-+  }
-+  // Firestore's public type does not expose emulator configuration. Verify its
-+  // already-configured endpoint before ANY SDK operation; never configure a live app.
-+  const settings = (db as unknown as { _settings: { host: string; ssl: boolean } })._settings;
-+  if (settings.host !== '127.0.0.1:18080' || settings.ssl !== false) throw new Error('Exact local Firestore required');
-+  const identity = () => {
-+    const user = auth.currentUser;
-+    if (!user) throw new Error('Authentication required');
-+    return user;
-+  };
-+  const consent = async (user: ReturnType<typeof identity>) => {
-+    // Refresh can reject revoked sessions. Rules still bind this value to the
-+    // token; the trusted worker must independently check current Auth state.
-+    const token = await user.getIdTokenResult(true);
-+    const authTime = token.claims.auth_time;
-+    if (auth.currentUser !== user || !Number.isSafeInteger(authTime) || Number(authTime) < 0) throw new Error('Invalid authenticated consent');
-+    return Number(authTime);
-+  };
-+  const current = async () => {
-+    const user = identity();
-+    const snapshot = await getDoc(doc(db, 'accountDeletionIntents', user.uid));
-+    if (auth.currentUser !== user) throw new Error('Account changed');
-+    return snapshot.exists() ? snapshot.data() : null;
-+  };
-+  return {
-+    current,
-+    async request(requestId: string, confirmation: string) {
-+      if (confirmation !== 'DELETE_MY_ACCOUNT' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(requestId)) throw new Error('Explicit new request required');
-+      const user = identity(), state = doc(db, 'accountDeletionIntents', user.uid);
-+      const consentAuthTime = await consent(user);
-+      await runTransaction(db, async tx => {
-+        const prior = await tx.get(state);
-+        if (auth.currentUser !== user) throw new Error('Account changed');
-+        if (prior.exists() && prior.data().status !== 'cancelled') return; // Never extend an active deadline.
-+        const history = doc(state, 'attempts', requestId), used = await tx.get(history);
-+        if (used.exists()) throw new Error('Previous request cannot be replayed; confirm with a new identifier');
-+        const profile = doc(db, 'users', user.uid), existing = await tx.get(profile);
-+        if (auth.currentUser !== user) throw new Error('Account changed');
-+        tx.set(state, {version:2, requestId, requestedAt:serverTimestamp(), status:'grace_period', confirmation,
-+          consentAuthTime, profilePresent:existing.exists(), cancelledAt:null});
-+        tx.set(history, {requestedAt:serverTimestamp(), consentAuthTime});
-+        if (existing.exists()) tx.update(profile, {deletionRequest:{requestId}});
-+      });
-+      return current(); // Server-acknowledged timestamp; local clock is never persisted.
-+    },
-+    async cancel(requestId: string, confirmation: string) {
-+      if (confirmation !== 'CANCEL_ACCOUNT_DELETION') throw new Error('Explicit cancellation required');
-+      const user = identity(), state = doc(db, 'accountDeletionIntents', user.uid);
-+      const cancelAuthTime = await consent(user);
-+      await runTransaction(db, async tx => {
-+        const snapshot = await tx.get(state);
-+        if (auth.currentUser !== user || !snapshot.exists() || snapshot.data().requestId !== requestId) throw new Error('Wrong current request');
-+        const value = snapshot.data();
-+        if (value.status === 'cancelled' || value.status === 'cancel_requested') return;
-+        if (value.status !== 'grace_period') throw new Error('Cancellation closed');
-+        tx.update(state, {status:'cancel_requested', cancelRequestedAt:serverTimestamp(), cancelAuthTime, confirmation});
-+        // Only a trusted server confirmation may remove the service/push block.
-+        // Intake must also work if an administrator has removed the profile.
-+      });
-+      return current(); // Rules, not the device clock, determine the seven-day cutoff.
-+    },
-+  };
-+}
---- /dev/null
-+++ b/src/services/useSafeInterstitial.ts
-@@ -0,0 +1,18 @@
-+import { useCallback, useEffect, useRef, useState } from 'react';
-+import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
-+import { createInterstitialSession, type AdSessionState } from './interstitialSession';
-+
-+export function useSafeInterstitial(adUnitId: string | null) {
-+  const [state,setState]=useState<AdSessionState>({isLoaded:false,isClosed:false,error:false});
-+  const active=useRef<ReturnType<typeof createInterstitialSession> | null>(null);
-+  useEffect(()=>{
-+    setState({isLoaded:false,isClosed:false,error:false});
-+    if(adUnitId===null)return;
-+    const session=createInterstitialSession(InterstitialAd.createForAdRequest(adUnitId,{requestNonPersonalizedAdsOnly:true}),AdEventType,setState);
-+    active.current=session;
-+    return ()=>{active.current=null;session.dispose();};
-+  },[adUnitId]);
-+  const load=useCallback(()=>active.current?.load(),[]);
-+  const show=useCallback(()=>active.current?.show() ?? Promise.resolve(false),[]);
-+  return {...state,load,show};
-+}
---- a/tests/deletion.test.cjs
-+++ b/tests/deletion.test.cjs
-@@ -4,9 +4,9 @@
- require.extensions['.ts']=(module,file)=>module._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,file);
- const {createDeletionClient,parseDeletionReceipt}=require('../src/domain/deletion.ts');
- const {accountDeletionTransport:disabled}=require('../src/services/accountDeletion.ts');
--const mock=require('./fixtures/offline/mocks/accountDeletion.ts');
--const firebase=require('./fixtures/offline/mocks/firebase.ts');
--const {update}=require('./fixtures/offline/state.ts');
-+const mock=require('../offline-test/mocks/accountDeletion.ts');
-+const firebase=require('../offline-test/mocks/firebase.ts');
-+const {update}=require('../offline-test/state.ts');
- const transport=mock.accountDeletionTransport;
- const client=(t=transport)=>createDeletionClient(t,()=>firebase.auth.currentUser?.uid||null);
- const reauth=async()=>{await firebase.reauthenticateWithCredential(firebase.auth.currentUser,{password:'test-only-123'});return true;};
-@@ -52,18 +52,20 @@
-   const another=client({...transport,load:async()=>null});await another.initialize();
-   assert.equal(another.snapshot().status,'grace_period');assert.equal(another.canUseService('offline-test-user'),false);
- });
--test('cancellation needs explicit action and successful recent reauth; success restores access',async()=>{
-+test('cancellation needs explicit action and successful recent reauth; only server confirmation restores access',async()=>{
-   const c=client();await c.initialize();await c.request(reauth);
-   await c.cancel(async()=>false);assert.equal(c.snapshot().status,'grace_period');
-   update({reauthFail:true});await c.cancel(reauth);await c.refresh();assert.equal(c.snapshot().status,'grace_period');
--  update({reauthFail:false});await c.cancel(reauth);assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
-+  update({reauthFail:false});await c.cancel(reauth);assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService('offline-test-user'),false);
-+  await mock.runDeletionMockWorker();await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
-   await firebase.setDoc('users/offline-test-user',{favoriteIds:['back']});
- });
- test('lost cancellation response stays unknown until authoritative status is read',async()=>{
-   const c=client({...transport,cancel:async body=>{await transport.cancel(body);throw Error('lost response');}});
-   await c.initialize();await c.request(reauth);await c.cancel(reauth);
-   assert.equal(c.snapshot().status,'unknown');assert.equal(c.canUseService('offline-test-user'),false);
--  await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
-+  await c.refresh();assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService('offline-test-user'),false);
-+  await mock.runDeletionMockWorker();await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
- });
- test('deadline comes only from server: seven days means queued, never auto-complete',async()=>{
-   const c=client();await c.initialize();await c.request(reauth);
-@@ -125,6 +127,7 @@
- });
- test('an old cancelled receipt cannot restore access when the current authenticated lifecycle is unavailable',async()=>{
-   const c=client();await c.initialize();await c.request(reauth);await c.cancel(reauth);
-+  await mock.runDeletionMockWorker();await c.refresh();
-   const reopened=client({...transport,current:async()=>{throw Error('unavailable');}});
-   await reopened.initialize();assert.equal(reopened.snapshot().status,'unknown');
-   assert.equal(reopened.canUseService('offline-test-user'),false);
-@@ -139,19 +142,19 @@
-   for(const changes of [{deleteAfter:receipt.deleteAfter-1},{status:'completed'},{cancelAllowed:false},{subscriptionCancelled:true},{requestedAt:'client-time'},{serverNow:Number.MAX_SAFE_INTEGER}])
-     assert.throws(()=>parseDeletionReceipt({...receipt,...changes},receipt.requestId));
- });
--test('the actual Python server serializer agrees with the mobile parser for all seven receipt states',{skip:'Server stays in isolated copy; cross-contract verification is recorded there'},()=>{
-+test('the actual Python server serializer agrees with the mobile parser for all eight receipt states',()=>{
-   const {spawnSync}=require('node:child_process');const path=require('node:path');
-   const source=`import json
- from account_deletion import receipt, GRACE_SECONDS
- now=1800000000
- samples=[]
--for status in ['grace_period','queued','cancelled','processing','retry_wait','needs_review','completed']:
-- job=dict(status='grace_period' if status=='queued' else status,phase='complete' if status=='completed' else 'quiesce',createdAt=now,deleteAfter=now+GRACE_SECONDS,startedAt=None if status in ['grace_period','queued','cancelled'] else now+GRACE_SECONDS)
-+for status in ['grace_period','queued','cancel_requested','cancelled','processing','retry_wait','needs_review','completed']:
-+ job=dict(status='grace_period' if status=='queued' else status,phase='complete' if status=='completed' else 'quiesce',createdAt=now,deleteAfter=now+GRACE_SECONDS,startedAt=None if status in ['grace_period','queued','cancel_requested','cancelled'] else now+GRACE_SECONDS)
-  samples.append(receipt(job,'00000000-0000-4000-8000-000000000001',now if status in ['grace_period','cancelled'] else now+GRACE_SECONDS))
- print(json.dumps(samples))`;
-   const result=spawnSync('python',['-c',source],{cwd:path.resolve(__dirname,'../../server'),encoding:'utf8',windowsHide:true});
-   assert.equal(result.status,0,result.stderr);
-   const receipts=JSON.parse(result.stdout);
--  assert.equal(receipts.length,7);
-+  assert.equal(receipts.length,8);
-   for(const value of receipts)assert.equal(parseDeletionReceipt(value,value.requestId).status,value.status);
- });
---- /dev/null
-+++ b/tests/interstitial-session.test.cjs
-@@ -0,0 +1,49 @@
-+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs'),ts=require('typescript');
-+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
-+const {createInterstitialSession}=require('../src/services/interstitialSession.ts');
-+function fixture(show=async()=>{}){
-+ let listener,removed=false,loads=0;const states=[];
-+ const ad={load(){loads++;},show,addAdEventsListener(fn){listener=fn;return()=>{removed=true;}}};
-+ const session=createInterstitialSession(ad,{LOADED:'loaded',CLOSED:'closed',ERROR:'error'},s=>states.push(s));
-+ return {session,states,emit:type=>listener({type}),removed:()=>removed,loads:()=>loads};
-+}
-+test('native show promise rejection is consumed and cannot unlock on a later close',async()=>{
-+ const f=fixture(async()=>{throw Error('synthetic native failure');});f.emit('loaded');
-+ assert.equal(await f.session.show(),false);assert.equal(f.states.at(-1).error,true);
-+ f.emit('closed');assert.equal(f.states.at(-1).isClosed,false);
-+});
-+test('native error without rejected promise clears the pending session; explicit retry can load again',async()=>{
-+ const f=fixture();f.emit('loaded');await f.session.show();f.emit('error');
-+ assert.equal(f.states.at(-1).error,true);f.session.load();assert.equal(f.loads(),1);assert.equal(f.states.at(-1).error,false);
-+});
-+test('successful close is reported only for a shown ad',async()=>{
-+ const f=fixture();f.emit('closed');assert.equal(f.states.length,0);f.emit('loaded');
-+ assert.equal(await f.session.show(),true);f.emit('closed');assert.equal(f.states.at(-1).isClosed,true);
-+});
-+test('disposed and unloaded sessions never call native show; disposal drops late events',async()=>{
-+ let calls=0;const f=fixture(async()=>{calls++;});assert.equal(await f.session.show(),false);
-+ f.emit('loaded');f.session.dispose();assert.equal(await f.session.show(),false);const n=f.states.length;f.emit('error');
-+ assert.equal(f.states.length,n);assert.equal(calls,0);assert.equal(f.removed(),true);
-+});
-+test('duplicate show does not call native twice',async()=>{
-+ let release,calls=0;const f=fixture(()=>{calls++;return new Promise(r=>release=r);});f.emit('loaded');const first=f.session.show();
-+ assert.equal(await f.session.show(),false);release();await first;assert.equal(calls,1);
-+});
-+function hookFixture(unit){
-+ const Module=require('node:module'),original=Module._load;let listener,cleanup,creations=0,latest;
-+ const file=require.resolve('../src/services/useSafeInterstitial.ts');delete require.cache[file];
-+ Module._load=function(name,parent,isMain){
-+  if(name==='react')return {useState:value=>[value,s=>{latest=s;}],useRef:value=>({current:value}),useCallback:fn=>fn,useEffect:fn=>{cleanup=fn();}};
-+  if(name==='react-native-google-mobile-ads')return {AdEventType:{LOADED:'loaded',CLOSED:'closed',ERROR:'error'},InterstitialAd:{createForAdRequest(){creations++;return {load(){},async show(){throw Error('synthetic');},addAdEventsListener(fn){listener=fn;return()=>{};}};}}};
-+  return original.call(this,name,parent,isMain);
-+ };
-+ try{const hook=require(file).useSafeInterstitial(unit);return {hook,state:()=>latest,emit:type=>listener({type}),creations:()=>creations,cleanup:()=>cleanup?.()};}
-+ finally{Module._load=original;delete require.cache[file];}
-+}
-+test('actual hook with disabled unit creates no native ad',async()=>{
-+ const f=hookFixture(null);f.hook.load();assert.equal(await f.hook.show(),false);assert.equal(f.creations(),0);f.cleanup();
-+});
-+test('actual hook connects native promise failure to its error state and ignores events after cleanup',async()=>{
-+ const f=hookFixture('synthetic-unit');assert.equal(f.creations(),1);f.emit('loaded');
-+ assert.equal(await f.hook.show(),false);assert.equal(f.state().error,true);f.cleanup();const state=f.state();f.emit('closed');assert.equal(f.state(),state);
-+});
---- /dev/null
-+++ b/tests/spark-safe-cancel.test.cjs
-@@ -0,0 +1,69 @@
-+const {test,beforeEach}=require('node:test');
-+const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),Module=require('node:module');
-+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
-+require.extensions['.tsx']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.React}}).outputText,f);
-+global.fetch=()=>{throw Error('Network forbidden in synthetic tests');};
-+let documents,offline,auth,client;
-+const uid='synthetic-only',id='00000000-0000-4000-8000-000000000001';
-+const snapshot=value=>({exists:()=>value!==undefined,data:()=>structuredClone(value)});
-+const F={doc:(_db,...path)=>path.join('/'),serverTimestamp:()=>1800000000,deleteField:()=>({__delete:true}),
-+ getDoc:async path=>{if(offline)throw Error('offline');return snapshot(documents[path]);},
-+ runTransaction:async(_db,fn)=>{if(offline)throw Error('offline');const stage=structuredClone(documents);
-+  await fn({get:async path=>snapshot(stage[path]),set:(path,value)=>stage[path]=value,update:(path,value)=>{if(!stage[path])throw Error('Missing profile');for(const [k,v]of Object.entries(value)){if(v?.__delete)delete stage[path][k];else stage[path][k]=v;}}});documents=stage;}};
-+const load=Module._load;
-+Module._load=function(name,...args){if(name==='firebase/firestore/lite')return F;if(name==='react-native')return {View:'View',Text:'Text',TouchableOpacity:'Button'};return load.call(this,name,...args);};
-+const {createLocalSparkIntake}=require('../src/services/sparkDeletionIntake.ts');
-+const {createDeletionClient,parseDeletionReceipt}=require('../src/domain/deletion.ts');
-+const {deletionMessage}=require('../src/components/DeletionStatus.tsx');
-+Module._load=load;
-+beforeEach(()=>{
-+ offline=false;documents={['accountDeletionIntents/'+uid]:{version:2,requestId:id,requestedAt:1800000000,status:'grace_period',consentAuthTime:1800000000,profilePresent:true,cancelledAt:null},['users/'+uid]:{deletionRequest:{requestId:id}}};
-+ const app={options:{projectId:'demo-dailypick10-deletion'}};
-+ auth={app,emulatorConfig:{host:'127.0.0.1',port:19099},currentUser:{uid,getIdTokenResult:async()=>({claims:{auth_time:1800000000}})}};
-+ client=createLocalSparkIntake(auth,{app,_settings:{host:'127.0.0.1:18080',ssl:false}});
-+});
-+test('SDK cancellation only records a pending request and never clears the service/push marker',async()=>{
-+ const result=await client.cancel(id,'CANCEL_ACCOUNT_DELETION');
-+ assert.equal(result.status,'cancel_requested');assert.equal(result.cancelRequestedAt,1800000000);
-+ assert.equal(result.cancelAuthTime,1800000000);assert.equal(result.cancelledAt,null);
-+ assert.deepEqual(documents['users/'+uid].deletionRequest,{requestId:id});
-+ const again=await client.cancel(id,'CANCEL_ACCOUNT_DELETION');assert.deepEqual(again,result);
-+});
-+test('pending cancellation cannot restart the request/deadline; missing profile cannot prevent cancellation intake',async()=>{
-+ delete documents['users/'+uid];await client.cancel(id,'CANCEL_ACCOUNT_DELETION');
-+ const result=await client.request('00000000-0000-4000-8000-000000000002','DELETE_MY_ACCOUNT');
-+ assert.equal(result.requestId,id);assert.equal(result.requestedAt,1800000000);assert.equal(result.status,'cancel_requested');
-+ assert.equal(documents['users/'+uid],undefined);
-+});
-+test('revoked authentication and offline cancellation do not write or unblock',async()=>{
-+ const original=structuredClone(documents);
-+ auth.currentUser.getIdTokenResult=async()=>{throw Error('revoked');};
-+ await assert.rejects(client.cancel(id,'CANCEL_ACCOUNT_DELETION'),/revoked/);assert.deepEqual(documents,original);
-+ offline=true;await assert.rejects(client.current());assert.deepEqual(documents,original);
-+});
-+test('processing race rejects a late cancellation without changing the server result',async()=>{
-+ documents['accountDeletionIntents/'+uid].status='processing';
-+ await assert.rejects(client.cancel(id,'CANCEL_ACCOUNT_DELETION'),/closed/);
-+ assert.equal(documents['accountDeletionIntents/'+uid].status,'processing');
-+});
-+test('authenticated-only client cannot turn deleted/revoked Auth or offline status into completion or an anonymous lookup',async()=>{
-+ let statusCalls=0,uidNow=uid;
-+ const attempt={uid,requestId:id,recoveryKey:'a'.repeat(64)};
-+ const t={mode:'mock',load:async()=>attempt,current:async()=>{throw Error('invalid token or offline');},status:async()=>{statusCalls++;return null;}};
-+ const c=createDeletionClient(t,()=>uidNow);await c.initialize();
-+ assert.equal(c.snapshot().status,'unknown');assert.equal(statusCalls,0);assert.equal(c.canUseService(uid),false);
-+ assert.match(deletionMessage(c.snapshot()),/완료.*확인|확인.*완료/);
-+ uidNow=null;await c.refresh();assert.equal(c.snapshot().status,'unknown');assert.equal(statusCalls,0);
-+});
-+test('pending server response remains blocked until the authenticated current lifecycle confirms cancellation',async()=>{
-+ let status='grace_period';
-+ const value=()=>({version:1,requestId:id,status,phase:'quiesce',requestedAt:1800000000,deleteAfter:1800604800,serverNow:1800000001,cancelAllowed:status==='grace_period',completedScope:[],subscriptionCancelled:false});
-+ const t={mode:'mock',load:async()=>null,current:async()=>value(),cancel:async()=>{status='cancel_requested';return value();}};
-+ const c=createDeletionClient(t,()=>uid);await c.initialize();await c.cancel(async()=>true);
-+ assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService(uid),false);assert.match(deletionMessage(c.snapshot()),/확인.*대기|확인.*기다/);
-+ await c.refresh();assert.equal(c.canUseService(uid),false);
-+ status='cancelled';await c.refresh();assert.equal(c.canUseService(uid),true);
-+});
-+test('complete scope cannot prove completion before the seven-day server deadline',()=>{
-+ assert.throws(()=>parseDeletionReceipt({version:1,requestId:id,status:'completed',phase:'complete',requestedAt:1800000000,deleteAfter:1800604800,serverNow:1800000001,cancelAllowed:false,completedScope:['firebase-auth','users-document'],subscriptionCancelled:false},id),/precedes/);
-+});
+diff --git a/b/emulator-tests/app-deletion.test.cjs b/emulator-tests/app-deletion.test.cjs
+new file mode 100644
+index 0000000..b963015
 --- /dev/null
 +++ b/emulator-tests/app-deletion.test.cjs
 @@ -0,0 +1,135 @@
@@ -609,6 +216,9 @@
 +  const pending=t.current();changingAuth.currentUser={uid:'different-user'};resolve('synthetic-token-not-sent');
 +  await assert.rejects(pending,/Account changed/);assert.equal(await transport.current(),null);
 +});
+diff --git a/b/emulator-tests/spark-intake.test.cjs b/emulator-tests/spark-intake.test.cjs
+new file mode 100644
+index 0000000..5cf13bb
 --- /dev/null
 +++ b/emulator-tests/spark-intake.test.cjs
 @@ -0,0 +1,140 @@
@@ -751,4 +361,772 @@
 + assert.throws(()=>createLocalSparkIntake({app:{options:{projectId:'production'}}},db),/local demo/);
 + await assert.rejects(client.request(first,''),/Explicit/);assert.equal(await client.current(),null);
 + await assert.rejects(client.cancel(first,''),/Explicit/);
++});
+diff --git a/b/emulator-tests/spark-transport.test.cjs b/emulator-tests/spark-transport.test.cjs
+new file mode 100644
+index 0000000..f6396a6
+--- /dev/null
++++ b/emulator-tests/spark-transport.test.cjs
+@@ -0,0 +1,88 @@
++// Actual app state client -> actual local Auth/Firestore SDK/REST; synthetic users only.
++const {test,beforeEach,afterEach}=require('node:test');
++const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto'),ts=require('typescript');
++const project='demo-dailypick10-deletion';
++assert.equal(process.env.DAILYPICK10_SPARK_TEST,'1');assert.equal(process.env.GCLOUD_PROJECT,project);
++assert.equal(process.env.FIREBASE_AUTH_EMULATOR_HOST,'127.0.0.1:19099');assert.equal(process.env.FIRESTORE_EMULATOR_HOST,'127.0.0.1:18080');
++const nativeFetch=global.fetch;let failRead=false;
++global.fetch=(input,options)=>{
++ const u=new URL(typeof input==='string'?input:input.url||String(input));
++ if(u.protocol!=='http:'||u.hostname!=='127.0.0.1'||!['19099','18080','14400'].includes(u.port))throw Error('External request forbidden');
++ // Affect only our post-commit status read, not the SDK transaction's own reads.
++ if(failRead&&options?.cache==='no-store'&&u.pathname.endsWith(':batchGet'))throw Error('Synthetic lost status response');
++ return nativeFetch(input,{...options,redirect:'error'});
++};
++require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
++const {initializeApp,deleteApp}=require('firebase/app');
++const {getAuth,connectAuthEmulator,createUserWithEmailAndPassword,signOut,signInWithEmailAndPassword}=require('firebase/auth');
++const F=require('firebase/firestore/lite');
++const {createLocalSparkDeletionTransport}=require('../src/services/sparkDeletionTransport.ts');
++const {createDeletionClient}=require('../src/domain/deletion.ts');
++let app,auth,db,uid,email,journal,client,transport;
++const password='Synthetic-Local-Only-123!';
++const root='projects/'+project+'/databases/(default)/documents/';
++const base='http://127.0.0.1:18080/v1/'+root;
++const headers={Authorization:'Bearer owner','Content-Type':'application/json'};
++function bind(){
++ transport=createLocalSparkDeletionTransport({auth,db,storage:{load:async()=>journal,save:async x=>{journal={...x};}},crypto:{randomUUID:crypto.randomUUID,getRandomValues:crypto.getRandomValues}});
++ client=createDeletionClient(transport,()=>auth.currentUser?.uid??null);return client;
++}
++async function patch(fields){
++ const r=await fetch(base+'accountDeletionIntents/'+uid+'?'+Object.keys(fields).map(k=>'updateMask.fieldPaths='+k).join('&'),{method:'PATCH',headers,body:JSON.stringify({fields})});assert.equal(r.status,200);
++}
++async function confirmCancel(){
++ const writes=[{update:{name:root+'accountDeletionIntents/'+uid,fields:{status:{stringValue:'cancelled'}}},updateMask:{fieldPaths:['status']},updateTransforms:[{fieldPath:'cancelledAt',setToServerValue:'REQUEST_TIME'}]},
++ {update:{name:root+'users/'+uid,fields:{}},updateMask:{fieldPaths:['deletionRequest']}}];
++ const r=await fetch(base.slice(0,-1)+':commit',{method:'POST',headers,body:JSON.stringify({writes})});assert.equal(r.status,200);
++}
++beforeEach(async()=>{
++ failRead=false;journal=null;app=initializeApp({apiKey:'synthetic-only',projectId:project},crypto.randomUUID());
++ auth=getAuth(app);connectAuthEmulator(auth,'http://127.0.0.1:19099',{disableWarnings:true});db=F.getFirestore(app);F.connectFirestoreEmulator(db,'127.0.0.1',18080);
++ email='transport-'+crypto.randomUUID()+'@example.invalid';uid=(await createUserWithEmailAndPassword(auth,email,password)).user.uid;
++ await F.setDoc(F.doc(db,'users',uid),{favoriteIds:['SYNTHETIC'],pushToken:'synthetic-unusable'});bind();await client.initialize();
++ assert.equal(client.snapshot().status,'idle');
++});
++afterEach(async()=>{failRead=false;if(auth.currentUser)await signOut(auth);await deleteApp(app);});
++test('real app client requests, retains exact server deadline, waits for trusted cancellation and can request again',async()=>{
++ await client.request(async()=>true);const first=client.snapshot();assert.equal(first.status,'grace_period');assert.equal(first.receipt.version,2);
++ assert.equal(first.receipt.deleteAfter,first.receipt.requestedAt+604800);assert.equal(client.canUseService(uid),false);
++ await assert.rejects(F.setDoc(F.doc(db,'users',uid),{late:true}),e=>e.code==='permission-denied');
++ await client.cancel(async()=>true);assert.equal(client.snapshot().status,'cancel_requested');assert.equal(client.canUseService(uid),false);
++ await client.refresh();assert.equal(client.snapshot().status,'cancel_requested');
++ await confirmCancel();await client.refresh();assert.equal(client.snapshot().status,'cancelled');assert.equal(client.canUseService(uid),true);
++ await client.request(async()=>true);assert.notEqual(client.snapshot().receipt.requestId,first.receipt.requestId);assert.equal(client.snapshot().status,'grace_period');
++});
++test('lost acknowledgement recovers same request after restart and relogin without deadline extension',async()=>{
++ failRead=true;await client.request(async()=>true);assert.equal(client.snapshot().status,'unknown');const id=journal.requestId;
++ failRead=false;bind();await client.initialize();const first=client.snapshot().receipt;assert.equal(first.requestId,id);
++ await signOut(auth);await signInWithEmailAndPassword(auth,email,password);bind();await client.initialize();await client.request(async()=>true);
++ assert.deepEqual(client.snapshot().receipt.preciseTime.requestedAt,first.preciseTime.requestedAt);assert.equal(client.snapshot().receipt.requestId,id);
++});
++test('server readTime displays expired grace as queued; stale cancellation loses to server cutoff',async()=>{
++ await client.request(async()=>true);const requestedAt=new Date(Date.now()-604801000).toISOString();
++ await patch({requestedAt:{timestampValue:requestedAt}});
++ await client.cancel(async()=>true);assert.equal(client.snapshot().status,'unknown');assert.equal(client.canUseService(uid),false);
++ await client.refresh();assert.equal(client.snapshot().status,'queued');assert.equal(client.snapshot().receipt.cancelAllowed,false);
++});
++test('processing, partial failure and completed scope use server evidence; invalid Auth never implies completion',async()=>{
++ await client.request(async()=>true);
++ await patch({requestedAt:{timestampValue:new Date(Date.now()-604801000).toISOString()},status:{stringValue:'retry_wait'},phase:{stringValue:'profile'},completedScope:{arrayValue:{values:[]}}});
++ await client.refresh();assert.equal(client.snapshot().status,'retry_wait');assert.equal(client.canUseService(uid),false);
++ await patch({status:{stringValue:'completed'},phase:{stringValue:'complete'},completedScope:{arrayValue:{values:[{stringValue:'firebase-auth'},{stringValue:'users-document'}]}}});
++ await client.refresh();assert.equal(client.snapshot().status,'completed');assert.equal(client.canUseService(uid),false);
++ await signOut(auth);await client.refresh();assert.equal(client.snapshot().status,'unknown');
++ await assert.rejects(transport.status(journal.requestId,journal.recoveryKey),/anonymous/);
++});
++test('failed reauthentication sends no request; offline current stays blocked and can retry',async()=>{
++ await client.request(async()=>false);assert.equal(client.snapshot().status,'idle');assert.equal(journal,null);
++ failRead=true;await client.refresh();assert.equal(client.snapshot().status,'unknown');assert.equal(client.canUseService(uid),false);
++ failRead=false;await client.refresh();assert.equal(client.snapshot().status,'idle');
++ await client.request(async()=>true);assert.equal(client.snapshot().status,'grace_period');
++});
++test('saved attempt cannot cross account identity and status access remains owner-scoped',async()=>{
++ await client.request(async()=>true);const originalId=journal.requestId;
++ await signOut(auth);const other=(await createUserWithEmailAndPassword(auth,'other-'+crypto.randomUUID()+'@example.invalid',password)).user.uid;
++ await client.refresh();await client.request(async()=>true);assert.equal(client.snapshot().status,'unknown');assert.equal(journal.requestId,originalId);
++ assert.equal((await F.getDoc(F.doc(db,'accountDeletionIntents',other))).exists(),false);
++ await assert.rejects(F.getDoc(F.doc(db,'accountDeletionIntents',uid)),e=>e.code==='permission-denied');
++});
+diff --git a/src/components/DeletionStatus.tsx b/src/components/DeletionStatus.tsx
+index b1c9212..8bce6ec 100644
+--- a/src/components/DeletionStatus.tsx
++++ b/src/components/DeletionStatus.tsx
+@@ -8,6 +8,7 @@ export const deletionMessage = (state: DeletionState): string => state.message |
+   reauthenticating: '탈퇴 요청 전 본인을 확인합니다.', submitting: '탈퇴 요청 접수를 확인하고 있습니다.',
+   grace_period: '탈퇴 신청이 접수되었습니다. 신청 서버시각부터 7일 유예 중이며 일반 서비스와 추천 알림은 중지됩니다. 재로그인만으로 취소되지 않습니다.',
+   queued: '7일 유예가 끝났습니다. 서버 작업 실행을 기다리고 있으며 아직 삭제 완료가 아닙니다. 취소할 수 없습니다.',
++  cancel_requested: '취소 요청을 접수해 삭제를 보류했습니다. 서버의 본인 확인을 기다리며 일반 서비스와 추천 알림은 아직 중지 상태입니다.',
+   cancelled: '본인 확인 후 탈퇴 신청을 취소했습니다. 일반 서비스를 다시 이용할 수 있습니다.',
+   processing: '삭제 실행이 시작되었습니다. 복구할 수 없으며 아직 정리 완료는 아닙니다.',
+   retry_wait: '일부 정리가 끝나지 않아 서버 재시도를 기다립니다. 요청을 다시 만들 필요는 없습니다.',
+diff --git a/src/domain/deletion.ts b/src/domain/deletion.ts
+index 3721d79..7b7f7a5 100644
+--- a/src/domain/deletion.ts
++++ b/src/domain/deletion.ts
+@@ -1,15 +1,26 @@
+ export const DELETION_DISABLED_MESSAGE = '7일 유예 탈퇴 기능은 운영 연결이 보류되어 있습니다. 이 빌드에서는 탈퇴 신청을 접수하거나 실제 계정을 삭제하지 않습니다.';
++export const DELETION_UNVERIFIED_MESSAGE = '인증 또는 네트워크 문제로 처리 상태를 확인하지 못했습니다. 로그아웃이나 계정 조회 실패만으로 삭제 완료를 판단하지 않습니다. 이 연결은 로그인 없이 완료를 확인하는 경로를 제공하지 않습니다.';
+ 
++export type DeletionTime = {seconds: number; nanoseconds: number};
++export function validDeletionTime(value: unknown): value is DeletionTime {
++  const t = value as DeletionTime | null;
++  return !!t && Number.isSafeInteger(t.seconds) && t.seconds >= 0 && t.seconds <= 253402300799 &&
++    Number.isInteger(t.nanoseconds) && t.nanoseconds >= 0 && t.nanoseconds < 1000000000;
++}
++export const compareDeletionTime = (a: DeletionTime, b: DeletionTime) => a.seconds === b.seconds ? Math.sign(a.nanoseconds-b.nanoseconds) : Math.sign(a.seconds-b.seconds);
++export const deletionTimeSeconds = (t: DeletionTime) => t.seconds + t.nanoseconds / 1000000000;
+ export type DeletionReceipt = {
+-  version: 1; requestId: string;
+-  status: 'grace_period' | 'queued' | 'cancelled' | 'processing' | 'retry_wait' | 'needs_review' | 'completed';
++  version: 1 | 2; requestId: string;
++  status: 'grace_period' | 'queued' | 'cancel_requested' | 'cancelled' | 'processing' | 'retry_wait' | 'needs_review' | 'completed';
+   phase: 'quiesce' | 'auth' | 'profile' | 'complete';
+   requestedAt: number; deleteAfter: number; serverNow: number; cancelAllowed: boolean;
+   completedScope: string[]; subscriptionCancelled: false;
++  preciseTime?: {requestedAt: DeletionTime; serverNow: DeletionTime};
+ };
+ export type DeletionAttempt = {uid: string; requestId: string; recoveryKey: string};
+ export interface DeletionTransport {
+-  mode: 'disabled' | 'mock' | 'emulator'; // No production transport is shipped.
++  mode: 'disabled' | 'mock' | 'emulator' | 'live'; // App bootstrap stays disabled; prepared live binding requires explicit opt-in.
++  supportsRecoveryStatus?: boolean; // Explicitly verified mock/local proof path only; default is authenticated-only.
+   subscribeChanges?(listener: () => void): () => void;
+   load(): Promise<DeletionAttempt | null>;
+   save(attempt: DeletionAttempt): Promise<void>;
+@@ -35,13 +46,26 @@ export function parseDeletionReceipt(value: unknown, requestId: string): Deletio
+   if (!value || typeof value !== 'object') throw new Error('Invalid receipt');
+   const v = value as DeletionReceipt;
+   const phases = ['quiesce', 'auth', 'profile', 'complete'];
+-  if (v.version !== 1 || v.requestId !== requestId || v.subscriptionCancelled !== false ||
+-      !['grace_period', 'queued', 'cancelled', 'processing', 'retry_wait', 'needs_review', 'completed'].includes(v.status) || !phases.includes(v.phase) ||
++  if (![1,2].includes(v.version) || v.requestId !== requestId || v.subscriptionCancelled !== false ||
++      !['grace_period', 'queued', 'cancel_requested', 'cancelled', 'processing', 'retry_wait', 'needs_review', 'completed'].includes(v.status) || !phases.includes(v.phase) ||
+       !Array.isArray(v.completedScope)) throw new Error('Invalid receipt');
+-  if (![v.requestedAt,v.deleteAfter,v.serverNow].every(n => Number.isSafeInteger(n) && n >= 0 && n <= 8640000000000) || v.deleteAfter-v.requestedAt !== 604800 || v.serverNow < v.requestedAt || typeof v.cancelAllowed !== 'boolean') throw new Error('Invalid server deadline');
+-  if (v.cancelAllowed !== (v.status === 'grace_period' && v.serverNow < v.deleteAfter) || (v.status === 'grace_period' && v.serverNow >= v.deleteAfter) || (v.status === 'queued' && v.serverNow < v.deleteAfter)) throw new Error('Invalid cancellation window');
+-  if (['queued','cancelled','grace_period'].includes(v.status) && v.phase !== 'quiesce') throw new Error('Invalid phase');
++  let beforeDeadline: boolean;
++  if (v.version === 2) {
++    const times = v.preciseTime;
++    if (!times || !validDeletionTime(times.requestedAt) || !validDeletionTime(times.serverNow) ||
++        compareDeletionTime(times.serverNow, times.requestedAt) < 0 ||
++        v.requestedAt !== deletionTimeSeconds(times.requestedAt) || v.serverNow !== deletionTimeSeconds(times.serverNow) ||
++        v.deleteAfter !== v.requestedAt + 604800) throw new Error('Invalid precise server deadline');
++    beforeDeadline = compareDeletionTime(times.serverNow, {...times.requestedAt, seconds: times.requestedAt.seconds + 604800}) < 0;
++  } else {
++    if (![v.requestedAt,v.deleteAfter,v.serverNow].every(n => Number.isSafeInteger(n) && n >= 0 && n <= 8640000000000) || v.deleteAfter-v.requestedAt !== 604800 || v.serverNow < v.requestedAt) throw new Error('Invalid server deadline');
++    beforeDeadline = v.serverNow < v.deleteAfter;
++  }
++  if (typeof v.cancelAllowed !== 'boolean') throw new Error('Invalid server deadline');
++  if (v.cancelAllowed !== (v.status === 'grace_period' && beforeDeadline) || (v.status === 'grace_period' && !beforeDeadline) || (v.status === 'queued' && beforeDeadline)) throw new Error('Invalid cancellation window');
++  if (['queued','cancel_requested','cancelled','grace_period'].includes(v.status) && v.phase !== 'quiesce') throw new Error('Invalid phase');
+   if (v.status === 'completed') {
++    if (beforeDeadline) throw new Error('Completion precedes deletion deadline');
+     if (v.phase !== 'complete' || v.completedScope.length !== 2 || !v.completedScope.includes('firebase-auth') || !v.completedScope.includes('users-document')) throw new Error('Unconfirmed completion');
+   } else if (v.phase === 'complete' || v.completedScope.length !== 0) throw new Error('Inconsistent receipt');
+   return v;
+@@ -72,7 +96,7 @@ export function createDeletionClient(transport: DeletionTransport, currentUid: (
+         catch (error) {
+           // Admin deletion does not immediately clear Firebase's cached currentUser.
+           // A saved receipt can still confirm cleanup without the now-invalid Auth token.
+-          if (attempt?.uid !== uid || currentUid() !== uid) throw error;
++          if (transport.supportsRecoveryStatus !== true || attempt?.uid !== uid || currentUid() !== uid) throw error;
+           expectedId = attempt.requestId;
+           result = await transport.status(attempt.requestId, attempt.recoveryKey);
+         }
+@@ -86,11 +110,12 @@ export function createDeletionClient(transport: DeletionTransport, currentUid: (
+         else emit(attempt?.uid === uid ? 'not_found' : 'idle');
+       } else if (attempt) {
+         owner = attempt.uid;
++        if (transport.supportsRecoveryStatus !== true) throw new Error('Authenticated status unavailable');
+         const result = await transport.status(attempt.requestId, attempt.recoveryKey);
+         if (currentUid() !== null) { owner = null; emit('unknown'); return; }
+         if (result === null) emit('not_found'); else apply(result, attempt.requestId);
+       } else {owner = null; emit('idle');}
+-    } catch {owner = uid ?? attempt?.uid ?? null; emit('unknown');}
++    } catch {owner = uid ?? attempt?.uid ?? null; emit('unknown', transport.supportsRecoveryStatus === true ? undefined : DELETION_UNVERIFIED_MESSAGE);}
+     finally {busy = false;}
+   };
+   return {
+diff --git a/src/services/accountDeletion.ts b/src/services/accountDeletion.ts
+index c94beb5..106d6c1 100644
+--- a/src/services/accountDeletion.ts
++++ b/src/services/accountDeletion.ts
+@@ -51,6 +51,7 @@ export function createEmulatorDeletionTransport(options: EmulatorOptions): Delet
+   };
+   return {
+     mode: 'emulator',
++    supportsRecoveryStatus: true, // Existing localhost proof endpoint; never a public Firestore rule.
+     async load() {
+       const value = await options.storage.load();
+       if (value !== null && !validAttempt(value)) throw new Error('Invalid recovery record');
+diff --git a/b/src/services/interstitialSession.ts b/src/services/interstitialSession.ts
+new file mode 100644
+index 0000000..3e0ffb6
+--- /dev/null
++++ b/src/services/interstitialSession.ts
+@@ -0,0 +1,24 @@
++// One native ad session; consumes both promise rejections and native error events.
++export type AdSessionState = { isLoaded: boolean; isClosed: boolean; error: boolean };
++type Ad = { load(): void; show(): Promise<unknown>; addAdEventsListener(listener: (event: {type:string; payload?:unknown}) => void): () => void };
++const empty = (): AdSessionState => ({isLoaded:false,isClosed:false,error:false});
++export function createInterstitialSession(ad: Ad, events: {LOADED:string; CLOSED:string; ERROR:string}, notify: (state:AdSessionState)=>void) {
++  let state=empty(), disposed=false, showing=false;
++  const update=(next:AdSessionState)=>{state=next;if(!disposed)notify({...state});};
++  const fail=()=>{showing=false;update({isLoaded:false,isClosed:false,error:true});};
++  const unsubscribe=ad.addAdEventsListener(({type})=>{
++    if(disposed)return;
++    if(type===events.LOADED)update({isLoaded:true,isClosed:false,error:false});
++    if(type===events.ERROR)fail();
++    if(type===events.CLOSED && showing){showing=false;update({isLoaded:false,isClosed:true,error:false});}
++  });
++  return {
++    load(){if(disposed || showing)return;update(empty());try{ad.load();}catch{fail();}},
++    async show(){
++      if(disposed || showing || !state.isLoaded)return false;
++      showing=true;update({...state,isClosed:false});
++      try{await ad.show();return !disposed && !state.error;}catch{if(!disposed)fail();return false;}
++    },
++    dispose(){disposed=true;showing=false;unsubscribe();},
++  };
++}
+diff --git a/b/src/services/sparkDeletionIntake.ts b/src/services/sparkDeletionIntake.ts
+new file mode 100644
+index 0000000..88160e9
+--- /dev/null
++++ b/src/services/sparkDeletionIntake.ts
+@@ -0,0 +1,89 @@
++// Auth/Firestore intake; localhost integration plus an explicitly disabled prepared binding.
++// The application's default accountDeletionTransport remains disabled.
++import { type Auth } from 'firebase/auth';
++import { type Firestore, doc, getDoc, runTransaction, serverTimestamp } from 'firebase/firestore/lite';
++
++export function createLocalSparkIntake(auth: Auth, db: Firestore) {
++  if (auth.app.options.projectId !== 'demo-dailypick10-deletion' || db.app !== auth.app
++      || auth.emulatorConfig?.host !== '127.0.0.1' || auth.emulatorConfig?.port !== 19099) {
++    throw new Error('Only the explicit local demo Auth/Firestore binding is allowed');
++  }
++  // Firestore's public type does not expose emulator configuration. Verify its
++  // already-configured endpoint before ANY SDK operation; never configure a live app.
++  const settings = (db as unknown as { _settings: { host: string; ssl: boolean } })._settings;
++  if (settings.host !== '127.0.0.1:18080' || settings.ssl !== false) throw new Error('Exact local Firestore required');
++  return buildSparkIntake(auth,db);
++}
++
++// Prepared binding only; not selected by app bootstrap or environment variables.
++// Callers must explicitly opt in after deployment approval and bind both existing SDKs.
++export function createPreparedSparkIntake(auth: Auth, db: Firestore, expectedProjectId: string, enabled = false) {
++  if (enabled !== true) throw new Error('Operational intake is disabled');
++  if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(expectedProjectId) || expectedProjectId.startsWith('demo-') ||
++      auth.app.options.projectId !== expectedProjectId || db.app !== auth.app || auth.emulatorConfig) throw new Error('Approved project binding required');
++  const settings=(db as unknown as {_settings:{host:string;ssl:boolean}})._settings;
++  if(settings.host!=='firestore.googleapis.com'||settings.ssl!==true)throw new Error('Exact authenticated Firestore endpoint required');
++  const database=(db as unknown as {_databaseId:{projectId:string;database:string}})._databaseId;
++  if(database?.projectId!==expectedProjectId||database?.database!=='(default)')throw new Error('Exact default database required');
++  return buildSparkIntake(auth,db);
++}
++
++function buildSparkIntake(auth: Auth, db: Firestore) {
++  const identity = () => {
++    const user = auth.currentUser;
++    if (!user) throw new Error('Authentication required');
++    return user;
++  };
++  const consent = async (user: ReturnType<typeof identity>) => {
++    // Refresh can reject revoked sessions. Rules still bind this value to the
++    // token; the trusted worker must independently check current Auth state.
++    const token = await user.getIdTokenResult(true);
++    const authTime = token.claims.auth_time;
++    if (auth.currentUser !== user || !Number.isSafeInteger(authTime) || Number(authTime) < 0) throw new Error('Invalid authenticated consent');
++    return Number(authTime);
++  };
++  const current = async () => {
++    const user = identity();
++    const snapshot = await getDoc(doc(db, 'accountDeletionIntents', user.uid));
++    if (auth.currentUser !== user) throw new Error('Account changed');
++    return snapshot.exists() ? snapshot.data() : null;
++  };
++  return {
++    current,
++    async request(requestId: string, confirmation: string) {
++      if (confirmation !== 'DELETE_MY_ACCOUNT' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(requestId)) throw new Error('Explicit new request required');
++      const user = identity(), state = doc(db, 'accountDeletionIntents', user.uid);
++      const consentAuthTime = await consent(user);
++      await runTransaction(db, async tx => {
++        const prior = await tx.get(state);
++        if (auth.currentUser !== user) throw new Error('Account changed');
++        if (prior.exists() && prior.data().status !== 'cancelled') return; // Never extend an active deadline.
++        const history = doc(state, 'attempts', requestId), used = await tx.get(history);
++        if (used.exists()) throw new Error('Previous request cannot be replayed; confirm with a new identifier');
++        const profile = doc(db, 'users', user.uid), existing = await tx.get(profile);
++        if (auth.currentUser !== user) throw new Error('Account changed');
++        tx.set(state, {version:2, requestId, requestedAt:serverTimestamp(), status:'grace_period', confirmation,
++          consentAuthTime, profilePresent:existing.exists(), cancelledAt:null});
++        tx.set(history, {requestedAt:serverTimestamp(), consentAuthTime});
++        if (existing.exists()) tx.update(profile, {deletionRequest:{requestId}});
++      });
++      return current(); // Server-acknowledged timestamp; local clock is never persisted.
++    },
++    async cancel(requestId: string, confirmation: string) {
++      if (confirmation !== 'CANCEL_ACCOUNT_DELETION') throw new Error('Explicit cancellation required');
++      const user = identity(), state = doc(db, 'accountDeletionIntents', user.uid);
++      const cancelAuthTime = await consent(user);
++      await runTransaction(db, async tx => {
++        const snapshot = await tx.get(state);
++        if (auth.currentUser !== user || !snapshot.exists() || snapshot.data().requestId !== requestId) throw new Error('Wrong current request');
++        const value = snapshot.data();
++        if (value.status === 'cancelled' || value.status === 'cancel_requested') return;
++        if (value.status !== 'grace_period') throw new Error('Cancellation closed');
++        tx.update(state, {status:'cancel_requested', cancelRequestedAt:serverTimestamp(), cancelAuthTime, confirmation});
++        // Only a trusted server confirmation may remove the service/push block.
++        // Intake must also work if an administrator has removed the profile.
++      });
++      return current(); // Rules, not the device clock, determine the seven-day cutoff.
++    },
++  };
++}
+diff --git a/b/src/services/sparkDeletionTransport.ts b/src/services/sparkDeletionTransport.ts
+new file mode 100644
+index 0000000..0fa7ffa
+--- /dev/null
++++ b/src/services/sparkDeletionTransport.ts
+@@ -0,0 +1,132 @@
++// Localhost integration and prepared opt-in factory. The app's default transport remains disabled.
++import type { Auth } from 'firebase/auth';
++import type { Firestore } from 'firebase/firestore/lite';
++import { createLocalSparkIntake, createPreparedSparkIntake } from './sparkDeletionIntake';
++import { accountDeletionTransport } from './accountDeletion';
++import { compareDeletionTime, deletionTimeSeconds, parseDeletionReceipt, validAttempt,
++  type DeletionAttempt, type DeletionReceipt, type DeletionTime, type DeletionTransport } from '../domain/deletion';
++
++type RecordValue = Record<string, unknown>;
++function record(value: unknown): RecordValue {
++  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid Firestore response');
++  return value as RecordValue;
++}
++function text(value: unknown): string {
++  if (typeof value !== 'string') throw new Error('Invalid Firestore string');
++  return value;
++}
++export function parseFirestoreTime(value: unknown): DeletionTime {
++  const raw = text(value), match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z$/.exec(raw);
++  if (!match) throw new Error('Invalid server timestamp');
++  const millis = Date.parse(match[1]+'Z'); // Parses the received server value; never reads the device clock.
++  if (!Number.isFinite(millis) || millis < 0 || new Date(millis).toISOString().slice(0,19) !== match[1]) throw new Error('Invalid server date');
++  return {seconds: millis / 1000, nanoseconds: Number((match[2] || '').padEnd(9,'0'))};
++}
++
++// batchGet.readTime is server observation time. updateTime is not a current clock.
++export function sparkReceiptFromBatchGet(value: unknown, documentName: string): DeletionReceipt | null {
++  if (!Array.isArray(value) || value.length !== 1) throw new Error('Invalid scoped read');
++  const envelope = record(value[0]), serverNow = parseFirestoreTime(envelope.readTime);
++  if ('missing' in envelope) {
++    if (envelope.missing !== documentName || 'found' in envelope) throw new Error('Wrong current account');
++    return null;
++  }
++  const document = record(envelope.found);
++  if (document.name !== documentName) throw new Error('Wrong current account');
++  const f = record(document.fields), fieldText = (key: string) => text(record(f[key]).stringValue);
++  if (record(f.version).integerValue !== '2') throw new Error('Unsupported intent version');
++  const requestId = fieldText('requestId');
++  if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(requestId)) throw new Error('Invalid request identifier');
++  const requestedAt = parseFirestoreTime(record(f.requestedAt).timestampValue);
++  const before = compareDeletionTime(serverNow, {...requestedAt, seconds: requestedAt.seconds+604800}) < 0;
++  let status = fieldText('status') as DeletionReceipt['status'];
++  if (!['grace_period','cancel_requested','cancelled','processing','retry_wait','needs_review','completed'].includes(status)) throw new Error('Invalid intent state');
++  if (status === 'grace_period' && !before) status = 'queued';
++  const phase = f.phase === undefined ? 'quiesce' : fieldText('phase') as DeletionReceipt['phase'];
++  let completedScope: string[] = [];
++  if (f.completedScope !== undefined) {
++    const values = record(record(f.completedScope).arrayValue).values ?? [];
++    if (!Array.isArray(values)) throw new Error('Invalid completion evidence');
++    completedScope = values.map(item => text(record(item).stringValue));
++  }
++  const accepted = deletionTimeSeconds(requestedAt);
++  return parseDeletionReceipt({version:2,requestId,status,phase,requestedAt:accepted,deleteAfter:accepted+604800,
++    serverNow:deletionTimeSeconds(serverNow),cancelAllowed:status==='grace_period' && before,
++    preciseTime:{requestedAt,serverNow},completedScope,subscriptionCancelled:false}, requestId);
++}
++
++type Options = {
++  auth: Auth; db: Firestore;
++  storage: {load(): Promise<DeletionAttempt | null>; save(value: DeletionAttempt): Promise<void>};
++  crypto: {randomUUID(): string; getRandomValues(value: Uint8Array): Uint8Array};
++};
++export function createLocalSparkDeletionTransport(options: Options): DeletionTransport {
++  const {auth, db} = options;
++  const intake = createLocalSparkIntake(auth, db); // Validates demo project and exact Auth/Firestore loopback binding.
++  return buildTransport(options,intake,'demo-dailypick10-deletion','http://127.0.0.1:18080','emulator');
++}
++
++export function createPreparedSparkDeletionTransport(options: Options & {expectedProjectId: string; enabled?: boolean}): DeletionTransport {
++  if(options.enabled!==true)return accountDeletionTransport; // No Auth, Firestore, storage or network access while off.
++  const intake=createPreparedSparkIntake(options.auth,options.db,options.expectedProjectId,true);
++  return buildTransport(options,intake,options.expectedProjectId,'https://firestore.googleapis.com','live');
++}
++
++function buildTransport(options: Options, intake: ReturnType<typeof createLocalSparkIntake>, project: string, endpoint: string, mode: 'emulator' | 'live'): DeletionTransport {
++  const {auth}=options;
++  let saved: DeletionAttempt | null = null;
++  const identity = (uid?: string) => {
++    const user = auth.currentUser;
++    if (!user || !user.uid || user.uid.includes('/') || user.uid.length > 128 || (uid && user.uid !== uid)) throw new Error('Account changed');
++    return user;
++  };
++  const current = async () => {
++    const user = identity(), token = await user.getIdToken(true);
++    if (!token || auth.currentUser !== user) throw new Error('Account changed');
++    const name = 'projects/'+project+'/databases/(default)/documents/accountDeletionIntents/'+user.uid;
++    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(),8000);
++    try {
++      const response = await fetch(endpoint+'/v1/projects/'+project+'/databases/(default)/documents:batchGet', {
++        method:'POST', headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
++        body:JSON.stringify({documents:[name]}),redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal,
++      });
++      if (!response.ok || !response.headers.get('content-type')?.startsWith('application/json')) throw new Error('Authenticated status unavailable');
++      const body = await response.text();
++      if (body.length > 16384 || auth.currentUser !== user) throw new Error('Invalid scoped response');
++      return sparkReceiptFromBatchGet(JSON.parse(body),name);
++    } finally {clearTimeout(timeout);}
++  };
++  return {
++    mode, supportsRecoveryStatus:false, current,
++    async load() {
++      const value = await options.storage.load();
++      if (value !== null && !validAttempt(value)) throw new Error('Invalid saved attempt');
++      saved = value ? {...value} : null; return saved ? {...saved} : null;
++    },
++    async save(value) {
++      if (!validAttempt(value)) throw new Error('Invalid saved attempt');
++      identity(value.uid); await options.storage.save({...value}); saved={...value};
++    },
++    prepare(uid) {
++      identity(uid);
++      // Compatibility with the existing client journal. This value is local-only,
++      // is never sent to Firestore, and cannot authorize an anonymous read.
++      const bytes=options.crypto.getRandomValues(new Uint8Array(32));
++      return {uid,requestId:options.crypto.randomUUID(),recoveryKey:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')};
++    },
++    async submit(body) {
++      if (body.version!==1 || !saved || body.requestId!==saved.requestId || body.recoveryKey!==saved.recoveryKey) throw new Error('Saved attempt required');
++      const user=identity(saved.uid);
++      await intake.request(body.requestId,body.confirmation);
++      if(auth.currentUser!==user)throw new Error('Account changed');
++      return current();
++    },
++    async cancel(body) {
++      if(body.version!==1)throw new Error('Invalid request version');
++      const user=identity();await intake.cancel(body.requestId,body.confirmation);
++      if(auth.currentUser!==user)throw new Error('Account changed');
++      return current();
++    },
++    async status() {throw new Error('No anonymous completion lookup');},
++  };
++}
+diff --git a/b/src/services/useSafeInterstitial.ts b/src/services/useSafeInterstitial.ts
+new file mode 100644
+index 0000000..2b122ba
+--- /dev/null
++++ b/src/services/useSafeInterstitial.ts
+@@ -0,0 +1,18 @@
++import { useCallback, useEffect, useRef, useState } from 'react';
++import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
++import { createInterstitialSession, type AdSessionState } from './interstitialSession';
++
++export function useSafeInterstitial(adUnitId: string | null) {
++  const [state,setState]=useState<AdSessionState>({isLoaded:false,isClosed:false,error:false});
++  const active=useRef<ReturnType<typeof createInterstitialSession> | null>(null);
++  useEffect(()=>{
++    setState({isLoaded:false,isClosed:false,error:false});
++    if(adUnitId===null)return;
++    const session=createInterstitialSession(InterstitialAd.createForAdRequest(adUnitId,{requestNonPersonalizedAdsOnly:true}),AdEventType,setState);
++    active.current=session;
++    return ()=>{active.current=null;session.dispose();};
++  },[adUnitId]);
++  const load=useCallback(()=>active.current?.load(),[]);
++  const show=useCallback(()=>active.current?.show() ?? Promise.resolve(false),[]);
++  return {...state,load,show};
++}
+diff --git a/tests/deletion.test.cjs b/tests/deletion.test.cjs
+index 8958fee..eda32af 100644
+--- a/tests/deletion.test.cjs
++++ b/tests/deletion.test.cjs
+@@ -4,9 +4,9 @@ const fs=require('node:fs');const ts=require('typescript');
+ require.extensions['.ts']=(module,file)=>module._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,file);
+ const {createDeletionClient,parseDeletionReceipt}=require('../src/domain/deletion.ts');
+ const {accountDeletionTransport:disabled}=require('../src/services/accountDeletion.ts');
+-const mock=require('./fixtures/offline/mocks/accountDeletion.ts');
+-const firebase=require('./fixtures/offline/mocks/firebase.ts');
+-const {update}=require('./fixtures/offline/state.ts');
++const mock=require('../offline-test/mocks/accountDeletion.ts');
++const firebase=require('../offline-test/mocks/firebase.ts');
++const {update}=require('../offline-test/state.ts');
+ const transport=mock.accountDeletionTransport;
+ const client=(t=transport)=>createDeletionClient(t,()=>firebase.auth.currentUser?.uid||null);
+ const reauth=async()=>{await firebase.reauthenticateWithCredential(firebase.auth.currentUser,{password:'test-only-123'});return true;};
+@@ -52,18 +52,20 @@ test('another login/device learns the pending server request and cannot automati
+   const another=client({...transport,load:async()=>null});await another.initialize();
+   assert.equal(another.snapshot().status,'grace_period');assert.equal(another.canUseService('offline-test-user'),false);
+ });
+-test('cancellation needs explicit action and successful recent reauth; success restores access',async()=>{
++test('cancellation needs explicit action and successful recent reauth; only server confirmation restores access',async()=>{
+   const c=client();await c.initialize();await c.request(reauth);
+   await c.cancel(async()=>false);assert.equal(c.snapshot().status,'grace_period');
+   update({reauthFail:true});await c.cancel(reauth);await c.refresh();assert.equal(c.snapshot().status,'grace_period');
+-  update({reauthFail:false});await c.cancel(reauth);assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
++  update({reauthFail:false});await c.cancel(reauth);assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService('offline-test-user'),false);
++  await mock.runDeletionMockWorker();await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
+   await firebase.setDoc('users/offline-test-user',{favoriteIds:['back']});
+ });
+ test('lost cancellation response stays unknown until authoritative status is read',async()=>{
+   const c=client({...transport,cancel:async body=>{await transport.cancel(body);throw Error('lost response');}});
+   await c.initialize();await c.request(reauth);await c.cancel(reauth);
+   assert.equal(c.snapshot().status,'unknown');assert.equal(c.canUseService('offline-test-user'),false);
+-  await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
++  await c.refresh();assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService('offline-test-user'),false);
++  await mock.runDeletionMockWorker();await c.refresh();assert.equal(c.snapshot().status,'cancelled');assert.equal(c.canUseService('offline-test-user'),true);
+ });
+ test('deadline comes only from server: seven days means queued, never auto-complete',async()=>{
+   const c=client();await c.initialize();await c.request(reauth);
+@@ -125,6 +127,7 @@ test('late submit and cancel responses never authorize a different signed-in acc
+ });
+ test('an old cancelled receipt cannot restore access when the current authenticated lifecycle is unavailable',async()=>{
+   const c=client();await c.initialize();await c.request(reauth);await c.cancel(reauth);
++  await mock.runDeletionMockWorker();await c.refresh();
+   const reopened=client({...transport,current:async()=>{throw Error('unavailable');}});
+   await reopened.initialize();assert.equal(reopened.snapshot().status,'unknown');
+   assert.equal(reopened.canUseService('offline-test-user'),false);
+@@ -139,19 +142,19 @@ test('malformed, shortened and false-completion receipts never grant completion'
+   for(const changes of [{deleteAfter:receipt.deleteAfter-1},{status:'completed'},{cancelAllowed:false},{subscriptionCancelled:true},{requestedAt:'client-time'},{serverNow:Number.MAX_SAFE_INTEGER}])
+     assert.throws(()=>parseDeletionReceipt({...receipt,...changes},receipt.requestId));
+ });
+-test('the actual Python server serializer agrees with the mobile parser for all seven receipt states',{skip:'Server stays in isolated copy; cross-contract verification is recorded there'},()=>{
++test('the actual Python server serializer agrees with the mobile parser for all eight receipt states',()=>{
+   const {spawnSync}=require('node:child_process');const path=require('node:path');
+   const source=`import json
+ from account_deletion import receipt, GRACE_SECONDS
+ now=1800000000
+ samples=[]
+-for status in ['grace_period','queued','cancelled','processing','retry_wait','needs_review','completed']:
+- job=dict(status='grace_period' if status=='queued' else status,phase='complete' if status=='completed' else 'quiesce',createdAt=now,deleteAfter=now+GRACE_SECONDS,startedAt=None if status in ['grace_period','queued','cancelled'] else now+GRACE_SECONDS)
++for status in ['grace_period','queued','cancel_requested','cancelled','processing','retry_wait','needs_review','completed']:
++ job=dict(status='grace_period' if status=='queued' else status,phase='complete' if status=='completed' else 'quiesce',createdAt=now,deleteAfter=now+GRACE_SECONDS,startedAt=None if status in ['grace_period','queued','cancel_requested','cancelled'] else now+GRACE_SECONDS)
+  samples.append(receipt(job,'00000000-0000-4000-8000-000000000001',now if status in ['grace_period','cancelled'] else now+GRACE_SECONDS))
+ print(json.dumps(samples))`;
+   const result=spawnSync('python',['-c',source],{cwd:path.resolve(__dirname,'../../server'),encoding:'utf8',windowsHide:true});
+   assert.equal(result.status,0,result.stderr);
+   const receipts=JSON.parse(result.stdout);
+-  assert.equal(receipts.length,7);
++  assert.equal(receipts.length,8);
+   for(const value of receipts)assert.equal(parseDeletionReceipt(value,value.requestId).status,value.status);
+ });
+diff --git a/b/tests/interstitial-session.test.cjs b/tests/interstitial-session.test.cjs
+new file mode 100644
+index 0000000..3de0817
+--- /dev/null
++++ b/tests/interstitial-session.test.cjs
+@@ -0,0 +1,49 @@
++const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs'),ts=require('typescript');
++require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
++const {createInterstitialSession}=require('../src/services/interstitialSession.ts');
++function fixture(show=async()=>{}){
++ let listener,removed=false,loads=0;const states=[];
++ const ad={load(){loads++;},show,addAdEventsListener(fn){listener=fn;return()=>{removed=true;}}};
++ const session=createInterstitialSession(ad,{LOADED:'loaded',CLOSED:'closed',ERROR:'error'},s=>states.push(s));
++ return {session,states,emit:type=>listener({type}),removed:()=>removed,loads:()=>loads};
++}
++test('native show promise rejection is consumed and cannot unlock on a later close',async()=>{
++ const f=fixture(async()=>{throw Error('synthetic native failure');});f.emit('loaded');
++ assert.equal(await f.session.show(),false);assert.equal(f.states.at(-1).error,true);
++ f.emit('closed');assert.equal(f.states.at(-1).isClosed,false);
++});
++test('native error without rejected promise clears the pending session; explicit retry can load again',async()=>{
++ const f=fixture();f.emit('loaded');await f.session.show();f.emit('error');
++ assert.equal(f.states.at(-1).error,true);f.session.load();assert.equal(f.loads(),1);assert.equal(f.states.at(-1).error,false);
++});
++test('successful close is reported only for a shown ad',async()=>{
++ const f=fixture();f.emit('closed');assert.equal(f.states.length,0);f.emit('loaded');
++ assert.equal(await f.session.show(),true);f.emit('closed');assert.equal(f.states.at(-1).isClosed,true);
++});
++test('disposed and unloaded sessions never call native show; disposal drops late events',async()=>{
++ let calls=0;const f=fixture(async()=>{calls++;});assert.equal(await f.session.show(),false);
++ f.emit('loaded');f.session.dispose();assert.equal(await f.session.show(),false);const n=f.states.length;f.emit('error');
++ assert.equal(f.states.length,n);assert.equal(calls,0);assert.equal(f.removed(),true);
++});
++test('duplicate show does not call native twice',async()=>{
++ let release,calls=0;const f=fixture(()=>{calls++;return new Promise(r=>release=r);});f.emit('loaded');const first=f.session.show();
++ assert.equal(await f.session.show(),false);release();await first;assert.equal(calls,1);
++});
++function hookFixture(unit){
++ const Module=require('node:module'),original=Module._load;let listener,cleanup,creations=0,latest;
++ const file=require.resolve('../src/services/useSafeInterstitial.ts');delete require.cache[file];
++ Module._load=function(name,parent,isMain){
++  if(name==='react')return {useState:value=>[value,s=>{latest=s;}],useRef:value=>({current:value}),useCallback:fn=>fn,useEffect:fn=>{cleanup=fn();}};
++  if(name==='react-native-google-mobile-ads')return {AdEventType:{LOADED:'loaded',CLOSED:'closed',ERROR:'error'},InterstitialAd:{createForAdRequest(){creations++;return {load(){},async show(){throw Error('synthetic');},addAdEventsListener(fn){listener=fn;return()=>{};}};}}};
++  return original.call(this,name,parent,isMain);
++ };
++ try{const hook=require(file).useSafeInterstitial(unit);return {hook,state:()=>latest,emit:type=>listener({type}),creations:()=>creations,cleanup:()=>cleanup?.()};}
++ finally{Module._load=original;delete require.cache[file];}
++}
++test('actual hook with disabled unit creates no native ad',async()=>{
++ const f=hookFixture(null);f.hook.load();assert.equal(await f.hook.show(),false);assert.equal(f.creations(),0);f.cleanup();
++});
++test('actual hook connects native promise failure to its error state and ignores events after cleanup',async()=>{
++ const f=hookFixture('synthetic-unit');assert.equal(f.creations(),1);f.emit('loaded');
++ assert.equal(await f.hook.show(),false);assert.equal(f.state().error,true);f.cleanup();const state=f.state();f.emit('closed');assert.equal(f.state(),state);
++});
+diff --git a/b/tests/spark-safe-cancel.test.cjs b/tests/spark-safe-cancel.test.cjs
+new file mode 100644
+index 0000000..8d1921a
+--- /dev/null
++++ b/tests/spark-safe-cancel.test.cjs
+@@ -0,0 +1,69 @@
++const {test,beforeEach}=require('node:test');
++const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),Module=require('node:module');
++require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
++require.extensions['.tsx']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.React}}).outputText,f);
++global.fetch=()=>{throw Error('Network forbidden in synthetic tests');};
++let documents,offline,auth,client;
++const uid='synthetic-only',id='00000000-0000-4000-8000-000000000001';
++const snapshot=value=>({exists:()=>value!==undefined,data:()=>structuredClone(value)});
++const F={doc:(_db,...path)=>path.join('/'),serverTimestamp:()=>1800000000,deleteField:()=>({__delete:true}),
++ getDoc:async path=>{if(offline)throw Error('offline');return snapshot(documents[path]);},
++ runTransaction:async(_db,fn)=>{if(offline)throw Error('offline');const stage=structuredClone(documents);
++  await fn({get:async path=>snapshot(stage[path]),set:(path,value)=>stage[path]=value,update:(path,value)=>{if(!stage[path])throw Error('Missing profile');for(const [k,v]of Object.entries(value)){if(v?.__delete)delete stage[path][k];else stage[path][k]=v;}}});documents=stage;}};
++const load=Module._load;
++Module._load=function(name,...args){if(name==='firebase/firestore/lite')return F;if(name==='react-native')return {View:'View',Text:'Text',TouchableOpacity:'Button'};return load.call(this,name,...args);};
++const {createLocalSparkIntake}=require('../src/services/sparkDeletionIntake.ts');
++const {createDeletionClient,parseDeletionReceipt}=require('../src/domain/deletion.ts');
++const {deletionMessage}=require('../src/components/DeletionStatus.tsx');
++Module._load=load;
++beforeEach(()=>{
++ offline=false;documents={['accountDeletionIntents/'+uid]:{version:2,requestId:id,requestedAt:1800000000,status:'grace_period',consentAuthTime:1800000000,profilePresent:true,cancelledAt:null},['users/'+uid]:{deletionRequest:{requestId:id}}};
++ const app={options:{projectId:'demo-dailypick10-deletion'}};
++ auth={app,emulatorConfig:{host:'127.0.0.1',port:19099},currentUser:{uid,getIdTokenResult:async()=>({claims:{auth_time:1800000000}})}};
++ client=createLocalSparkIntake(auth,{app,_settings:{host:'127.0.0.1:18080',ssl:false}});
++});
++test('SDK cancellation only records a pending request and never clears the service/push marker',async()=>{
++ const result=await client.cancel(id,'CANCEL_ACCOUNT_DELETION');
++ assert.equal(result.status,'cancel_requested');assert.equal(result.cancelRequestedAt,1800000000);
++ assert.equal(result.cancelAuthTime,1800000000);assert.equal(result.cancelledAt,null);
++ assert.deepEqual(documents['users/'+uid].deletionRequest,{requestId:id});
++ const again=await client.cancel(id,'CANCEL_ACCOUNT_DELETION');assert.deepEqual(again,result);
++});
++test('pending cancellation cannot restart the request/deadline; missing profile cannot prevent cancellation intake',async()=>{
++ delete documents['users/'+uid];await client.cancel(id,'CANCEL_ACCOUNT_DELETION');
++ const result=await client.request('00000000-0000-4000-8000-000000000002','DELETE_MY_ACCOUNT');
++ assert.equal(result.requestId,id);assert.equal(result.requestedAt,1800000000);assert.equal(result.status,'cancel_requested');
++ assert.equal(documents['users/'+uid],undefined);
++});
++test('revoked authentication and offline cancellation do not write or unblock',async()=>{
++ const original=structuredClone(documents);
++ auth.currentUser.getIdTokenResult=async()=>{throw Error('revoked');};
++ await assert.rejects(client.cancel(id,'CANCEL_ACCOUNT_DELETION'),/revoked/);assert.deepEqual(documents,original);
++ offline=true;await assert.rejects(client.current());assert.deepEqual(documents,original);
++});
++test('processing race rejects a late cancellation without changing the server result',async()=>{
++ documents['accountDeletionIntents/'+uid].status='processing';
++ await assert.rejects(client.cancel(id,'CANCEL_ACCOUNT_DELETION'),/closed/);
++ assert.equal(documents['accountDeletionIntents/'+uid].status,'processing');
++});
++test('authenticated-only client cannot turn deleted/revoked Auth or offline status into completion or an anonymous lookup',async()=>{
++ let statusCalls=0,uidNow=uid;
++ const attempt={uid,requestId:id,recoveryKey:'a'.repeat(64)};
++ const t={mode:'mock',load:async()=>attempt,current:async()=>{throw Error('invalid token or offline');},status:async()=>{statusCalls++;return null;}};
++ const c=createDeletionClient(t,()=>uidNow);await c.initialize();
++ assert.equal(c.snapshot().status,'unknown');assert.equal(statusCalls,0);assert.equal(c.canUseService(uid),false);
++ assert.match(deletionMessage(c.snapshot()),/완료.*확인|확인.*완료/);
++ uidNow=null;await c.refresh();assert.equal(c.snapshot().status,'unknown');assert.equal(statusCalls,0);
++});
++test('pending server response remains blocked until the authenticated current lifecycle confirms cancellation',async()=>{
++ let status='grace_period';
++ const value=()=>({version:1,requestId:id,status,phase:'quiesce',requestedAt:1800000000,deleteAfter:1800604800,serverNow:1800000001,cancelAllowed:status==='grace_period',completedScope:[],subscriptionCancelled:false});
++ const t={mode:'mock',load:async()=>null,current:async()=>value(),cancel:async()=>{status='cancel_requested';return value();}};
++ const c=createDeletionClient(t,()=>uid);await c.initialize();await c.cancel(async()=>true);
++ assert.equal(c.snapshot().status,'cancel_requested');assert.equal(c.canUseService(uid),false);assert.match(deletionMessage(c.snapshot()),/확인.*대기|확인.*기다/);
++ await c.refresh();assert.equal(c.canUseService(uid),false);
++ status='cancelled';await c.refresh();assert.equal(c.canUseService(uid),true);
++});
++test('complete scope cannot prove completion before the seven-day server deadline',()=>{
++ assert.throws(()=>parseDeletionReceipt({version:1,requestId:id,status:'completed',phase:'complete',requestedAt:1800000000,deleteAfter:1800604800,serverNow:1800000001,cancelAllowed:false,completedScope:['firebase-auth','users-document'],subscriptionCancelled:false},id),/precedes/);
++});
+diff --git a/b/tests/spark-transport.test.cjs b/tests/spark-transport.test.cjs
+new file mode 100644
+index 0000000..565ca94
+--- /dev/null
++++ b/tests/spark-transport.test.cjs
+@@ -0,0 +1,65 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript');
++require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,f);
++global.fetch=()=>{throw Error('No network in mapper tests');};
++const {sparkReceiptFromBatchGet,parseFirestoreTime,createLocalSparkDeletionTransport,createPreparedSparkDeletionTransport}=require('../src/services/sparkDeletionTransport.ts');
++const {parseDeletionReceipt}=require('../src/domain/deletion.ts');
++const id='00000000-0000-4000-8000-000000000001',name='projects/demo-dailypick10-deletion/databases/(default)/documents/accountDeletionIntents/synthetic';
++function body(now='2026-11-08T00:00:00.000000001Z') {
++ return [{readTime:now,found:{name,fields:{version:{integerValue:'2'},requestId:{stringValue:id},requestedAt:{timestampValue:'2026-11-01T00:00:00.000000001Z'},status:{stringValue:'grace_period'}}}}];
++}
++test('one nanosecond before cutoff remains cancellable; exact cutoff is queued',()=>{
++ const prior=sparkReceiptFromBatchGet(body('2026-11-08T00:00:00.000000000Z'),name);
++ assert.equal(prior.status,'grace_period');assert.equal(prior.cancelAllowed,true);assert.equal(prior.version,2);
++ const exact=sparkReceiptFromBatchGet(body(),name);assert.equal(exact.status,'queued');assert.equal(exact.cancelAllowed,false);
++ assert.equal(exact.preciseTime.requestedAt.nanoseconds,1);
++});
++test('device clock is not used to determine grace or eligibility',()=>{
++ const old=Date.now;Date.now=()=>{throw Error('Device clock read');};
++ try {assert.equal(sparkReceiptFromBatchGet(body(),name).status,'queued');} finally {Date.now=old;}
++});
++test('server cancellation acknowledgement remains pending and cannot claim completion',()=>{
++ const b=body();b[0].found.fields.status.stringValue='cancel_requested';
++ const r=sparkReceiptFromBatchGet(b,name);assert.equal(r.status,'cancel_requested');assert.equal(r.cancelAllowed,false);
++ b[0].found.fields.status.stringValue='completed';assert.throws(()=>sparkReceiptFromBatchGet(b,name),/completion/i);
++ b[0].found.fields.phase={stringValue:'complete'};
++ b[0].found.fields.completedScope={arrayValue:{values:[{stringValue:'firebase-auth'},{stringValue:'users-document'}]}};
++ assert.equal(sparkReceiptFromBatchGet(b,name).status,'completed');
++ b[0].readTime='2026-11-01T00:00:01Z';assert.throws(()=>sparkReceiptFromBatchGet(b,name),/precedes/);
++});
++test('missing record is not a receipt; unscoped, extra and malformed responses are rejected',()=>{
++ assert.equal(sparkReceiptFromBatchGet([{readTime:'2026-11-01T00:00:01Z',missing:name}],name),null);
++ const b=body();b[0].found.name+='other';assert.throws(()=>sparkReceiptFromBatchGet(b,name),/account/);
++ assert.throws(()=>sparkReceiptFromBatchGet([...body(),...body()],name));
++ assert.throws(()=>sparkReceiptFromBatchGet([{missing:name}],name));
++ assert.throws(()=>parseFirestoreTime('2026-02-30T00:00:00Z'));
++ assert.throws(()=>parseFirestoreTime('2026-11-01T00:00:00.0000000001Z'));
++});
++test('current time cannot be replaced with stale document updateTime',()=>{
++ const b=body();delete b[0].readTime;b[0].found.updateTime='2026-11-01T00:00:00Z';assert.throws(()=>sparkReceiptFromBatchGet(b,name));
++ const stale=body('2026-10-31T23:59:59Z');assert.throws(()=>sparkReceiptFromBatchGet(stale,name),/deadline/);
++});
++test('precise receipt cannot forge cancellation across deadline with rounded doubles',()=>{
++ const r=sparkReceiptFromBatchGet(body(),name);
++ assert.throws(()=>parseDeletionReceipt({...r,status:'grace_period',cancelAllowed:true},id),/window/);
++ assert.throws(()=>parseDeletionReceipt({...r,preciseTime:{...r.preciseTime,serverNow:{seconds:0,nanoseconds:1}}},id),/deadline/);
++});
++test('production binding is rejected before any request',()=>{
++ assert.throws(()=>createLocalSparkDeletionTransport({auth:{app:{options:{projectId:'not-demo'}}},db:{}}),/local demo/);
++});
++test('prepared binding defaults off without reading SDKs, storage or credentials',async()=>{
++ const options={get auth(){throw Error('SDK accessed while disabled');},get db(){throw Error('SDK accessed while disabled');}};
++ const t=createPreparedSparkDeletionTransport(options);assert.equal(t.mode,'disabled');assert.equal(await t.load(),null);
++ await assert.rejects(t.submit({}),/not connected/);assert.equal(await t.current().catch(()=>null),null);
++ const defaultSource=fs.readFileSync(require.resolve('../src/services/accountDeletion.ts'),'utf8');
++ assert.match(defaultSource,/mode: 'disabled'/);assert.doesNotMatch(defaultSource,/createPreparedSparkDeletionTransport/);
++});
++test('explicit prepared binding rejects project mismatch, emulator and alternative endpoint before access',()=>{
++ const app={options:{projectId:'synthetic-review'}};
++ const options={enabled:true,expectedProjectId:'synthetic-review',auth:{app,emulatorConfig:null},db:{app,_settings:{host:'firestore.googleapis.com',ssl:true},_databaseId:{projectId:'synthetic-review',database:'(default)'}}};
++ assert.throws(()=>createPreparedSparkDeletionTransport({...options,expectedProjectId:'other-review'}),/project/);
++ assert.throws(()=>createPreparedSparkDeletionTransport({...options,auth:{...options.auth,emulatorConfig:{host:'127.0.0.1'}}}),/project/);
++ assert.throws(()=>createPreparedSparkDeletionTransport({...options,db:{app,_settings:{host:'other.example.invalid',ssl:true}}}),/endpoint/);
++ assert.throws(()=>createPreparedSparkDeletionTransport({...options,db:{...options.db,_databaseId:{projectId:'synthetic-review',database:'other'}}}),/database/);
++ assert.equal(createPreparedSparkDeletionTransport(options).mode,'live'); // Construction only; global fetch forbids all requests.
 +});

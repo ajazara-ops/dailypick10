@@ -10,7 +10,8 @@ def main():
     EmulatorGuard().preflight()
     root=Path(__file__).resolve().parents[1]
     if os.environ.get('DAILYPICK10_SPARK_BRIDGE_ONLY')!='1':
-        result=subprocess.run(['node','--test','--test-concurrency=1','emulator-tests/spark-intake.test.cjs'],cwd=root/'mobile')
+        suite='spark-transport.test.cjs' if os.environ.get('DAILYPICK10_SPARK_TRANSPORT_ONLY')=='1' else 'spark-intake.test.cjs'
+        result=subprocess.run(['node','--test','--test-concurrency=1','emulator-tests/'+suite],cwd=root/'mobile')
         if result.returncode:return result.returncode
     return subprocess.run([sys.executable,'-m','unittest','discover','-s','emulator_tests','-p','test_spark_intake.py','-v'],cwd=root/'server').returncode
 

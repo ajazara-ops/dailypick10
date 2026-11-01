@@ -96,7 +96,28 @@
     "connectedApkInstalled": false,
     "configuredAndroidOAuthCertificateMatches": false,
     "connectedBuildInitialCacheMiss": "Offline cache lacked google-services:4.4.1; resolved using previously authorized official build repositories.",
-    "connectedLoginBlocker": "APK signing certificate differs from the available Android OAuth configuration. Actual console registration and Play app-signing compatibility are unverified; no auth settings changed.",
-    "operationalIntegrationGap": "Spark SDK helper remains localhost-only and is not bound to the app transport; version 2 intent to version 1 UI receipt mapping and production authorization remain unconnected."
+    "connectedLoginBlocker": "Resolved by user-reported Google login success after the user registered the existing release certificate. No new build; other services not verified.",
+    "operationalIntegrationGap": "Prepared app transport now exists and is off by default. Production Admin runtime, orchestration and permission/index checks remain; app bootstrap stays disabled.",
+    "configuredAndroidOAuthCertificateMatchesNote": "Historical local JSON comparison; not a current login blocker. Console registration was confirmed by parent from user screenshot."
+  },
+  "appIntegrationFollowup": {
+    "mobileUnitChecks": 37,
+    "serverUnitChecks": 19,
+    "actualLocalAppTransportChecks": 6,
+    "actualLocalServerBridgeChecks": 6,
+    "authSideEffectsInBridge": "mock",
+    "typecheck": true,
+    "lint": true,
+    "preparedLiveFactoryDefault": "disabled; never selected by app bootstrap",
+    "liveFactoryTest": "binding checks with mocks only; no production request",
+    "serverTime": "Firestore batchGet readTime; nanosecond cutoff preserved",
+    "mobilePatchFiles": 15,
+    "originalApplied": false,
+    "apkRebuilt": false,
+    "userDeviceGoogleLogin": "user reported success on prior connected APK; other services unverified",
+    "rulesChangedOrApplied": false,
+    "workerScheduled": false,
+    "existingApksIncludeNewTransport": false,
+    "deliveryScope": "Source follow-up in this review; no merge, app APK rebuild or operational activation."
   }
 }

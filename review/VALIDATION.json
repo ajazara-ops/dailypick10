@@ -73,5 +73,21 @@
     "APK installation",
     "billing or plan changes"
   ],
-  "expectedCI": "No push/pull_request workflow in base; verify remote checks after PR creation. Zero checks is not a passing CI run."
+  "expectedCI": "No push/pull_request workflow in base; verify remote checks after PR creation. Zero checks is not a passing CI run.",
+  "reviewFollowup": {
+    "defect": "A prior confirmed cancellation state incorrectly prevented confirmation of a later explicit request cancellation.",
+    "fixed": true,
+    "changedImplementation": [
+      "spark_intake.py"
+    ],
+    "pureServerChecks": 18,
+    "localFirestoreTransactionChecks": 6,
+    "authSideEffects": "synthetic only",
+    "emulatorStopped": true,
+    "priorChecksNotDoubleCounted": true,
+    "mobileSourceChanged": false,
+    "connectedApkCreated": false,
+    "connectedBuildBlocker": "No cached com.google.gms:google-services:4.4.1; offline build stopped; no dependency downloads.",
+    "operationalDeletionEnabled": false
+  }
 }

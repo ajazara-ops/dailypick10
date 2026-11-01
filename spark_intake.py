@@ -70,8 +70,19 @@ class SparkIntentBridge:
             cancelled = timestamp_ns(intent['cancelRequestedAt'])
             if intent.get('version') != 2 or not accepted <= cancelled < accepted + GRACE_SECONDS * 1_000_000_000:
                 raise CancellationClosed('Cancellation was not received within grace period')
-            if job is not None or (state and state.get('jobId') != job_id):
+            if job is not None:
                 raise CancellationClosed('Deletion claimed or lifecycle changed')
+            if state and state.get('jobId') != job_id:
+                # A confirmed cancellation intentionally leaves an unblocked
+                # state record. A later explicit request has a new requestId.
+                # That old record must not prevent cancelling the new request,
+                # but an active, completed or ambiguous lifecycle must remain blocked.
+                prior_id = state.get('jobId')
+                if state.get('blocked') is not False or not isinstance(prior_id, str) or not prior_id or '/' in prior_id:
+                    raise CancellationClosed('Deletion lifecycle is still blocked')
+                prior_job = tx.get('accountDeletionJobs/' + prior_id)
+                if prior_job is not None and (prior_job.get('uid') != uid or prior_job.get('status') != 'cancelled'):
+                    raise CancellationClosed('Previous lifecycle is not confirmed cancelled')
             verify_consent(identity, intent.get('cancelAuthTime'), cancelled)
             if identity.created_at * 1_000_000 > accepted: raise IdentityChanged('UID generation changed')
             if profile is not None and profile.get('deletionRequest') != {'requestId':job_id}:

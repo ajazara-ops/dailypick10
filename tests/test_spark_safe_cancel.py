@@ -48,6 +48,42 @@ class SafeSparkTests(unittest.TestCase):
         self.assertFalse(self.store.blocked('A')); self.assertTrue(push_eligible(self.docs.read('users/A')))
         self.assertIn('A',self.auth.users); self.assertEqual(self.auth.calls,[])
 
+    def test_cancel_new_request_after_prior_confirmed_cancellation(self):
+        self.pending(); self.assertEqual(self.confirm()['status'], 'cancelled')
+        old_id = self.rid
+        self.rid = '00000000-0000-4000-8000-000000000002'
+        self.start += 10; self.now = self.start
+        self.docs.docs['accountDeletionIntents/A'] = dict(version=2, requestId=self.rid, requestedAt=stamp(self.start),
+            status='grace_period', consentAuthTime=self.start, confirmation='DELETE_MY_ACCOUNT', profilePresent=True, cancelledAt=None)
+        self.docs.docs['users/A']['deletionRequest'] = {'requestId': self.rid}
+        self.assertEqual(self.docs.read('accountDeletionState/A'), {'jobId': old_id, 'blocked': False})
+        self.pending(); self.assertEqual(self.confirm()['status'], 'cancelled')
+        self.assertEqual(self.docs.read('accountDeletionState/A'), {'jobId': self.rid, 'blocked': False})
+        self.assertTrue(push_eligible(self.docs.read('users/A'))); self.assertEqual(self.auth.calls, [])
+
+    def test_new_cancel_never_overrides_another_active_or_invalid_lifecycle(self):
+        self.pending()
+        old_id = '00000000-0000-4000-8000-000000000099'
+        for blocked, old_job in [(True, None), (None, None), (False, {'uid': 'A', 'status': 'processing'}),
+                                 (False, {'uid': 'B', 'status': 'cancelled'}), (False, {'uid': 'A', 'status': 'completed'})]:
+            with self.subTest(blocked=blocked, old_job=old_job):
+                self.docs.docs['accountDeletionState/A'] = {'jobId': old_id, 'blocked': blocked}
+                if old_job is None: self.docs.docs.pop('accountDeletionJobs/' + old_id, None)
+                else: self.docs.docs['accountDeletionJobs/' + old_id] = old_job
+                before = copy.deepcopy(self.docs.docs)
+                with self.assertRaises(CancellationClosed): self.confirm()
+                self.assertEqual(self.docs.docs, before)
+
+    def test_new_cancel_accepts_prior_cancelled_job_for_same_uid(self):
+        self.pending()
+        old_id = '00000000-0000-4000-8000-000000000099'
+        old_job = {'uid': 'A', 'status': 'cancelled'}
+        self.docs.docs['accountDeletionState/A'] = {'jobId': old_id, 'blocked': False}
+        self.docs.docs['accountDeletionJobs/' + old_id] = old_job.copy()
+        self.assertEqual(self.confirm()['status'], 'cancelled')
+        self.assertEqual(self.docs.read('accountDeletionJobs/' + old_id), old_job)
+        self.assertFalse(self.store.blocked('A')); self.assertEqual(self.auth.calls, [])
+
     def test_predeadline_cancellation_is_honoured_even_if_confirmation_runs_after_deadline(self):
         self.pending(self.start+GRACE_SECONDS-1); self.now=self.start+GRACE_SECONDS+7200
         self.assertEqual(self.confirm()['status'],'cancelled'); self.assertIsNone(self.materialize())

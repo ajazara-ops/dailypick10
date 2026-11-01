@@ -60,4 +60,19 @@ class SparkBridgeTests(unittest.TestCase):
         self.assertEqual(result['status'],'cancelled');self.assertFalse(self.runtime.store.blocked(self.uid))
         self.assertTrue(push_eligible(self.runtime.documents.read('users/'+self.uid)))
 
+    def test_new_request_can_cancel_after_previous_confirmed_cancellation(self):
+        first = self.rid
+        self.ref.update({'status':'cancel_requested','cancelRequestedAt':datetime.fromtimestamp(self.now+1,timezone.utc),'cancelAuthTime':self.now+1})
+        self.assertEqual(self.bridge.confirm_cancellation(self.uid,lambda:self.now+2)['status'],'cancelled')
+        self.now += 10; self.rid = str(uuid.uuid4())
+        self.ref.set(dict(version=2,requestId=self.rid,requestedAt=datetime.fromtimestamp(self.now,timezone.utc),status='cancel_requested',
+            confirmation='CANCEL_ACCOUNT_DELETION',consentAuthTime=self.now,profilePresent=True,cancelledAt=None,
+            cancelRequestedAt=datetime.fromtimestamp(self.now+1,timezone.utc),cancelAuthTime=self.now+1))
+        self.runtime.client.document('users/'+self.uid).update({'deletionRequest':{'requestId':self.rid}})
+        self.assertEqual(self.runtime.documents.read('accountDeletionState/'+self.uid)['jobId'],first)
+        self.assertEqual(self.bridge.confirm_cancellation(self.uid,lambda:self.now+2)['status'],'cancelled')
+        self.assertEqual(self.runtime.documents.read('accountDeletionState/'+self.uid),{'jobId':self.rid,'blocked':False})
+        self.assertTrue(push_eligible(self.runtime.documents.read('users/'+self.uid)))
+        self.assertIsNone(self.runtime.store.get(self.rid)); self.assertEqual(self.auth.calls,[])
+
 if __name__=='__main__':unittest.main()

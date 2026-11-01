@@ -1,0 +1,77 @@
+{
+  "scope": "local synthetic and demo emulators; production disabled",
+  "priorUniqueChecks": {
+    "mobile": {
+      "tests": 28,
+      "exitCode": 0
+    },
+    "server_new": {
+      "tests": 15,
+      "exitCode": 0
+    },
+    "server_existing_boundary": {
+      "tests": 14,
+      "exitCode": 0,
+      "evidence": "exec chunk c541c6; same final boundary/worker implementation"
+    },
+    "typecheck_and_lint": {
+      "exitCode": 0,
+      "lintMaxWarnings": 0
+    },
+    "emulator": {
+      "sdkRules": 13,
+      "bridge": 5,
+      "bridgeRecheckedAfterNanosecondChange": true,
+      "exitCode": 0,
+      "syntheticAuthSideEffectsOnly": true
+    },
+    "uniqueChecks": 75
+  },
+  "priorSourceHashMatches": 15,
+  "deliveryChecks": {
+    "packagedServerTests": 15,
+    "offlineIsolationAndAdTests": 9,
+    "mobilePatchCheck": "passed; no original writes",
+    "newDeviceRuntimeTest": false
+  },
+  "apk": {
+    "versionName": "1.0.6",
+    "versionCode": 7,
+    "bytes": 88792858,
+    "sha256": "624baa319fb27472c7e5e788c9b60307a439d02460f536d1c89ad7b7b8ff5d71",
+    "package": "com.ajazara.dailypick10.offlinetest",
+    "debugCertificate": true,
+    "certificateSha256": [
+      "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+    ],
+    "testUpdateCertificateMatches": true,
+    "productionConfigurationAbsent": true,
+    "operationalNativeSdksAbsent": true,
+    "currentSourceContentsMatch": {
+      "app/index.tsx": true,
+      "src/domain/deletion.ts": true,
+      "src/components/DeletionStatus.tsx": true,
+      "src/services/useSafeInterstitial.ts": true,
+      "src/services/interstitialSession.ts": true,
+      "offline-test/mocks/accountDeletion.ts": true,
+      "offline-test/mocks/ads.tsx": true,
+      "offline-test/index.tsx": true
+    }
+  },
+  "prior105Preserved": true,
+  "identityDiagnostic": {
+    "matchesUserIAM": true,
+    "permissionsExercised": false,
+    "identifiers": "Excluded from remote review; retained in private local delivery evidence."
+  },
+  "notPerformed": [
+    "live deletion",
+    "production database or rules writes",
+    "IAM changes",
+    "new credentials",
+    "deployment",
+    "APK installation",
+    "billing or plan changes"
+  ],
+  "expectedCI": "No push/pull_request workflow in base; verify remote checks after PR creation. Zero checks is not a passing CI run."
+}

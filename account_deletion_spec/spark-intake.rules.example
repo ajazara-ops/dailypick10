@@ -1,0 +1,76 @@
+// LOCAL CANDIDATE ONLY. Not deployed; do not combine with the current owner-write rule.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function recent(uid) {
+      return owner(uid) && request.auth.token.auth_time is int
+        && timestamp.value(request.auth.token.auth_time * 1000) <= request.time
+        && request.time < timestamp.value(request.auth.token.auth_time * 1000) + duration.value(300, 's');
+    }
+    function intentPath(uid) { return /databases/$(database)/documents/accountDeletionIntents/$(uid); }
+    function profilePath(uid) { return /databases/$(database)/documents/users/$(uid); }
+    function blocked(uid) {
+      let state = /databases/$(database)/documents/accountDeletionState/$(uid);
+      return (exists(intentPath(uid)) && get(intentPath(uid)).data.status != 'cancelled')
+        || (exists(state) && get(state).data.blocked == true);
+    }
+    function markerMatches(uid, value) {
+      return value is map && value.keys().hasOnly(['requestId'])
+        && value.requestId == getAfter(intentPath(uid)).data.requestId;
+    }
+    function matchingProfile(uid) {
+      return !exists(profilePath(uid)) || markerMatches(uid, getAfter(profilePath(uid)).data.deletionRequest);
+    }
+    function freshIntent(uid) {
+      let d = request.resource.data;
+      let history = /databases/$(database)/documents/accountDeletionIntents/$(uid)/attempts/$(d.requestId);
+      return recent(uid) && d.keys().hasAll(['version','requestId','requestedAt','status','confirmation','consentAuthTime','profilePresent','cancelledAt'])
+        && d.keys().hasOnly(['version','requestId','requestedAt','status','confirmation','consentAuthTime','profilePresent','cancelledAt'])
+        && d.version == 2 && d.consentAuthTime == request.auth.token.auth_time && d.requestId is string
+        && d.requestId.matches('^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')
+        && d.requestedAt == request.time && d.status == 'grace_period'
+        && d.confirmation == 'DELETE_MY_ACCOUNT' && d.cancelledAt == null
+        && d.profilePresent == exists(profilePath(uid))
+        && !exists(history) && getAfter(history).data.requestedAt == request.time
+        && getAfter(history).data.consentAuthTime == d.consentAuthTime
+        && matchingProfile(uid);
+    }
+    match /accountDeletionIntents/{uid} {
+      allow get: if owner(uid);
+      allow list, delete: if false;
+      allow create: if freshIntent(uid);
+      allow update: if (resource.data.status == 'cancelled' && freshIntent(uid))
+        || (recent(uid) && resource.data.version == 2 && resource.data.status == 'grace_period'
+          && request.time < resource.data.requestedAt + duration.value(7, 'd')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','cancelRequestedAt','cancelAuthTime','confirmation'])
+          && request.resource.data.status == 'cancel_requested' && request.resource.data.cancelRequestedAt == request.time
+          && request.resource.data.cancelAuthTime == request.auth.token.auth_time
+          && request.resource.data.confirmation == 'CANCEL_ACCOUNT_DELETION');
+      match /attempts/{id} {
+        allow get: if owner(uid);
+        allow list, update, delete: if false;
+        allow create: if recent(uid) && request.resource.data.keys().hasOnly(['requestedAt','consentAuthTime'])
+          && request.resource.data.requestedAt == request.time
+          && request.resource.data.consentAuthTime == request.auth.token.auth_time
+          && getAfter(intentPath(uid)).data.requestId == id
+          && getAfter(intentPath(uid)).data.requestedAt == request.time
+          && getAfter(intentPath(uid)).data.status == 'grace_period';
+      }
+    }
+    match /users/{uid} {
+      allow get: if owner(uid) && !blocked(uid);
+      allow list, delete: if false;
+      allow create: if owner(uid) && !blocked(uid) && !request.resource.data.keys().hasAny(['deletionRequest']);
+      allow update: if owner(uid) && (
+        (!blocked(uid) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['deletionRequest']))
+        || (recent(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletionRequest'])
+          && getAfter(intentPath(uid)).data.status == 'grace_period'
+          && markerMatches(uid, request.resource.data.deletionRequest)));
+    }
+    // Worker state and receipts remain inaccessible to all client identities.
+    match /accountDeletionJobs/{id} { allow read, write: if false; }
+    match /accountDeletionState/{uid} { allow read, write: if false; }
+    match /accountDeletionReceipts/{id} { allow read, write: if false; }
+  }
+}

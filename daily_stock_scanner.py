@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
 from scan_contract import (Observation, SourceDataError, TIMEZONES, number, price, utc_stamp, scan_market, merge_daily, daily_notification, cohort_from_snapshots, settle_cohort, build_report, write_json_once, write_latest)
-from weekly_contract import REPORT_KIND, latest_publication, weekly_period, assert_publishable, weekly_cohort, settle_weekly, build_weekly_report
+from weekly_contract import REPORT_KIND, latest_publication, weekly_period, assert_publishable, weekly_cohort, settle_weekly, build_weekly_report, validate_frozen_report
 from market_calendar import evaluation_session, is_market_session
 from notification_policy import push_eligible
 from io import StringIO
@@ -77,7 +77,7 @@ def fetch_with_retry(url, headers=None, retries=3, delay=2):
 # --- [추가] 2. DB에서 모든 사용자 토큰 가져오기 ---
 def get_all_user_tokens():
     if not FIREBASE_AVAILABLE:
-        print("⚠️ [경고] firebase-admin 라이브러리 미설치. (관리자 토큰만 사용)")
+        print("⚠️ [경고] firebase-admin 라이브러리 미설치. 알림 발송을 생략합니다.")
         return []
     
     tokens = []
@@ -95,10 +95,10 @@ def get_all_user_tokens():
                     firebase_admin.initialize_app(cred)
                     print("🔥 Firebase 인증 성공 (환경변수)")
                 except Exception as e:
-                    print(f"❌ Firebase 키 파싱 실패: {e}")
+                    print(f"❌ Firebase 인증/구성 실패: {type(e).__name__}")
                     return []
             else:
-                print("⚠️ [경고] FIREBASE_CREDENTIALS 환경변수가 없습니다. (관리자 토큰만 사용)")
+                print("⚠️ [경고] FIREBASE_CREDENTIALS 환경변수가 없습니다. 알림 발송을 생략합니다.")
                 return [] 
         
         # 'users' 목록에서 토큰만 쏙쏙 뽑아오기
@@ -111,14 +111,14 @@ def get_all_user_tokens():
             if not push_eligible(user_data):
                 continue
             token = user_data.get('pushToken')
-            if token and token.startswith("ExponentPushToken"):
+            if isinstance(token, str) and re.fullmatch(r'(?:Exponent|Expo)PushToken\[[^\s\[\]]+\]', token):
                 tokens.append(token)
                 
         print(f"🔎 DB에서 사용자 {len(tokens)}명을 찾았습니다.")
         return tokens
         
     except Exception as e:
-        print(f"❌ DB 조회 실패: {e}")
+        print(f"❌ DB 조회 실패: {type(e).__name__}")
         return []
 
 # --- [수정] 3. 여러 사람에게 알림 보내기 ---
@@ -142,8 +142,9 @@ def send_push_notification(title, message):
 
     print(f"📨 알림 발송 시작: '{title}' (총 {len(user_push_tokens)}명에게)")
     
-    # 한 명씩 차례대로 전송 (안전하게)
-    for token in user_push_tokens:
+    # Check service acceptance; this does not prove delivery to a device.
+    failures = 0
+    for index, token in enumerate(user_push_tokens, 1):
         payload = {
             "to": token,
             "title": title,
@@ -157,9 +158,21 @@ def send_push_notification(title, message):
         }
 
         try:
-            requests.post(url, headers=headers, data=json.dumps(payload))
+            response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=15)
+            response.raise_for_status()
+            body = response.json()
+            ticket = body.get('data') if isinstance(body, dict) else None
+            if isinstance(ticket, list) and len(ticket) == 1:
+                ticket = ticket[0]
+            if (not isinstance(ticket, dict) or ticket.get('status') != 'ok' or
+                    not isinstance(ticket.get('id'), str) or not ticket['id'] or body.get('errors')):
+                raise SourceDataError('push_ticket_rejected')
         except Exception as e:
-            print(f"  ❌ 전송 에러 ({token}): {e}")
+            failures += 1
+            print(f"  ❌ 알림 접수 실패 #{index}: {type(e).__name__}")
+    if failures:
+        # No automatic retry: an uncertain response may already have been accepted.
+        raise SourceDataError(f'push_submission_failed:{failures}/{len(user_push_tokens)}')
 
 # --- [어제 추천 종목 가져오기] ---
 def get_latest_recommendation_ids():
@@ -614,6 +627,7 @@ def generate_weekly_report(publication_date=None, now=None):
     assert_publishable(period, generated_at)
     output_path = Path(WEEKLY_REPORT_DIR) / f'{publication_date}_v3_weekly.json'
     if output_path.exists():
+        validate_frozen_report(json.loads(output_path.read_text('utf-8')), period)
         return output_path  # Frozen entry/exit prices, including unevaluated rows.
     snapshots = []
     unreadable_files = 0
@@ -643,11 +657,8 @@ def update_history_index(now=None):
         if priority == 3:
             try:
                 report = json.loads(file.read_text('utf-8'))
-                if report.get('reportKind') != REPORT_KIND:
-                    continue
                 period = weekly_period(day)
-                if report.get('period') != period:
-                    continue
+                validate_frozen_report(report, period)
                 assert_publishable(period, generated_at)
                 row.update(publishAt=period['publishAt'], reportKind=REPORT_KIND)
             except (ValueError, OSError):

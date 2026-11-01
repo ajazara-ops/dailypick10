@@ -1,4 +1,5 @@
 import ast
+import io
 from copy import deepcopy
 import importlib.util
 import json
@@ -13,7 +14,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scan_contract import (Observation, number, price, scan_market, merge_daily, daily_notification,
-                           cohort_from_snapshots, settle_cohort, build_report, rank_stocks, write_json_once)
+                           cohort_from_snapshots, settle_cohort, build_report, rank_stocks, write_json_once, write_latest)
 from scripts.resolve_scan_event import resolve_event
 
 NOW = '2026-10-30T23:15:00+00:00'
@@ -236,6 +237,68 @@ class ScannerIntegrationTests(unittest.TestCase):
                  patch.object(scanner,'exit_quote',side_effect=AssertionError('must not fetch')) as quote:
                 result=json.loads(scanner.generate_weekly_report('2026-11-21',now='2026-11-21T08:00:00Z').read_text('utf-8'))
                 quote.assert_not_called();self.assertIsNone(result['stocks'][0]['returnRate'])
+
+
+class InterceptedWriter:
+    def __init__(self, handle, before_write):
+        self.handle, self.before_write = handle, before_write
+    def __getattr__(self, name): return getattr(self.handle, name)
+    def __enter__(self): return self
+    def __exit__(self, *args): return self.handle.__exit__(*args)
+    def write(self, value):
+        self.before_write(self.handle, value)
+        return self.handle.write(value)
+
+
+class JSONPublicationTests(unittest.TestCase):
+    def intercept(self, callback):
+        real_open = io.open
+        def open_file(file, mode='r', *args, **kwargs):
+            handle = real_open(file, mode, *args, **kwargs)
+            return InterceptedWriter(handle, callback) if 'w' in mode or 'x' in mode else handle
+        return patch('io.open', side_effect=open_file)
+
+    def test_interrupted_historical_write_never_leaves_a_frozen_partial_file(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+            target = Path(folder) / 'report.json'
+            def fail(handle, value):
+                handle.write(value[:1]); handle.flush()
+                raise OSError('synthetic disk failure')
+            with self.intercept(fail):
+                with self.assertRaises(OSError): write_json_once(target, {'stocks': [1, 2, 3]})
+            self.assertFalse(target.exists())
+            self.assertEqual(list(Path(folder).iterdir()), [])
+            write_json_once(target, {'complete': True})
+            self.assertEqual(json.loads(target.read_text()), {'complete': True})
+
+    def test_final_historical_name_is_invisible_until_all_json_is_written(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+            target = Path(folder) / 'report.json'; writes = []
+            def check(handle, value):
+                writes.append(True); self.assertFalse(target.exists())
+            with self.intercept(check): write_json_once(target, {'complete': True})
+            self.assertTrue(writes); self.assertTrue(target.exists())
+
+    def test_interleaved_latest_writers_use_distinct_staging_files(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+            target = Path(folder) / 'latest.json'; entered = []
+            def interleave(handle, value):
+                if not entered:
+                    entered.append(True); write_latest(target, {'owner': 'inner'})
+            with self.intercept(interleave): write_latest(target, {'owner': 'outer'})
+            self.assertEqual(json.loads(target.read_text()), {'owner': 'outer'})
+            self.assertEqual(list(Path(folder).iterdir()), [target])
+
+    def test_failed_latest_write_preserves_previous_bytes_and_cleans_staging(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+            target = Path(folder) / 'latest.json'; target.write_text('{"last_good": true}')
+            before = target.read_bytes()
+            def fail(handle, value):
+                handle.write(value[:1]); handle.flush(); raise OSError('synthetic disk failure')
+            with self.intercept(fail):
+                with self.assertRaises(OSError): write_latest(target, {'new': True})
+            self.assertEqual(target.read_bytes(), before)
+            self.assertEqual(list(Path(folder).iterdir()), [target])
 
 
 if __name__=='__main__':unittest.main()

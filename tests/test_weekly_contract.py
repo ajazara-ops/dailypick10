@@ -140,6 +140,27 @@ class WeeklyContractTests(unittest.TestCase):
 
 
 class WeeklyFileTests(unittest.TestCase):
+    def test_corrupt_frozen_report_fails_without_overwrite_or_refetch(self):
+        scanner = isolated_scanner()
+        for content in ['{"stocks":', '[]', json.dumps({'reportKind': 'weekly_top10_v3', 'period': PERIOD})]:
+            with self.subTest(content=content), tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+                target = Path(folder) / '2026-11-21_v3_weekly.json'; target.write_text(content)
+                scanner.WEEKLY_REPORT_DIR = folder
+                with patch.object(scanner, 'exit_quote') as quote:
+                    with self.assertRaises(ValueError): scanner.generate_weekly_report('2026-11-21', now=NOW)
+                    quote.assert_not_called()
+                self.assertEqual(target.read_text(), content)
+
+    def test_history_index_skips_nonobject_and_incomplete_v3_reports(self):
+        scanner = isolated_scanner()
+        for content in ['[]', json.dumps({'reportKind': 'weekly_top10_v3', 'period': PERIOD})]:
+            with self.subTest(content=content), tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
+                (Path(folder) / '2026-11-21_v3_weekly.json').write_text(content)
+                scanner.WEEKLY_REPORT_DIR = folder
+                with patch.object(scanner, 'write_latest') as write:
+                    scanner.update_history_index(now=NOW)
+                    self.assertEqual(write.call_args.args[1], [])
+
     def test_entry_calendar_failure_does_not_freeze_empty_result(self):
         scanner = isolated_scanner()
         with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:

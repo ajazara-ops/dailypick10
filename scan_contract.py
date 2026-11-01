@@ -5,7 +5,10 @@ from datetime import date, datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 import json
 import math
+import os
 from pathlib import Path
+import sys
+import tempfile
 
 TIMEZONES = {"US": "America/New_York", "KR": "Asia/Seoul"}
 
@@ -229,18 +232,40 @@ def build_report(rows, report_date, generated_at):
             "legacyHistoryRecalculated": False}
 
 
-def write_json_once(path, data):
+def _publish_json(path, data, exclusive):
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     serialized = json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False)
-    # Exclusive creation protects every existing historical artifact.
-    with path.open("x", encoding="utf-8") as handle:
-        handle.write(serialized)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        # Unique staging in the same directory avoids cross-filesystem moves and
+        # collisions between concurrent writers. The public name is never partial.
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline='\n',
+                                         dir=path.parent, prefix='.' + path.name + '.',
+                                         suffix='.tmp', delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(serialized)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if exclusive:
+            # Atomic create-without-replacement. Existing historical bytes win,
+            # including when another writer publishes after the existence check.
+            if sys.platform == 'win32':
+                # Windows rename fails if the destination exists. Unlike POSIX
+                # rename it cannot overwrite a report; no hardlink permission needed.
+                os.rename(temporary, path)
+            else:
+                os.link(temporary, path)
+        else:
+            os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def write_json_once(path, data):
+    _publish_json(path, data, exclusive=True)
 
 
 def write_latest(path, data):
-    path = Path(path)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    with temporary.open("w", encoding="utf-8") as handle:
-        json.dump(data, handle, ensure_ascii=False, indent=2, allow_nan=False)
-    temporary.replace(path)
+    _publish_json(path, data, exclusive=False)

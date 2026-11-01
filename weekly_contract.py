@@ -40,6 +40,33 @@ def assert_publishable(period, now):
         raise ValueError('Weekly cohort is not publishable before Saturday 17:00 KST')
 
 
+def validate_frozen_report(report, period):
+    """Validate an existing v3 artifact without recalculating or changing prices."""
+    def invalid():
+        raise SourceDataError('invalid_frozen_weekly_report')
+    if (not isinstance(report, dict) or report.get('schemaVersion') != 3 or
+            report.get('reportKind') != REPORT_KIND or report.get('period') != period or
+            report.get('reportDate') != period['publicationDate'] or report.get('evaluationFrozen') is not True):
+        invalid()
+    stocks, performance, rankings = report.get('stocks'), report.get('performance'), report.get('winnerRankings')
+    if not isinstance(stocks, list) or not isinstance(performance, dict) or not isinstance(rankings, dict):
+        invalid()
+    if any(not isinstance(s, dict) or s.get('market') not in TIMEZONES or not s.get('id') for s in stocks):
+        invalid()
+    for market in TIMEZONES:
+        rows = [s for s in stocks if s['market'] == market]
+        measured = [s for s in rows if s.get('returnStatus') == 'observed' and number(s.get('returnRate')) is not None]
+        meta = performance.get(market)
+        expected = {'totalCount': len(rows), 'observedCount': len(measured), 'missingCount': len(rows) - len(measured)}
+        if not isinstance(meta, dict) or any(type(meta.get(k)) is not int or meta[k] != v for k, v in expected.items()):
+            invalid()
+        ordered = sorted(measured, key=lambda s: (-number(s['returnRate']), str(s['id'])))[:10]
+        ids = [s.get('recommendationId') for s in ordered]
+        if any(not isinstance(i, str) or not i for i in ids) or rankings.get(market) != ids:
+            invalid()
+    return report
+
+
 def session_date(stock):
     # A KST archive filename is not a US session date. Neither is a refreshed
     # envelope timestamp. Older rows without explicit session evidence stay unknown.

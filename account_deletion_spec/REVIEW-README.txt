@@ -36,7 +36,10 @@ spark_intake_runner.py 및 emulator_app_runner.py는 이 형제 폴더 구조와
 모바일 전달
 이 GitHub 저장소에는 React Native 원본 앱이 없다. review/mobile/StockApp-local-update.patch는 별도 로컬 StockApp용이다.
 원본 변경과 서버 PR 병합은 별개다. 패치는 검토/전달만 하며 이번 작업에서 원본에 적용하지 않았다.
-APK는 실제 앱 컴포넌트와 모의 서비스를 넣은 별도 TEST 패키지이며 저장소에는 업로드하지 않는다.
+TEST APK는 실제 앱 컴포넌트와 모의 서비스를 넣은 별도 패키지이며 저장소에는 업로드하지 않는다.
 운영 적용에 필요한 규칙 범위·권한·중단/복원은 FIREBASE-RULES-CHANGE.txt 참조.
 
-연결 APK 준비 점검: 별도 실제 서비스 소스로 offline Gradle 빌드를 시도했으나 기존 캐시에 com.google.gms:google-services:4.4.1이 없어 중단했다. 실제 연결 APK는 생성하지 않았다. TEST1.0.6은 오프라인 모의 버전이며 이번 서버 수정은 APK의 앱 소스를 바꾸지 않아 재빌드하지 않았다.
+연결 APK 준비 결과: 실제 서비스 모듈을 포함한 Release 1.0.16 / code 90 APK를 로컬 생성하고 기존 release 서명과 포함 소스를 검증했다. 최초 offline 캐시 누락은 기존 승인된 공식 빌드 의존성 복원으로 해결했다. APK/서명키/운영 설정은 저장소에 업로드하지 않는다.
+APK 인증서와 현재 로컬 Google OAuth Android 설정의 지문이 다르다. 실제 콘솔의 추가 등록 여부, Play 앱 서명 키와의 호환은 미확인이다. 키/인증 설정은 변경하지 않았으며 실제 설치나 로그인/광고/구독 검증도 하지 않았다.
+TEST 1.0.6은 별도의 오프라인 모의 앱으로 그대로 보존했다. 이번 서버 수정으로 TEST 앱 소스는 바뀌지 않아 재빌드하지 않았다.
+운영 탈퇴 연결은 여전히 비활성이다. Spark SDK helper는 localhost 전용이며 실제 화면 transport에 연결되지 않는다. 버전 2 intent를 화면 receipt로 변환하고 현재 상태/계정 경계를 운영 경로에 연결하는 작업도 남아 있다. 규칙 후보 적용만으로 운영 기능이 완성되지 않는다.

@@ -2,41 +2,30 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    # 1. [한국 주식] 월~금 저녁 18:30 KST (UTC 09:30)
     - cron: '30 9 * * 1-5'
-
-    # 2. [미국 주식] 화~토 아침 08:15 KST (UTC 23:15)
     - cron: '15 23 * * 1-5'
-    
-    # 3. [주간 결산] 토요일 오후 17:00 KST (UTC 08:00)
     - cron: '0 8 * * 6'
-
-  workflow_dispatch: 
+  workflow_dispatch:
     inputs:
       mode:
-        description: '실행 모드'
+        description: 'Explicit execution mode'
         required: true
-        default: 'auto'
+        default: daily
         type: choice
-        options:
-        - auto
-        - daily
-        - weekly
-        - weekly_summary
-        - notify
-        - test_push
+        options: [daily, weekly, weekly_summary]
       target:
-        description: '분석 시장'
-        required: false
-        default: 'ALL'
+        description: 'Target market'
+        required: true
+        default: ALL
         type: choice
-        options:
-        - ALL
-        - US
-        - KR
+        options: [ALL, US, KR]
 
 permissions:
   contents: write
+
+concurrency:
+  group: stock-data-publisher
+  cancel-in-progress: false
 
 jobs:
   run-scanner:
@@ -44,68 +33,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
+      - name: Resolve event intent
+        id: intent
+        run: python scripts/resolve_scan_event.py
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # [수정] firebase-admin 라이브러리 필수 설치
-          pip install yfinance pandas requests lxml firebase-admin
-
+        run: pip install yfinance pandas requests lxml firebase-admin exchange-calendars==4.13.2
       - name: Run Scan Logic
         env:
-          # [중요] GitHub Secrets에 등록한 키를 파이썬 환경변수로 주입
-          # (이 부분이 없어서 아까 경고가 떴던 것입니다!)
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-        run: |
-          MODE="${{ inputs.mode }}"
-          TARGET="${{ inputs.target }}"
-          
-          if [ -z "$MODE" ] || [ "$MODE" == "auto" ]; then
-            HOUR=$(date +%H)
-            DOW=$(date +%u)
-            
-            if [ "$DOW" -eq 6 ] && [ "$HOUR" -ge 8 ] && [ "$HOUR" -le 10 ]; then
-              MODE="weekly_summary"
-            elif [ "$HOUR" -ge 22 ] || [ "$HOUR" -le 1 ]; then
-              MODE="daily"
-              TARGET="US"
-            elif [ "$HOUR" -ge 9 ] && [ "$HOUR" -le 12 ]; then
-              MODE="daily"
-              TARGET="KR"
-            else
-              echo "⚠️ 실행 시간이 예상 범위를 벗어났습니다. ($HOUR 시). 기본값(ALL)으로 실행합니다."
-              MODE="daily"
-              TARGET="ALL"
-            fi
-          fi
-          
-          echo "🚀 실행 모드: $MODE / 타겟: $TARGET (현재시간 UTC: $(date))"
-          
-          if [ "$MODE" == "weekly" ]; then
-            python daily_stock_scanner.py --mode weekly
-          elif [ "$MODE" == "weekly_summary" ]; then
-            python daily_stock_scanner.py --mode weekly_summary
-          elif [ "$MODE" == "notify" ]; then
-            python daily_stock_scanner.py --mode notify
-          elif [ "$MODE" == "test_push" ]; then
-            python daily_stock_scanner.py --mode test_push
-          else
-            if [ -z "$TARGET" ]; then TARGET="ALL"; fi
-            python daily_stock_scanner.py --mode daily --target $TARGET
-          fi
-
+          SCAN_MODE: ${{ steps.intent.outputs.mode }}
+          SCAN_TARGET: ${{ steps.intent.outputs.target }}
+        run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET"
       - name: Commit and Push
+        env:
+          SCAN_MODE: ${{ steps.intent.outputs.mode }}
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          
-          git add todays_recommendation.json
-          git add daily_data/*.json weekly_reports/*.json history_index.json || true
-          
-          git commit -m "Update Stock Data ($MODE mode)" || echo "No changes to commit"
-          git push
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          for path in todays_recommendation.json daily_data weekly_reports history_index.json; do
+            if [ -e "$path" ]; then git add -- "$path"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "Update stock data ($SCAN_MODE)"
+            git push
+          fi
+      - name: Deliver generated notification after publishing
+        env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: python daily_stock_scanner.py --mode notify --notify

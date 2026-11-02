@@ -1,0 +1,56 @@
+Daily session publication candidate — DRAFT REVIEW ONLY
+
+This candidate is NOT approved for production merge or activation.
+With DAILYPICK_GUARDED_RUNTIME unset/OFF, merging this candidate stops BOTH KR
+and US daily scans before collection. OFF does not fall back to the old scanner.
+No fallback to the non-idempotent legacy path is supplied. Weekly remains on
+its existing path; duplicate weekly notifications are not addressed here.
+
+Independent synthetic verification
+1. Apply the explicitly listed candidate files to the existing repository.
+   The unchanged modules weekly_contract.py, korean_universe.py and
+   notification_policy.py are existing repository dependencies, not hidden fixtures.
+2. Use Python with requirements-publication-test.txt installed. The recorded
+   verification reused existing packages; it did not install or update anything.
+3. From the repository root:
+     python -I scripts/test_session_publication.py
+   The absolute script path also works from another working directory.
+   The runner uses standard unittest discovery for exactly five test modules.
+4. Read publication-test-results.json and the terminal output. Temporary files
+   stay under this repository's .publication-test-temp directory.
+
+The runner, two baseline fixtures, and requirements file are part of this
+candidate. No parent-directory baseline, local user path, environment token,
+test server, Git credentials, Yahoo query, Firebase connection or Expo delivery
+is required. Tests replace those boundaries with synthetic inputs and block
+socket connections/urlopen/subprocess from import through test completion.
+The seven selection/weekly function hashes and legacy daily function originate
+from public commit 7f1a06d1ee7966b99633916baefd7920e38a75ac. The legacy fixture is
+test-only and receives the synthetic harness's dependencies; it is not a fallback.
+
+Activation transition plan — documentation only
+- First review the complete diff and independent tests on a separate draft branch.
+- Recheck current main, existing scheduled/active runs, and branch protections.
+- Obtain a separate approval for merge, workflow actions:read, the runtime gate,
+  real publication and the existing notification effect. No new credential is
+  assumed. Use only the previously authorized existing execution identity.
+- Decide a new trading-session cutover or separately verified adoption of an
+  existing success record; never invent a run ID/hash or rerun an already
+  successful session merely to initialize the ledger.
+- Coordinate merge and gate activation in a reviewed window before a new session;
+  do not merge this candidate OFF while assuming existing daily service continues.
+- Confirm the exact code revision, state/output hashes, existing public delivery
+  path, and notification claim before interpreting a live run as successful.
+
+Stopping and rollback — separate approval required
+OFF blocks future daily starts but does not change an already running job's
+environment. Check its terminal state first; unknown status is not permission
+to steal a claim or replay notifications. To restore the old daily behavior,
+revert only the reviewed code-change commit while preserving unrelated main
+changes, published data and notification records. Avoid another run of an
+already successful session: the old code lacks this duplicate guard. A code
+rollback cannot undo an accepted push message.
+
+GitHub/Firebase/Expo live permissions and responses, hosted Pages refresh and
+device receipt remain unverified. A local test pass is not deployment approval
+or proof of live operation. This file creates no workflow, schedule or service.

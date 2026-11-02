@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: stock-data-publisher
@@ -46,8 +47,14 @@ jobs:
         env:
           SCAN_MODE: ${{ steps.intent.outputs.mode }}
           SCAN_TARGET: ${{ steps.intent.outputs.target }}
+          # Remains disabled until separately reviewed/approved in repository settings.
+          DAILYPICK_GUARDED_RUNTIME: ${{ vars.DAILYPICK_GUARDED_RUNTIME }}
+          GITHUB_TOKEN: ${{ github.token }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET"
       - name: Commit and Push
+        # Daily runtime owns atomic publication and durable notification claims.
+        if: steps.intent.outputs.mode != 'daily'
         env:
           SCAN_MODE: ${{ steps.intent.outputs.mode }}
         run: |
@@ -61,6 +68,7 @@ jobs:
             git push
           fi
       - name: Deliver generated notification after publishing
+        if: steps.intent.outputs.mode != 'daily'
         env:
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python daily_stock_scanner.py --mode notify --notify

@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "7f1a06d1ee7966b99633916baefd7920e38a75ac",
+  "scannerGitBlob": "86d9b97f76e10aa1c85514112752dbf0a47d3f06",
+  "functionSourceSha256": {
+    "calculate_indicators": "bb94f54a088c98c79d47fad406a2b9b0bc613053f67504380d8741b7d78d95a6",
+    "analyze_stock": "4e42a48e64870325a1862de1d38f200291da0fd20479eec9c7bfc0873765ee64",
+    "get_korea_tickers": "a9288336f384f6cc350d220d407404cc50a3b5e09e352244cd0890f6b9fa0673",
+    "us_universe": "db78926f25ae9657b388a60a27ab33465937a34fa1003b5657aa83337f764f45",
+    "generate_weekly_report": "ca8714872c750156a984f75f8a035675f534004df5a0b67bef8b275d196961f0",
+    "exit_quote": "11defaa48cd81026bd7257fae074331421dbbe849124e9573c84779dc032fb4a",
+    "update_history_index": "05dd03f5a07a63f3faa7fc44258e97bfeeaf5c7e74fd84d6643319efe0ca2a42"
+  },
+  "legacyDailyFunctionSha256": "9e15e8ceb292baf188dcbb1eecdabd4cb98c4c36b19603b68ca1c82912bfb48e",
+  "cron": [
+    "'30 9 * * 1-5'",
+    "'15 23 * * 1-5'",
+    "'0 8 * * 6'"
+  ],
+  "concurrencyGroup": "stock-data-publisher",
+  "cancelInProgress": false
+}

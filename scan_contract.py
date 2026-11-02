@@ -80,7 +80,7 @@ def rank_stocks(rows, limit=10):
     return ordered
 
 
-def scan_market(market, get_universe, analyze, previous, generated_at):
+def scan_market(market, get_universe, analyze, previous, generated_at, expected_session=None):
     old_stocks = [s for s in previous.get("stocks", []) if s.get("market") == market]
     old_meta = previous.get("markets", {}).get(market, {})
     errors, filtered, observations, candidates = 0, 0, [], []
@@ -99,6 +99,8 @@ def scan_market(market, get_universe, analyze, previous, generated_at):
             if not isinstance(observation, Observation):
                 raise SourceDataError("invalid_observation")
             quote_date = date.fromisoformat(observation.quote_as_of[:10])
+            if expected_session is not None and quote_date.isoformat() != expected_session:
+                raise SourceDataError('wrong_quote_session')
             age = (date.fromisoformat(generated_at[:10]) - quote_date).days
             if age < 0 or age > 4:
                 raise SourceDataError("stale_quote")

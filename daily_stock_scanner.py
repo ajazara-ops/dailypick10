@@ -76,8 +76,10 @@ def fetch_with_retry(url, headers=None, retries=3, delay=2):
 # Publishing is handled only by the workflow after successful generation.
 
 # --- [추가] 2. DB에서 모든 사용자 토큰 가져오기 ---
-def get_all_user_tokens():
+def get_all_user_tokens(strict=False):
     if not FIREBASE_AVAILABLE:
+        if strict:
+            raise SourceDataError('push_recipient_service_unavailable')
         print("⚠️ [경고] firebase-admin 라이브러리 미설치. 알림 발송을 생략합니다.")
         return []
     
@@ -96,9 +98,13 @@ def get_all_user_tokens():
                     firebase_admin.initialize_app(cred)
                     print("🔥 Firebase 인증 성공 (환경변수)")
                 except Exception as e:
+                    if strict:
+                        raise SourceDataError('push_recipient_auth_unavailable') from None
                     print(f"❌ Firebase 인증/구성 실패: {type(e).__name__}")
                     return []
             else:
+                if strict:
+                    raise SourceDataError('push_recipient_auth_missing')
                 print("⚠️ [경고] FIREBASE_CREDENTIALS 환경변수가 없습니다. 알림 발송을 생략합니다.")
                 return [] 
         
@@ -119,6 +125,8 @@ def get_all_user_tokens():
         return tokens
         
     except Exception as e:
+        if strict:
+            raise SourceDataError('push_recipient_lookup_failed') from None
         print(f"❌ DB 조회 실패: {type(e).__name__}")
         return []
 
@@ -657,17 +665,13 @@ def market_session_date(market):
     return datetime.now(ZoneInfo(TIMEZONES[market])).strftime('%Y-%m-%d')
 
 
-def generate_daily(target, requested_date=None):
-    generated_at = utc_stamp()
-    previous_path = Path('todays_recommendation.json')
-    previous = json.loads(previous_path.read_text('utf-8')) if previous_path.exists() else {}
+def collect_daily_session(target, session_date, previous, generated_at):
+    """Collect only after the injected publication coordinator confirms a claim."""
     updates = {}
-    for market in (['US', 'KR'] if target == 'ALL' else [target]):
-        session_date = market_session_date(market)
-        if requested_date and requested_date != session_date:
-            raise ValueError('Historical daily regeneration requires point-in-time data and is disabled')
+    for market in [target]:
         rows, meta = scan_market(market, us_universe if market == 'US' else get_korea_tickers,
-                                lambda ticker, m: analyze_stock(ticker, m, target_date=session_date), previous, generated_at)
+                                lambda ticker, m: analyze_stock(ticker, m, target_date=session_date), previous, generated_at,
+                                expected_session=session_date)
         if meta['status'] in {'fresh', 'empty'}:
             process_news_for_list(rows)
         updates[market] = (rows, meta)
@@ -678,23 +682,39 @@ def generate_daily(target, requested_date=None):
             out['market_status'][key] = value
     out['dominant_sectors'] = [v for v, _ in Counter(s.get('sector') for s in out['stocks'] if s.get('sector') not in (None, '기타')).most_common(2)]
     out['notification'] = daily_notification(updates)
-    stamp = generated_at.replace(':', '').replace('+0000', 'Z')
-    filename = f"{generated_at[:10]}_{stamp[11:]}_{target}_daily.json"
-    write_json_once(Path(DAILY_DATA_DIR) / filename, out)
-    write_latest('todays_recommendation.json', out)
-    write_latest('.pending_notification.json', out['notification'])
     return out
 
 
-def main():
+def generate_daily(target, requested_date=None, *, publisher=None, run_id=None):
+    # Direct callers must supply a publisher; CLI uses the explicitly gated factory.
+    if publisher is None or run_id is None:
+        raise RuntimeError('Guarded daily publisher is not configured; live execution is disabled')
+    if target == 'ALL':
+        # Preserve the existing ALL option, with independent session keys/locks.
+        return {'state': 'markets', 'results': {
+            market: publisher.run(market, run_id, collect_daily_session, requested_session=requested_date)
+            for market in ('US', 'KR')}}
+    return publisher.run(target, run_id, collect_daily_session, requested_session=requested_date)
+
+
+def main(argv=None, *, runtime_factory=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices=['daily', 'weekly', 'weekly_summary', 'notify', 'update_index'], default='daily')
     parser.add_argument('--target', choices=['US', 'KR', 'ALL'], default='ALL')
     parser.add_argument('--date')
     parser.add_argument('--notify', action='store_true', help='Explicitly allow push delivery; used only after successful publishing')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.mode == 'daily':
-        generate_daily(args.target, args.date)
+        from types import SimpleNamespace
+        from publication_runtime import build_daily_publisher
+        factory = runtime_factory or build_daily_publisher
+        publisher, run_id = factory(SimpleNamespace(get_all_user_tokens=get_all_user_tokens))
+        result = generate_daily(args.target, args.date, publisher=publisher, run_id=run_id)
+        print(json.dumps(result, ensure_ascii=False))  # Bounded coordinator statuses only.
+        rows = result['results'].values() if result.get('state') == 'markets' else [result]
+        if any(row.get('state') not in {'published', 'noop', 'holiday'} for row in rows):
+            raise SourceDataError('daily_publication_not_complete')
+        return result
     elif args.mode in {'weekly', 'weekly_summary'}:
         generate_weekly_report(args.date)
         update_history_index()

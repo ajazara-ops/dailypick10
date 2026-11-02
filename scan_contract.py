@@ -11,6 +11,11 @@ import sys
 import tempfile
 
 TIMEZONES = {"US": "America/New_York", "KR": "Asia/Seoul"}
+UNIVERSE_ERROR_CODES = frozenset({
+    'universe_unavailable', 'incomplete_us_universe', 'incomplete_korean_universe',
+    'kr_universe_fetch_failed', 'kr_universe_invalid_json', 'kr_universe_invalid_contract',
+    'kr_universe_incomplete', 'kr_universe_invalid_order',
+})
 
 
 class SourceDataError(ValueError):
@@ -79,12 +84,15 @@ def scan_market(market, get_universe, analyze, previous, generated_at):
     old_stocks = [s for s in previous.get("stocks", []) if s.get("market") == market]
     old_meta = previous.get("markets", {}).get(market, {})
     errors, filtered, observations, candidates = 0, 0, [], []
+    universe_error = None
     try:
         universe = sorted(set(get_universe()))
         if not universe:
             raise SourceDataError("universe_unavailable")
-    except Exception:
+    except Exception as exc:
         universe, errors = [], 1
+        # Publish a bounded diagnostic, never arbitrary HTTP bodies or exception text.
+        universe_error = str(exc) if isinstance(exc, SourceDataError) and str(exc) in UNIVERSE_ERROR_CODES else 'universe_unavailable'
     for ticker in universe:
         try:
             observation = analyze(ticker, market)
@@ -121,6 +129,7 @@ def scan_market(market, get_universe, analyze, previous, generated_at):
         meta = {"generatedAt": generated_at, "quoteAsOf": min(observations) if observations else None,
                 "stale": bool(errors), "status": ("partial" if observations else "error") if errors else ("fresh" if rows else "empty")}
     meta.update(timezone=TIMEZONES[market], attemptedAt=generated_at, errorCount=errors,
+                universeError=universe_error,
                 attemptedCount=len(universe), observedCount=len(observations), filteredCount=filtered,
                 quotePrecision="session-date", freshnessLimitCalendarDays=4)
     return rows, meta

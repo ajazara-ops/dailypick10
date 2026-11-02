@@ -19,6 +19,7 @@ from scan_contract import (Observation, SourceDataError, TIMEZONES, number, pric
 from weekly_contract import REPORT_KIND, latest_publication, weekly_period, assert_publishable, weekly_cohort, settle_weekly, build_weekly_report, validate_frozen_report
 from market_calendar import evaluation_session, is_market_session
 from notification_policy import push_eligible
+from korean_universe import load_korean_universe
 from io import StringIO
 
 # [추가] Firebase 라이브러리 (여러 사람에게 알림 보내기 위해 필요)
@@ -350,42 +351,16 @@ def get_nasdaq100_tickers():
     return []
 
 def get_korea_tickers():
-    tickers = []
-    successful_sources = 0
-    
-    # 1. 네이버 금융 (코스피)
+    # Same market-cap top 50 per exchange. Never use list prices for scoring.
+    print("🔍 [KR] 네이버 시가총액 목록 확인: 코스피 50 + 코스닥 50")
     try:
-        print("🔍 [KR] 네이버 금융에서 코스피 종목 가져오는 중...")
-        url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=0&page=1'
-        res = fetch_with_retry(url)
-        if res:
-            codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
-            seen = set()
-            unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
-            if unique_codes: successful_sources += 1
-            for code in unique_codes[:50]: tickers.append(f"{code}.KS")
-    except Exception as e: print(f"⚠️ 코스피 목록 실패: {e}")
-
-    # 2. 네이버 금융 (코스닥)
-    try:
-        print("🔍 [KR] 네이버 금융에서 코스닥 종목 가져오는 중...")
-        url = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=1&page=1'
-        res = fetch_with_retry(url)
-        if res:
-            codes = re.findall(r'href="/item/main.naver\?code=(\d{6})"', res.text)
-            seen = set()
-            unique_codes = [x for x in codes if not (x in seen or seen.add(x))]
-            if unique_codes: successful_sources += 1
-            for code in unique_codes[:50]: tickers.append(f"{code}.KQ")
-    except Exception as e: print(f"⚠️ 코스닥 목록 실패: {e}")
-
-    if not tickers:
-        print("🚨 [KR] 한국 종목 목록 가져오기 실패. (네이버 & 다음 모두 실패)")
-        return []
-        
-    if successful_sources != 2:
-        raise SourceDataError("incomplete_korean_universe")
-    return sorted(set(tickers))
+        tickers = load_korean_universe(fetch_with_retry)
+    except Exception:
+        # Static warning only; structured allowlisted detail is stored in markets.KR.
+        print("::warning title=KR universe unavailable::Korean market-cap list validation failed; latest recommendations are unavailable.")
+        raise
+    print(f"✅ [KR] 한국 대상 종목 {len(tickers)}개 확인")
+    return tickers
 
 # --- [신규] 네이버 금융 재무 데이터 크롤링 ---
 def get_kr_fundamental(ticker):
@@ -519,10 +494,13 @@ def analyze_stock(ticker, market_type, target_date=None):
 
         if market_type == 'KR':
             kr_fund = get_kr_fundamental(ticker)
-            if kr_fund:
-                op_margin = kr_fund['op_margin']
-                per = kr_fund['per']
-                pbr = kr_fund['pbr']
+            if isinstance(kr_fund, dict):
+                # Missing primary fields must not erase available fallback data.
+                # In particular, losing a known negative margin bypasses the KR
+                # loss filter below. A real zero remains a valid primary value.
+                if number(kr_fund.get('op_margin')) is not None: op_margin = kr_fund['op_margin']
+                if number(kr_fund.get('per')) is not None: per = kr_fund['per']
+                if number(kr_fund.get('pbr')) is not None: pbr = kr_fund['pbr']
         
         op_margin, rev_growth, per, pbr = map(number, (op_margin, rev_growth, per, pbr))
         if market_type == 'KR' and op_margin is not None and op_margin < 0: return Observation(None, quote_as_of)

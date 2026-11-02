@@ -3442,21 +3442,21 @@
     "KR": {
       "generatedAt": "2026-11-02T10:58:00+00:00",
       "quoteAsOf": "2026-11-02",
-      "stale": false,
-      "status": "fresh",
+      "stale": true,
+      "status": "partial",
       "timezone": "Asia/Seoul",
-      "attemptedAt": "2026-11-02T10:58:00+00:00",
-      "errorCount": 0,
+      "attemptedAt": "2026-11-02T19:39:19+00:00",
+      "errorCount": 1,
       "universeError": null,
       "attemptedCount": 100,
-      "observedCount": 100,
+      "observedCount": 99,
       "filteredCount": 9,
       "quotePrecision": "session-date",
       "freshnessLimitCalendarDays": 4
     }
   },
-  "generatedAt": "2026-11-02T10:58:00+00:00",
-  "timestamp": "2026-11-02T10:58:00+00:00",
+  "generatedAt": "2026-11-02T19:39:19+00:00",
+  "timestamp": "2026-11-02T19:39:19+00:00",
   "analysisMethod": "rules_v1",
   "methodology": "규칙 기반 기술·재무 스크리닝. 기준 가격은 예측·수익 보장이 아닙니다.",
   "market_status": {
@@ -3469,17 +3469,17 @@
     },
     "KR": {
       "name": "KOSPI",
-      "current": 5859.08,
-      "change": 2.24,
-      "status": "VERY_GOOD",
-      "message": "강한 상승 🔥"
+      "current": 5730.74,
+      "change": -3.48,
+      "status": "PANIC",
+      "message": "폭락 경고 ⛈️"
     },
     "VIX": {
       "name": "공포지수",
-      "current": 18.98,
-      "change": -2.27,
-      "status": "NEUTRAL",
-      "message": "안정적 😌"
+      "current": 21.17,
+      "change": 9.01,
+      "status": "BAD",
+      "message": "공포 구간 😨"
     }
   },
   "dominant_sectors": [
@@ -3488,6 +3488,6 @@
   ],
   "notification": {
     "title": "DailyPick10 데이터 업데이트",
-    "body": "한국 규칙 기반 후보: 138040, 096770"
+    "body": "한국: 데이터 수집 오류 1건. 최신 추천 확인 불가"
   }
 }

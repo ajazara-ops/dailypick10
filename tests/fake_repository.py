@@ -59,7 +59,7 @@ class Remote:
         if fault == 'unknown_before':
             raise CommitUnknown('synthetic unknown acknowledgement')
         for key, value in changes.items():
-            if key.startswith('daily_data/') and key in self.files and self.files[key] != value:
+            if key.startswith(('daily_data/', 'weekly_reports/')) and key in self.files and self.files[key] != value:
                 raise CommitRejected('history is immutable')
         next_files = {**self.files, **deepcopy(changes)}
         if self.path:

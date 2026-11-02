@@ -18,6 +18,8 @@ REPOSITORY = 'ajazara-ops/dailypick10'
 WORKFLOW = '.github/workflows/daily_scan.yml'
 SHA = re.compile(r'[0-9a-f]{40}')
 ARCHIVE = re.compile(r'daily_data/\d{4}-\d{2}-\d{2}_(?:KR|US)_daily\.json')
+WEEKLY = re.compile(r'weekly_reports/\d{4}-\d{2}-\d{2}_v3_weekly\.json')
+READ_HISTORY = re.compile(r'(?:daily_data/[A-Za-z0-9_.+-]+_daily\.json|weekly_reports/\d{4}-\d{2}-\d{2}(?:_v[23])?_weekly\.json)')
 
 
 class RepositoryUnavailable(RuntimeError):
@@ -25,7 +27,11 @@ class RepositoryUnavailable(RuntimeError):
 
 
 def permitted(path):
-    return path in {'scan_state.json', 'todays_recommendation.json'} or bool(ARCHIVE.fullmatch(path))
+    return path in {'scan_state.json', 'todays_recommendation.json', 'history_index.json'} or bool(ARCHIVE.fullmatch(path) or WEEKLY.fullmatch(path))
+
+
+def readable(path):
+    return permitted(path) or bool(READ_HISTORY.fullmatch(path))
 
 
 def git_blob(data):
@@ -149,7 +155,7 @@ class GitHubRepository:
         if commit.get('sha') != head:
             raise RepositoryUnavailable('commit_identity_mismatch')
         tree_sha = sha(commit.get('tree', {}).get('sha'))
-        # Walk only root and daily_data: unrelated blobs/secrets are never fetched.
+        # Only publication data trees; legacy snapshots are read-only inputs.
         entries = {}
         root = self._get('/git/trees/' + tree_sha)
         if (root.get('sha') != tree_sha or root.get('truncated') is not False or
@@ -157,7 +163,7 @@ class GitHubRepository:
             raise RepositoryUnavailable('incomplete_root_tree')
         for row in root.get('tree', []):
             path = row.get('path', '')
-            if path == 'daily_data':
+            if path in {'daily_data', 'weekly_reports'}:
                 if row.get('type') != 'tree':
                     raise RepositoryUnavailable('invalid_history_tree')
                 tree = self._get('/git/trees/' + sha(row.get('sha')))
@@ -165,10 +171,10 @@ class GitHubRepository:
                         not isinstance(tree.get('tree'), list)):
                     raise RepositoryUnavailable('incomplete_history_tree')
                 for child in tree.get('tree', []):
-                    full = 'daily_data/' + child.get('path', '')
-                    if permitted(full):
+                    full = path + '/' + child.get('path', '')
+                    if readable(full):
                         self._entry(entries, full, child)
-            elif permitted(path):
+            elif readable(path):
                 self._entry(entries, path, row)
         self._trees[head] = tree_sha
         return Snapshot(head, GitFiles(self, entries))
@@ -196,13 +202,14 @@ class GitHubRepository:
                 raise ValueError('main_changed')
             rows = []
             for path, data in sorted(changes.items()):
-                if not isinstance(data, bytes) or not isinstance(json.loads(data), dict):
+                expected_type = list if path == 'history_index.json' else dict
+                if not isinstance(data, bytes) or not isinstance(json.loads(data), expected_type):
                     raise ValueError('invalid_json_write')
-                if ARCHIVE.fullmatch(path) and path in current.files and current.files[path] != data:
+                if (ARCHIVE.fullmatch(path) or WEEKLY.fullmatch(path)) and path in current.files and current.files[path] != data:
                     raise ValueError('immutable_history')
                 rows.append({'path': path, 'type': 'blob', 'mode': '100644', 'content': data.decode('utf-8')})
             tree = self._create('/git/trees', {'base_tree': self._trees[current.head], 'tree': rows})
-            commit = self._create('/git/commits', {'message': 'Record guarded daily publication',
+            commit = self._create('/git/commits', {'message': 'Record guarded stock publication',
                                   'tree': tree, 'parents': [expected_head]})
             if self._head() != expected_head:
                 raise ValueError('main_changed_before_update')

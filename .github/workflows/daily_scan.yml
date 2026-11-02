@@ -52,23 +52,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET"
-      - name: Commit and Push
-        # Daily runtime owns atomic publication and durable notification claims.
-        if: steps.intent.outputs.mode != 'daily'
-        env:
-          SCAN_MODE: ${{ steps.intent.outputs.mode }}
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          for path in todays_recommendation.json daily_data weekly_reports history_index.json; do
-            if [ -e "$path" ]; then git add -- "$path"; fi
-          done
-          if ! git diff --cached --quiet; then
-            git commit -m "Update stock data ($SCAN_MODE)"
-            git push
-          fi
-      - name: Deliver generated notification after publishing
-        if: steps.intent.outputs.mode != 'daily'
-        env:
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-        run: python daily_stock_scanner.py --mode notify --notify
+      # Daily and weekly runtimes own atomic publication and durable notice claims.
+      # No second checkout-based push or legacy pending-file notification step.

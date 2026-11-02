@@ -130,9 +130,13 @@ class RuntimeTests(unittest.TestCase):
 
     def test_weekly_cli_does_not_construct_daily_runtime(self):
         calls=[]
-        self.scanner.generate_weekly_report=lambda date:calls.append(('weekly',date))
-        self.scanner.update_history_index=lambda:calls.append(('index',))
-        self.scanner.write_latest=lambda path,data:calls.append(('pending',path))
+        def run(run_id, collect, *, publication_date):
+            calls.append((run_id, collect, publication_date));return {'state':'noop'}
+        def weekly_factory(_):return types.SimpleNamespace(run=run),'1001'
+        self.scanner.generate_weekly_report=lambda *_:self.fail('legacy writer called')
+        self.scanner.update_history_index=lambda:self.fail('legacy index called')
+        self.scanner.write_latest=lambda *_:self.fail('legacy pending notice called')
         def forbidden(_):self.fail('weekly must not use daily runtime')
-        self.scanner.main(['--mode','weekly_summary','--target','ALL'],runtime_factory=forbidden)
-        self.assertEqual(calls,[('weekly',None),('index',),('pending','.pending_notification.json')])
+        self.scanner.main(['--mode','weekly_summary','--target','ALL'],runtime_factory=forbidden,
+                          weekly_runtime_factory=weekly_factory)
+        self.assertEqual(calls,[('1001',self.scanner.collect_weekly_period,None)])

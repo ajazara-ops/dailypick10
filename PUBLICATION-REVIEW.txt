@@ -1,56 +1,105 @@
-Daily session publication candidate — DRAFT REVIEW ONLY
+Daily and weekly publication candidate - LOCAL REVIEW ONLY / DO NOT MERGE
 
-This candidate is NOT approved for production merge or activation.
-With DAILYPICK_GUARDED_RUNTIME unset/OFF, merging this candidate stops BOTH KR
-and US daily scans before collection. OFF does not fall back to the old scanner.
-No fallback to the non-idempotent legacy path is supplied. Weekly remains on
-its existing path; duplicate weekly notifications are not addressed here.
+This local extension is based on PR #7, exact head
+1fea63739d930b0500f650d74e94dfc82094b23f. The public PR is not changed.
+Separate approval is required for publishing these changes, merging, runtime
+activation and real notifications. No operational settings are changed here.
+
+WARNING: with DAILYPICK_GUARDED_RUNTIME unset/OFF, this candidate stops BOTH KR
+and US daily scans AND weekly/weekly_summary before collection. OFF does not
+fall back to legacy collection or sending. Do not merge OFF expecting service
+continuity. Merely setting the gate does not prove permissions/delivery work.
+
+Weekly contract and failure behavior
+- weekly and weekly_summary share one key:
+  weekly:ALL:<recommendation-week-Monday>:<Friday>:<evaluation-Friday>.
+  KR/US rankings remain separate inside the existing combined weekly report.
+  The original Mon-Fri cohort, first recorded recommendation price, 14 days
+  after that Friday, previous market session on holidays, and Saturday 17:00
+  KST publication policy are unchanged. US row session dates win over archive
+  filename dates. No current news/fundamentals or current-price substitution.
+- After the existing publisher concurrency slot is verified, reread main.
+  Commit and confirm collecting before historical quote work. Commit frozen
+  report, history_index.json and published ledger atomically; confirm all three
+  before a durable notification claim and existing Expo recipient lookup.
+- A published period with matching output hash and its index entry is a no-op:
+  no quote work, no new history/index/state writes, no recipient lookup/send.
+  Later index entries do not invalidate old periods. Frozen output is immutable.
+- Calendar/price fetch failure, unreadable archive and an unverified empty
+  cohort do not publish a report/index or send a notice. Failed claims remain
+  bounded diagnostics; existing successful files are preserved.
+- Existing deterministic unavailable cases (missing/ambiguous entry price,
+  unverified legacy price basis or corporate action status) remain unevaluated,
+  with null return, original missing counts and dataStatus=partial in the
+  ledger/result. Partial notices explicitly state unavailable records. Such a
+  published partial report remains frozen; it is not silently recalculated.
+- Existing legacy reports/index entries without a verified ledger are blocked
+  for explicit adoption review, not overwritten or announced again. Failed or
+  collecting claims are not stolen when the owner status is unknown; even a
+  terminal owner needs separate recovery approval. Runtime retry_authorized
+  stays false; there is no automatic force, replay, TTL takeover or retry CLI.
+- Expo notificationKey is a stable weekly hash, not a provider exactly-once
+  guarantee. Unknown response/crash after claim can leave omitted recipients;
+  retries do not resend the whole audience. Accepted tickets are not device
+  receipt confirmation. Tokens remain in memory, not public state/logs.
+- Legacy pending-file push steps are removed from the proposed workflow to
+  avoid a second send. Existing schedule, mode/target inputs and concurrency
+  group remain unchanged. Manual legacy notify/update_index CLI functions are
+  retained for compatibility but are not part of the guarded workflow and must
+  not be used to bypass recovery review.
 
 Independent synthetic verification
-1. Apply the explicitly listed candidate files to the existing repository.
-   The unchanged modules weekly_contract.py, korean_universe.py and
-   notification_policy.py are existing repository dependencies, not hidden fixtures.
-2. Use Python with requirements-publication-test.txt installed. The recorded
-   verification reused existing packages; it did not install or update anything.
-3. From the repository root:
-     python -I scripts/test_session_publication.py
-   The absolute script path also works from another working directory.
-   The runner uses standard unittest discovery for exactly five test modules.
-4. Read publication-test-results.json and the terminal output. Temporary files
-   stay under this repository's .publication-test-temp directory.
+1. Apply the manifest delta to PR #7's source. Unchanged weekly_contract.py,
+   korean_universe.py and notification_policy.py remain repo dependencies.
+2. Reuse Python/packages in requirements-publication-test.txt. No new install
+   is needed by the recorded local checks.
+3. From any cwd: python -I path/to/scripts/test_session_publication.py
+   Seven standard unittest discovery modules include the actual scanner CLI,
+   collector, Git/Expo ports, isolated synthetic feeds and failure cases.
+4. Check publication-test-results.json. Socket/urlopen/subprocess are blocked
+   from import through completion. No credentials, Firebase connection, live
+   quote, GitHub write or Expo send is needed. Temp files stay in the test root.
+   Selection/weekly function hashes and cron preservation are also asserted.
 
-The runner, two baseline fixtures, and requirements file are part of this
-candidate. No parent-directory baseline, local user path, environment token,
-test server, Git credentials, Yahoo query, Firebase connection or Expo delivery
-is required. Tests replace those boundaries with synthetic inputs and block
-socket connections/urlopen/subprocess from import through test completion.
-The seven selection/weekly function hashes and legacy daily function originate
-from public commit 7f1a06d1ee7966b99633916baefd7920e38a75ac. The legacy fixture is
-test-only and receives the synthetic harness's dependencies; it is not a fallback.
+Operating transition - documentation only, NOT authorized or tested live
+1. Review the exact combined diff, current main/active runs and branch rules.
+   Existing PR #7 remains draft-only. A new public delta needs explicit approval.
+2. Existing workflow token needs contents:write for bounded Git-data commits
+   and actions:read for current/owner run state. actions:read was already in
+   PR #7's proposal; weekly adds no new scope. Protection rules must permit
+   these normal updates; do not bypass them. No new key/token is assumed.
+   Existing Firebase recipient identity needs existing users read access only;
+   weekly adds no Firestore write, Auth delete, IAM or billing requirement.
+3. Plan a coordinated code+gate transition with no active publisher and enough
+   time before the next new daily session AND new weekly period. Gate value is
+   enabled-v1 only after separate approval. Do not silently enable it here.
+   Already successful periods require independently reviewed adoption; this
+   candidate supplies no migration/automatic adoption tool. Do not rerun them.
+4. Confirm live GitHub commit/read-back permissions, exact recorded archive hash
+   and index entry. Confirm the app's actual public JSON/Pages delivery path
+   separately: a repository commit is not proof of a Pages refresh. This code
+   adds no Pages dispatch, token, Cloudflare scheduler or fallback deployment.
+   That delivery dependency remains an operating-readiness blocker until verified.
+5. On the first separately approved normal run, distinguish published data,
+   partial/missing counts, notification claim/tickets and device receipt. No
+   live scan or test push was performed for this local candidate.
 
-Activation transition plan — documentation only
-- First review the complete diff and independent tests on a separate draft branch.
-- Recheck current main, existing scheduled/active runs, and branch protections.
-- Obtain a separate approval for merge, workflow actions:read, the runtime gate,
-  real publication and the existing notification effect. No new credential is
-  assumed. Use only the previously authorized existing execution identity.
-- Decide a new trading-session cutover or separately verified adoption of an
-  existing success record; never invent a run ID/hash or rerun an already
-  successful session merely to initialize the ledger.
-- Coordinate merge and gate activation in a reviewed window before a new session;
-  do not merge this candidate OFF while assuming existing daily service continues.
-- Confirm the exact code revision, state/output hashes, existing public delivery
-  path, and notification claim before interpreting a live run as successful.
+Stopping / rollback - requires operating approval
+- OFF prevents future gated starts; it does not stop a job that already read
+  its environment. Inspect active run state, never steal unknown ownership.
+- Preserve scan_state.json, frozen reports, daily histories and history_index.
+  Revert only reviewed code commits, keeping concurrent user/data changes.
+  Reverting just this weekly delta restores PR #7's unguarded weekly path and
+  can repeat notices; reverting PR #7 too restores unguarded daily behavior.
+  Neither is safe to replay for already successful periods. Use a reviewed
+  quiet window/new period and reconcile the recorded claims first.
+- No code rollback can recall accepted notifications. An unknown notice is not
+  authorization for another send. Failed-data recovery needs root-cause repair,
+  output/owner inspection and a separately approved recovery implementation.
 
-Stopping and rollback — separate approval required
-OFF blocks future daily starts but does not change an already running job's
-environment. Check its terminal state first; unknown status is not permission
-to steal a claim or replay notifications. To restore the old daily behavior,
-revert only the reviewed code-change commit while preserving unrelated main
-changes, published data and notification records. Avoid another run of an
-already successful session: the old code lacks this duplicate guard. A code
-rollback cannot undo an accepted push message.
-
-GitHub/Firebase/Expo live permissions and responses, hosted Pages refresh and
-device receipt remain unverified. A local test pass is not deployment approval
-or proof of live operation. This file creates no workflow, schedule or service.
+Limits
+Only saved recommendation snapshots can be evaluated. Missing historical files
+or overwritten same-day observations cannot be reconstructed by this guard.
+It does not prove a complete historical recommendation population, adjusted
+returns, profitability, live provider permissions or actual device delivery.
+No new schedule, database, infrastructure, credential, IAM or paid plan is used.

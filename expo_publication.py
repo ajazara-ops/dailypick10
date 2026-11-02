@@ -10,7 +10,7 @@ class ExpoNotifier:
         self.token_source, self.post = token_source, post
 
     def send(self, key, title, body):
-        if not re.fullmatch(r'daily-[0-9a-f]{64}', key):
+        if not re.fullmatch(r'(?:daily|weekly)-[0-9a-f]{64}', key):
             raise ValueError('invalid_notification_key')
         # DailyPublisher calls this only after the durable claim is confirmed.
         try:

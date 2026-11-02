@@ -5,9 +5,10 @@ import os
 from expo_publication import ExpoNotifier
 from github_publication import GitHubHTTP, GitHubRepository, WorkflowPublisherLock, REPOSITORY, WORKFLOW
 from scan_publication import DailyPublisher
+from weekly_publication import WeeklyPublisher
 
 
-def build_daily_publisher(scanner, *, environment=None, request=None, post=None, clock=None, calendar=None):
+def _build_publisher(scanner, publisher_type, *, environment=None, request=None, post=None, clock=None, calendar=None):
     e = os.environ if environment is None else environment
     # Validate the explicit gate/context before accessing any credential or provider.
     if e.get('DAILYPICK_GUARDED_RUNTIME') != 'enabled-v1':
@@ -30,4 +31,12 @@ def build_daily_publisher(scanner, *, environment=None, request=None, post=None,
     kwargs = {'clock': clock or (lambda: datetime.now(timezone.utc))}
     if calendar is not None:
         kwargs['calendar'] = calendar
-    return DailyPublisher(repository, notifier, **kwargs), e.get('GITHUB_RUN_ID')
+    return publisher_type(repository, notifier, **kwargs), e.get('GITHUB_RUN_ID')
+
+
+def build_daily_publisher(scanner, **kwargs):
+    return _build_publisher(scanner, DailyPublisher, **kwargs)
+
+
+def build_weekly_publisher(scanner, **kwargs):
+    return _build_publisher(scanner, WeeklyPublisher, **kwargs)

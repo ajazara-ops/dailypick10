@@ -168,7 +168,9 @@ class GuardedScannerTests(unittest.TestCase):
         new=(ROOT/'.github/workflows/daily_scan.yml').read_text('utf-8')
         self.assertEqual(contract['cron'],re.findall(r"cron: (.+)",new))
         self.assertIn('group: stock-data-publisher\n  cancel-in-progress: false',new)
-        self.assertEqual(new.count("if: steps.intent.outputs.mode != 'daily'"),2)
+        self.assertNotIn('--mode notify --notify', new)
+        self.assertNotIn('git push', new)
+        self.assertIn('DAILYPICK_GUARDED_RUNTIME: ${{ vars.DAILYPICK_GUARDED_RUNTIME }}', new)
 
 
 if __name__=='__main__':unittest.main()

@@ -697,7 +697,30 @@ def generate_daily(target, requested_date=None, *, publisher=None, run_id=None):
     return publisher.run(target, run_id, collect_daily_session, requested_session=requested_date)
 
 
-def main(argv=None, *, runtime_factory=None):
+def collect_weekly_period(period, snapshot, generated_at):
+    """Existing frozen-price calculation, reading the post-lock remote snapshot.
+
+    No checkout writes, pending notice file, current news, or current fundamentals.
+    The publisher decides whether source failures permit publication.
+    """
+    snapshots, unreadable_files = [], 0
+    for path in sorted(snapshot.files):
+        if not path.startswith('daily_data/') or not path.endswith('_daily.json'):
+            continue
+        try:
+            payload = json.loads(snapshot.files[path])
+            if not isinstance(payload, dict) or not isinstance(payload.get('stocks'), list):
+                raise ValueError('invalid_snapshot')
+            snapshots.append((Path(path).name, payload))
+        except (ValueError, OSError):
+            unreadable_files += 1
+    cohort, diagnostics = weekly_cohort(snapshots, period, is_market_session)
+    diagnostics['unreadableSnapshotCount'] = unreadable_files
+    results, sessions = settle_weekly(cohort, period, evaluation_session, exit_quote)
+    return build_weekly_report(results, period, generated_at, sessions, diagnostics)
+
+
+def main(argv=None, *, runtime_factory=None, weekly_runtime_factory=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices=['daily', 'weekly', 'weekly_summary', 'notify', 'update_index'], default='daily')
     parser.add_argument('--target', choices=['US', 'KR', 'ALL'], default='ALL')
@@ -716,10 +739,16 @@ def main(argv=None, *, runtime_factory=None):
             raise SourceDataError('daily_publication_not_complete')
         return result
     elif args.mode in {'weekly', 'weekly_summary'}:
-        generate_weekly_report(args.date)
-        update_history_index()
-        write_latest('.pending_notification.json', {'title': '주간 상승률 TOP 10',
-                     'body': '한 주 추천의 중복 종목을 모아 2주 뒤 금요일 종가로 비교했습니다. 시장별 상승률 상위 10개와 미평가 수를 확인하세요.'})
+        from types import SimpleNamespace
+        from publication_runtime import build_weekly_publisher
+        factory = weekly_runtime_factory or build_weekly_publisher
+        publisher, run_id = factory(SimpleNamespace(get_all_user_tokens=get_all_user_tokens))
+        # Existing weekly calculation includes KR and US even when target is set.
+        result = publisher.run(run_id, collect_weekly_period, publication_date=args.date)
+        print(json.dumps(result, ensure_ascii=False))
+        if result.get('state') not in {'published', 'noop'}:
+            raise SourceDataError('weekly_publication_not_complete')
+        return result
     elif args.mode == 'update_index':
         update_history_index()
     elif args.mode == 'notify':

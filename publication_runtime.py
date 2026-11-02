@@ -6,6 +6,7 @@ from expo_publication import ExpoNotifier
 from github_publication import GitHubHTTP, GitHubRepository, WorkflowPublisherLock, REPOSITORY, WORKFLOW
 from scan_publication import DailyPublisher
 from weekly_publication import WeeklyPublisher
+from pages_delivery import configuration
 
 
 def _build_publisher(scanner, publisher_type, *, environment=None, request=None, post=None, clock=None, calendar=None):
@@ -18,6 +19,7 @@ def _build_publisher(scanner, publisher_type, *, environment=None, request=None,
             e.get('GITHUB_WORKFLOW_REF') != f'{REPOSITORY}/{WORKFLOW}@refs/heads/main' or
             e.get('GITHUB_EVENT_NAME') not in {'schedule', 'workflow_dispatch'}):
         raise RuntimeError('Approved publisher workflow context is required')
+    configuration(e)  # Source unknown => stop BEFORE credentials, quotes or writes.
     if request is None or post is None:
         import requests
         request = request or requests.request
@@ -28,7 +30,7 @@ def _build_publisher(scanner, publisher_type, *, environment=None, request=None,
               'GITHUB_WORKFLOW_REF', 'GITHUB_EVENT_NAME', 'GITHUB_RUN_ID', 'GITHUB_SHA')
     repository._lock = WorkflowPublisherLock({k: e.get(k) for k in fields}, repository.get_run)
     notifier = ExpoNotifier(lambda: scanner.get_all_user_tokens(strict=True), post)
-    kwargs = {'clock': clock or (lambda: datetime.now(timezone.utc))}
+    kwargs = {'clock': clock or (lambda: datetime.now(timezone.utc)), 'defer_delivery': True}
     if calendar is not None:
         kwargs['calendar'] = calendar
     return publisher_type(repository, notifier, **kwargs), e.get('GITHUB_RUN_ID')

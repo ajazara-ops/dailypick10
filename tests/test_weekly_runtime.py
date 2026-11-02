@@ -52,18 +52,20 @@ class WeeklyRuntimeTests(unittest.TestCase):
 
     def test_actual_cli_reads_legacy_archives_and_alias_is_complete_noop(self):
         result = self.cli();self.assertEqual(result['state'],'published')
-        self.assertEqual(result['notification'],'accepted');self.assertEqual(len(self.quote_calls),2)
+        self.assertEqual(result['notification'],'awaiting_pages');self.assertEqual(len(self.quote_calls),2)
         self.assertEqual(json.loads(self.server.files[REPORT_PATH]), report())
         before = deepcopy(self.server.files);patches = self.server.patch_count
         self.env = self.server.environment('1002','schedule')
         self.assertEqual(self.cli('weekly_summary')['state'],'noop')
         self.assertEqual(self.server.files,before);self.assertEqual(self.server.patch_count,patches)
-        self.assertEqual(self.token_reads,1);self.assertEqual(len(self.posts),1);self.assertEqual(len(self.quote_calls),2)
+        self.assertEqual(self.token_reads,0);self.assertEqual(len(self.posts),0);self.assertEqual(len(self.quote_calls),2)
         self.assertNotIn(b'ExpoPushToken',b'\n'.join(self.server.files.values()))
         self.assertFalse(Path('.pending_notification.json').exists())
         self.assertFalse(Path('weekly_reports').exists())
         self.assertEqual(sum(self.harness.counts.values()),0)
-        self.assertTrue(self.posts[0][1]['json']['data']['notificationKey'].startswith('weekly-'))
+        entry=json.loads(self.server.files['scan_state.json'])['entries'][KEY]
+        self.assertTrue(entry['notification']['key'].startswith('weekly-'))
+        self.assertEqual(entry['notification']['state'],'ready')
 
     def test_new_collector_matches_legacy_frozen_report_and_index(self):
         for path, body in sources().items():
@@ -94,7 +96,7 @@ class WeeklyRuntimeTests(unittest.TestCase):
     def test_ambiguous_main_update_is_confirmed_without_second_patch_or_notice(self):
         self.server.patch_faults[2] = 'unknown_after'
         self.assertEqual(self.cli()['state'],'published')
-        self.assertEqual(self.server.patch_count,4);self.assertEqual(len(self.posts),1)
+        self.assertEqual(self.server.patch_count,2);self.assertEqual(len(self.posts),0)
 
     def test_concurrent_main_update_is_preserved_and_no_notice(self):
         def request(method,url,**kwargs):
@@ -108,13 +110,13 @@ class WeeklyRuntimeTests(unittest.TestCase):
         self.assertEqual(self.server.files['unrelated.txt'],b'concurrent-user-change')
         self.assertNotIn(REPORT_PATH,self.server.files);self.assertEqual(self.posts,[])
 
-    def test_unknown_expo_reply_is_not_resent_or_repriced(self):
+    def test_expo_failure_is_not_contacted_during_collection_or_duplicate(self):
         def timeout(url,**kwargs):self.posts.append((url,kwargs));raise TimeoutError('synthetic')
         self.post = timeout
-        self.assertEqual(self.cli()['notification'],'unknown')
+        self.assertEqual(self.cli()['notification'],'awaiting_pages')
         self.env = self.server.environment('1002')
         self.assertEqual(self.cli('weekly_summary')['state'],'noop')
-        self.assertEqual(len(self.posts),1);self.assertEqual(len(self.quote_calls),2)
+        self.assertEqual(len(self.posts),0);self.assertEqual(len(self.quote_calls),2)
 
     def test_disabled_weekly_factory_reads_no_secret_or_provider(self):
         class NoSecrets(dict):

@@ -39,21 +39,21 @@ class RuntimeTests(unittest.TestCase):
     def run_cli(self):
         return self.scanner.main(['--mode','daily','--target','KR'],runtime_factory=self.factory)
 
-    def test_actual_cli_to_mock_http_publishes_once_then_noop_without_tokens_or_prices(self):
+    def test_actual_cli_publishes_once_defers_all_notices_then_noop(self):
         result=self.run_cli();counts=deepcopy(self.harness.counts);files=deepcopy(self.server.files)
-        self.assertEqual(result['state'],'published');self.assertEqual(result['notification'],'accepted')
-        self.assertEqual(counts['price'],100);self.assertEqual(self.token_reads,[True]);self.assertEqual(len(self.calls),1)
+        self.assertEqual(result['state'],'published');self.assertEqual(result['notification'],'awaiting_pages')
+        self.assertEqual(counts['price'],100);self.assertEqual(self.token_reads,[]);self.assertEqual(len(self.calls),0)
         self.env=self.server.environment('1002','schedule')
         self.assertEqual(self.run_cli()['state'],'noop')
         self.assertEqual(self.server.files,files);self.assertEqual(self.harness.counts,counts)
-        self.assertEqual(self.token_reads,[True]);self.assertEqual(len(self.calls),1)
+        self.assertEqual(self.token_reads,[]);self.assertEqual(len(self.calls),0)
         public_bytes=b'\n'.join(self.server.files.values())
         self.assertNotIn(b'ExpoPushToken',public_bytes);self.assertNotIn(b'synthetic-only-token',public_bytes)
 
-    def test_lost_publication_response_is_confirmed_before_recipient_lookup(self):
+    def test_lost_publication_response_confirmed_with_recipients_still_deferred(self):
         self.server.patch_faults[2]='unknown_after'
         self.assertEqual(self.run_cli()['state'],'published')
-        self.assertEqual(self.token_reads,[True]);self.assertEqual(self.server.patch_count,4)
+        self.assertEqual(self.token_reads,[]);self.assertEqual(self.server.patch_count,2)
 
     def test_us_actual_scanner_uses_its_own_session_and_preserves_kr(self):
         self.scanner.get_all_user_tokens=lambda strict=False:[]
@@ -62,7 +62,7 @@ class RuntimeTests(unittest.TestCase):
         self.scanner.us_universe=lambda:['SYNTHETIC-A','SYNTHETIC-B']
         self.env=self.server.environment('1002')
         result=self.scanner.main(['--mode','daily','--target','US'],runtime_factory=self.factory)
-        self.assertEqual(result['state'],'published');self.assertEqual(result['notification'],'no_recipients')
+        self.assertEqual(result['state'],'published');self.assertEqual(result['notification'],'awaiting_pages')
         combined=json.loads(self.server.files['todays_recommendation.json'])
         self.assertEqual([row for row in combined['stocks'] if row['market']=='KR'],kr)
         self.assertEqual(combined['markets']['US']['observedCount'],2)
@@ -78,18 +78,18 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(Exception,'daily_publication_not_complete'):self.run_cli()
         self.assertEqual(self.token_reads,[]);self.assertEqual(self.calls,[])
 
-    def test_unknown_expo_result_does_not_recollect_or_resend_on_next_run(self):
+    def test_unavailable_expo_not_contacted_until_pages_and_duplicate_does_not_collect(self):
         def ambiguous(url,**kwargs):self.calls.append((url,kwargs));raise TimeoutError('synthetic lost response')
         self.post=ambiguous
-        self.assertEqual(self.run_cli()['notification'],'unknown');counts=deepcopy(self.harness.counts)
+        self.assertEqual(self.run_cli()['notification'],'awaiting_pages');counts=deepcopy(self.harness.counts)
         self.env=self.server.environment('1002')
-        self.assertEqual(self.run_cli()['state'],'noop');self.assertEqual(len(self.calls),1)
-        self.assertEqual(self.harness.counts,counts);self.assertEqual(self.token_reads,[True])
+        self.assertEqual(self.run_cli()['state'],'noop');self.assertEqual(len(self.calls),0)
+        self.assertEqual(self.harness.counts,counts);self.assertEqual(self.token_reads,[])
 
-    def test_token_lookup_failure_is_unknown_not_empty_success(self):
+    def test_token_lookup_is_not_attempted_in_collection_stage(self):
         def unavailable(strict=False):raise ValueError('synthetic database unavailable')
         self.scanner.get_all_user_tokens=unavailable
-        self.assertEqual(self.run_cli()['notification'],'unknown');self.assertEqual(self.calls,[])
+        self.assertEqual(self.run_cli()['notification'],'awaiting_pages');self.assertEqual(self.calls,[])
         self.env=self.server.environment('1002')
         self.assertEqual(self.run_cli()['state'],'noop')
 

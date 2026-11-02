@@ -158,17 +158,21 @@ class WeeklyPublisher(DailyPublisher):
                          generatedAt=stamp, indexEntry=index_entry,
                          counts={m: {k: report['performance'][m][k] for k in ('totalCount', 'observedCount', 'missingCount')}
                                  for m in ('KR', 'US')}, notification={'state': 'ready', 'key': notice_key})
-            published = self._commit(claimed, {path: body, INDEX_PATH: encoded(index), STATE_PATH: encoded(ledger)})
-            if published is None:
-                return {'state': 'unconfirmed', 'key': key, 'reason': 'publication_unconfirmed'}
-            entry['notification'].update(state='claimed', runId=run_id)
-            notification_claim = self._commit(published, {STATE_PATH: encoded(ledger)})
-            if notification_claim is None:
-                return {'state': 'published', 'key': key, 'dataStatus': status, 'notification': 'claim_unconfirmed'}
             title = '주간 상승률 TOP 10'
             message = '한 주 추천을 중복 통합해 공통 2주 뒤 금요일 종가로 비교했습니다. 시장별 상승률 상위 10개와 전체 평가 범위를 확인하세요.'
             if status == 'partial':
                 message = '일부 기록이 미평가이거나 확인이 필요합니다. 주간 상승률 TOP 10의 시장별 평가 수·미평가 수와 기간을 확인하세요.'
+            if self.defer_delivery:
+                entry['noticePayload'] = {'title': title, 'body': message}
+            published = self._commit(claimed, {path: body, INDEX_PATH: encoded(index), STATE_PATH: encoded(ledger)})
+            if published is None:
+                return {'state': 'unconfirmed', 'key': key, 'reason': 'publication_unconfirmed'}
+            if self.defer_delivery:
+                return {'state': 'published', 'key': key, 'dataStatus': status, 'notification': 'awaiting_pages'}
+            entry['notification'].update(state='claimed', runId=run_id)
+            notification_claim = self._commit(published, {STATE_PATH: encoded(ledger)})
+            if notification_claim is None:
+                return {'state': 'published', 'key': key, 'dataStatus': status, 'notification': 'claim_unconfirmed'}
             try:
                 ack = self.notifier.send(notice_key, title, message)
                 ack = ack if ack in {'accepted', 'rejected', 'no_recipients'} else 'unknown'

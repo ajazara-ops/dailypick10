@@ -725,6 +725,7 @@ def main(argv=None, *, runtime_factory=None, weekly_runtime_factory=None):
     parser.add_argument('--mode', choices=['daily', 'weekly', 'weekly_summary', 'notify', 'update_index'], default='daily')
     parser.add_argument('--target', choices=['US', 'KR', 'ALL'], default='ALL')
     parser.add_argument('--date')
+    parser.add_argument('--publication-result', help='Local bounded result for Pages handoff')
     parser.add_argument('--notify', action='store_true', help='Explicitly allow push delivery; used only after successful publishing')
     args = parser.parse_args(argv)
     if args.mode == 'daily':
@@ -737,6 +738,8 @@ def main(argv=None, *, runtime_factory=None, weekly_runtime_factory=None):
         rows = result['results'].values() if result.get('state') == 'markets' else [result]
         if any(row.get('state') not in {'published', 'noop', 'holiday'} for row in rows):
             raise SourceDataError('daily_publication_not_complete')
+        if args.publication_result:
+            Path(args.publication_result).write_text(json.dumps(result), encoding='utf-8')
         return result
     elif args.mode in {'weekly', 'weekly_summary'}:
         from types import SimpleNamespace
@@ -748,6 +751,8 @@ def main(argv=None, *, runtime_factory=None, weekly_runtime_factory=None):
         print(json.dumps(result, ensure_ascii=False))
         if result.get('state') not in {'published', 'noop'}:
             raise SourceDataError('weekly_publication_not_complete')
+        if args.publication_result:
+            Path(args.publication_result).write_text(json.dumps(result), encoding='utf-8')
         return result
     elif args.mode == 'update_index':
         update_history_index()

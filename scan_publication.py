@@ -140,9 +140,10 @@ def _failure_view(previous, market, out, stamp, status, code):
 
 
 class DailyPublisher:
-    def __init__(self, repository, notifier, *, clock, calendar=daily_session_facts):
+    def __init__(self, repository, notifier, *, clock, calendar=daily_session_facts, defer_delivery=False):
         self.repository, self.notifier = repository, notifier
         self.clock, self.calendar = clock, calendar
+        self.defer_delivery = defer_delivery
 
     def _now(self):
         now = self.clock()
@@ -256,9 +257,14 @@ class DailyPublisher:
             entry.update(phase='published', dataStatus=status, outputPath=path,
                          outputHash=digest(body), generatedAt=stamp,
                          notification={'state': 'ready', 'key': notice_key})
+            if self.defer_delivery:
+                entry['noticePayload'] = deepcopy(out['notification'])
             published = self._commit(snapshot, {path: body, LATEST_PATH: body, STATE_PATH: encoded(ledger)})
             if published is None:
                 return {'state': 'unconfirmed', 'key': key, 'reason': 'publication_unconfirmed'}
+            if self.defer_delivery:
+                return {'state': 'published', 'key': key, 'dataStatus': status,
+                        'notification': 'awaiting_pages'}
             # Claim is durable and confirmed BEFORE a notification callback is allowed.
             entry['notification'].update(state='claimed', runId=run_id)
             notification_claim = self._commit(published, {STATE_PATH: encoded(ledger)})

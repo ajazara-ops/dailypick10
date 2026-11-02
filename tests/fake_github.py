@@ -54,7 +54,11 @@ class GitServer:
     def environment(self, run='1001', event='workflow_dispatch'):
         self.runs[str(run)] = {'id': int(run), 'status': 'in_progress', 'event': event,
                               'head_branch': 'main', 'head_sha': self.head, 'path': WORKFLOW}
-        return {'DAILYPICK_GUARDED_RUNTIME': 'enabled-v1', 'GITHUB_ACTIONS': 'true',
+        return {'DAILYPICK_GUARDED_RUNTIME': 'enabled-v1',
+                'DAILYPICK_PAGES_SOURCE':'workflow-confirmed-v1',
+                'DAILYPICK_PAGES_ROUTE':'verified-v1',
+                'DAILYPICK_PAGES_URL':'https://synthetic.invalid/dailypick10',
+                'GITHUB_RUN_ATTEMPT':'1', 'GITHUB_ACTIONS': 'true',
                 'GITHUB_REPOSITORY': REPOSITORY, 'GITHUB_REF': 'refs/heads/main',
                 'GITHUB_JOB': 'run-scanner', 'GITHUB_WORKFLOW_REF': f'{REPOSITORY}/{WORKFLOW}@refs/heads/main',
                 'GITHUB_EVENT_NAME': event, 'GITHUB_RUN_ID': str(run), 'GITHUB_SHA': self.head,

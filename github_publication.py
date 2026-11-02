@@ -150,7 +150,24 @@ class GitHubRepository:
         return self._lock(run_id)
 
     def refresh_main(self):
-        head = self._head()
+        return self.snapshot_at(self._head())
+
+    def content_fingerprint(self, snapshot):
+        """Entire repository root except the coordinator ledger (not just JSON).
+
+        Prevent an old frozen Pages checkout from rolling back newer assets,
+        another market, an index or code while retrying a delivery.
+        """
+        tree_sha = self._trees[snapshot.head]
+        root = self._get('/git/trees/' + tree_sha)
+        if root.get('sha') != tree_sha or root.get('truncated') is not False:
+            raise RepositoryUnavailable('incomplete_delivery_tree')
+        rows = sorted((r['path'], r['mode'], r['type'], sha(r['sha']))
+                      for r in root['tree'] if r['path'] != 'scan_state.json')
+        return hashlib.sha256(json.dumps(rows, separators=(',', ':')).encode()).hexdigest()
+
+    def snapshot_at(self, head):
+        head = sha(head)
         commit = self._get('/git/commits/' + head)
         if commit.get('sha') != head:
             raise RepositoryUnavailable('commit_identity_mismatch')
@@ -178,6 +195,46 @@ class GitHubRepository:
                 self._entry(entries, path, row)
         self._trees[head] = tree_sha
         return Snapshot(head, GitFiles(self, entries))
+
+    def site_snapshot_at(self, head, policy):
+        """Only traverse allowlisted site directories; never read excluded blobs."""
+        from pages_assets import candidate_path, safe_path, validate_policy
+        policy = validate_policy(policy)
+        head = sha(head)
+        commit = self._get('/git/commits/' + head)
+        if commit.get('sha') != head:
+            raise RepositoryUnavailable('commit_identity_mismatch')
+        root_sha = sha(commit.get('tree', {}).get('sha'))
+        known = {r['path'] for r in policy['files']}
+        entries = {}
+        def walk(tree_sha, prefix=''):
+            tree = self._get('/git/trees/' + tree_sha)
+            if tree.get('sha') != tree_sha or tree.get('truncated') is not False:
+                raise RepositoryUnavailable('incomplete_site_tree')
+            seen=set()
+            for row in tree['tree']:
+                name=row.get('path')
+                if (not isinstance(name,str) or name in ('','.','..') or '/' in name or
+                        '\\' in name or name.casefold() in seen):
+                    raise RepositoryUnavailable('invalid_or_duplicate_site_tree_path')
+                seen.add(name.casefold())
+                if name.startswith('.'):
+                    continue  # Hidden content is neither traversed nor downloaded.
+                full=prefix+name
+                try:safe_path(full)
+                except ValueError:raise RepositoryUnavailable('unsafe_site_tree_path') from None
+                needed = candidate_path(full,policy)
+                directory = full in {'daily_data','weekly_reports'} or any(p.startswith(full+'/') for p in known)
+                if needed:
+                    self._entry(entries,full,row)
+                elif directory:
+                    if row.get('type')!='tree' or row.get('mode')!='040000':
+                        raise RepositoryUnavailable('unsafe_site_directory')
+                    walk(sha(row.get('sha')),full+'/')
+                # Any other file/directory is excluded without reading its contents.
+        walk(root_sha)
+        self._trees[head]=root_sha
+        return Snapshot(head,GitFiles(self,entries))
 
     @staticmethod
     def _entry(entries, path, row):

@@ -1,105 +1,138 @@
-Daily and weekly publication candidate - LOCAL REVIEW ONLY / DO NOT MERGE
+LOCAL REVIEW ONLY - PR #7 + Pages delivery + positive artifact allowlist
+Base: 36dd7737020539b874709746149e0e1fecb8995f (open draft PR #7).
+No push, merge, settings change, deployment, operating scan, recipient lookup or
+notification performed. PR #5 / account deletion / Firebase Spark are separate.
 
-This local extension is based on PR #7, exact head
-1fea63739d930b0500f650d74e94dfc82094b23f. The public PR is not changed.
-Separate approval is required for publishing these changes, merging, runtime
-activation and real notifications. No operational settings are changed here.
+Actual connected local path
+- daily/weekly CLI -> guarded Git publication -> pages_cli prepare -> stage tar ->
+  archive-check -> official upload-artifact -> durable claim -> official
+  deploy-pages -> exact public JSON/manifest proof -> claimed existing Expo path.
+- Source, route and existing runtime gates are all required before credentials or
+  quote collection. No legacy fallback/default ON. OFF merge stops daily AND weekly.
+- Session/period validation, compare-and-update/read-back, immutable history,
+  late-session rejection and notification-unknown/no-resend semantics are preserved.
+- Each delivery binds its immutable publication SHA, every allowed asset hash,
+  fresh data hashes, non-ledger repository-root fingerprint, workflow SHA/run/attempt.
+  A newer repo/data/index change blocks an old artifact from being redeployed.
 
-WARNING: with DAILYPICK_GUARDED_RUNTIME unset/OFF, this candidate stops BOTH KR
-and US daily scans AND weekly/weekly_summary before collection. OFF does not
-fall back to legacy collection or sending. Do not merge OFF expecting service
-continuity. Merely setting the gate does not prove permissions/delivery work.
+Positive allowlist / real tar
+- pages_site_manifest.json pins 328 existing public paths and Git blob SHA1 values
+  from main 7f1a06d1ee7966b99633916baefd7920e38a75ac: 12 static site assets,
+  latest JSON + history index, 282 daily archives and 32 weekly reports.
+- Exact Git blobs, not recursive checkout/Jekyll output, are packaged. The static
+  HTML/CSS/JS has no observed front matter/Liquid processing requirement. Original
+  bytes/paths, legal pages, app-ads, verification HTML and CNAME are preserved.
+  CNAME is exactly ajazara.xyz (10 bytes, no newline); it is not rewritten.
+- Unknown paths, code, tests, scan_state, credentials and hidden directories are
+  excluded before blob reads. Known static/history changes or missing files stop
+  packaging until explicitly reviewed. The ledger remains public Git state, so
+  never place recipient/member/credential material there either.
+- Future daily_data/YYYY-MM-DD_(KR|US)_daily.json and
+  weekly_reports/YYYY-MM-DD_v3_weekly.json require a matching published ledger
+  key, output SHA256, market/session/period, generation time and existing output
+  validation plus top-level field allowlist. Credential/user fields and JSON
+  external-reference directives are rejected. News URLs are inert data, never fetched.
+- Latest must equal a validated published daily archive. The index accepts only
+  local unique existing weekly paths, retains all 32 reviewed references, and new
+  rows must match the recorded publication index entry. No remote includes.
+- Symlink/nonregular Git modes, traversal, URL paths, case aliases and duplicate
+  entries are rejected. A canonical USTAR is exclusively created, then inspected
+  without extraction: exact file set, SHA256, regular types, no links/PAX, bounded
+  sizes, canonical headers/padding and no appended payload. Verify again before
+  upload and before deployment claim. Persist tar SHA256/count/attempt in ledger.
+- The upload input is ONLY runner.temp/artifact.tar. Official upload-artifact
+  is pinned to ea165f8d65b6e75b540449e92b4886f43607fa02, the action used underneath
+  upload-pages-artifact. It does not re-tar the repository after verification.
+  The generated publication-manifest.json contains public commit/run IDs and
+  allowed file paths/hashes, not the private/coordinator ledger. This is one new
+  public proof file requiring review; initial baseline artifact is 329 files.
+- Existing 314 historical JSON bodies are pinned by observed Git hashes, not
+  retrospectively schema-certified or recalculated. Tests use synthetic bodies.
 
-Weekly contract and failure behavior
-- weekly and weekly_summary share one key:
-  weekly:ALL:<recommendation-week-Monday>:<Friday>:<evaluation-Friday>.
-  KR/US rankings remain separate inside the existing combined weekly report.
-  The original Mon-Fri cohort, first recorded recommendation price, 14 days
-  after that Friday, previous market session on holidays, and Saturday 17:00
-  KST publication policy are unchanged. US row session dates win over archive
-  filename dates. No current news/fundamentals or current-price substitution.
-- After the existing publisher concurrency slot is verified, reread main.
-  Commit and confirm collecting before historical quote work. Commit frozen
-  report, history_index.json and published ledger atomically; confirm all three
-  before a durable notification claim and existing Expo recipient lookup.
-- A published period with matching output hash and its index entry is a no-op:
-  no quote work, no new history/index/state writes, no recipient lookup/send.
-  Later index entries do not invalidate old periods. Frozen output is immutable.
-- Calendar/price fetch failure, unreadable archive and an unverified empty
-  cohort do not publish a report/index or send a notice. Failed claims remain
-  bounded diagnostics; existing successful files are preserved.
-- Existing deterministic unavailable cases (missing/ambiguous entry price,
-  unverified legacy price basis or corporate action status) remain unevaluated,
-  with null return, original missing counts and dataStatus=partial in the
-  ledger/result. Partial notices explicitly state unavailable records. Such a
-  published partial report remains frozen; it is not silently recalculated.
-- Existing legacy reports/index entries without a verified ledger are blocked
-  for explicit adoption review, not overwritten or announced again. Failed or
-  collecting claims are not stolen when the owner status is unknown; even a
-  terminal owner needs separate recovery approval. Runtime retry_authorized
-  stays false; there is no automatic force, replay, TTL takeover or retry CLI.
-- Expo notificationKey is a stable weekly hash, not a provider exactly-once
-  guarantee. Unknown response/crash after claim can leave omitted recipients;
-  retries do not resend the whole audience. Accepted tickets are not device
-  receipt confirmation. Tokens remain in memory, not public state/logs.
-- Legacy pending-file push steps are removed from the proposed workflow to
-  avoid a second send. Existing schedule, mode/target inputs and concurrency
-  group remain unchanged. Manual legacy notify/update_index CLI functions are
-  retained for compatibility but are not part of the guarded workflow and must
-  not be used to bypass recovery review.
+Delivery proof and recovery
+- Artifact identity/digest/run/attempt and the exact official deployment step are
+  checked. GITHUB_SHA remains the workflow code revision; publicationSha identifies
+  new data. Public JSON is read without credentials or redirect following and must
+  match exact bytes and the generated manifest. Old manifest/cache/partial/missing/
+  unknown responses remain pending. A green workflow/HTTP200 alone cannot notify.
+- Only after persisted proof does the existing Expo path read recipients and claim
+  notices. Unknown acknowledgement/crash never triggers automatic resending.
+- pages_resume requires an existing delivery ID, no scan. Confirmed failed owner
+  may rebuild unchanged data only BEFORE deployment claim. After claim, verification
+  only; no blind deploy retry. A missing/expired artifact, crash after claim before
+  deploy, or superseded data needs explicit operator review. No force/replay switch.
 
-Independent synthetic verification
-1. Apply the manifest delta to PR #7's source. Unchanged weekly_contract.py,
-   korean_universe.py and notification_policy.py remain repo dependencies.
-2. Reuse Python/packages in requirements-publication-test.txt. No new install
-   is needed by the recorded local checks.
-3. From any cwd: python -I path/to/scripts/test_session_publication.py
-   Seven standard unittest discovery modules include the actual scanner CLI,
-   collector, Git/Expo ports, isolated synthetic feeds and failure cases.
-4. Check publication-test-results.json. Socket/urlopen/subprocess are blocked
-   from import through completion. No credentials, Firebase connection, live
-   quote, GitHub write or Expo send is needed. Temp files stay in the test root.
-   Selection/weekly function hashes and cron preservation are also asserted.
+Verification scope / reproducibility
+Use existing compatible Python and requirements-publication-test.txt (no install
+performed). Runner is self-contained, socket/urllib/subprocess disabled, all ports
+synthetic, no sibling checkout/mobile node_modules dependence:
+  python -I <candidate>/scripts/test_session_publication.py test_pages_assets test_pages_runtime
+  python -I <candidate>/scripts/test_session_publication.py test_publication_adapters test_publication_runtime test_weekly_runtime
+Previous Pages candidate: 124 PASS = prior104 + 20 Pages E2E. That did not validate
+a positive site allowlist. This delta: 17 new asset tests + 1 new route-gate test;
+20 existing Pages tests updated/retained => 38 focused PASS. Relevant existing
+Git/daily/weekly runtime regression: 39 PASS. Final standard runner (no test-name
+arguments) subsequently passed 142 UNIQUE tests: prior124 + new18, no duplicate
+test IDs, zero failures/errors/skips/external attempts. Earlier focused, regression
+and reproduction runs are NOT added to that total.
+An independent clean baseline+patch reproduction and an actual synthetic 329-file
+tar are recorded outside the public source, with path/hash manifests. Real remote
+328-file deployment, official Actions execution, CDN, Firebase/Expo or device
+delivery were NOT performed. No live data were fetched for synthetic verification.
 
-Operating transition - documentation only, NOT authorized or tested live
-1. Review the exact combined diff, current main/active runs and branch rules.
-   Existing PR #7 remains draft-only. A new public delta needs explicit approval.
-2. Existing workflow token needs contents:write for bounded Git-data commits
-   and actions:read for current/owner run state. actions:read was already in
-   PR #7's proposal; weekly adds no new scope. Protection rules must permit
-   these normal updates; do not bypass them. No new key/token is assumed.
-   Existing Firebase recipient identity needs existing users read access only;
-   weekly adds no Firestore write, Auth delete, IAM or billing requirement.
-3. Plan a coordinated code+gate transition with no active publisher and enough
-   time before the next new daily session AND new weekly period. Gate value is
-   enabled-v1 only after separate approval. Do not silently enable it here.
-   Already successful periods require independently reviewed adoption; this
-   candidate supplies no migration/automatic adoption tool. Do not rerun them.
-4. Confirm live GitHub commit/read-back permissions, exact recorded archive hash
-   and index entry. Confirm the app's actual public JSON/Pages delivery path
-   separately: a repository commit is not proof of a Pages refresh. This code
-   adds no Pages dispatch, token, Cloudflare scheduler or fallback deployment.
-   That delivery dependency remains an operating-readiness blocker until verified.
-5. On the first separately approved normal run, distinguish published data,
-   partial/missing counts, notification claim/tickets and device receipt. No
-   live scan or test push was performed for this local candidate.
+Current operating evidence / preserved URLs
+- User screenshot (2026-11-02 16:25:26 UTC): Source Deploy from a branch, main/root;
+  custom domain ajazara.xyz, DNS check successful, display http://ajazara.xyz/,
+  Enforce HTTPS unchecked. This was read evidence, not setting-change approval.
+- App URL remains https://ajazara-ops.github.io/dailypick10/. The real canonical
+  JSON URL/redirect/TLS chain is not yet verified. After reviewing the prior failure,
+  the final authorized normal-network check at 2026-11-02 17:17:32 UTC failed DNS
+  resolution for both ajazara.xyz and ajazara-ops.github.io (error11001). No HTTP
+  attempt/redirect/TLS response occurred; no retry loop or bypass. HTTPS unchecked is not proof of
+  HTTPS unavailability. Preserve domain/DNS/HTTPS option and app URL.
+- Existing KR manual run41432906596 ordinary checkout-default-token git push created
+  7f1a06d...; Pages run41433439338 deployed that commit successfully. User confirmed
+  app refresh. No custom PAT evidenced. Existing path is NOT declared broken.
+  PR7 Git-data automatic Pages triggering remains unverified; this explicit path
+  needs a separately approved Source transition and real observation.
 
-Stopping / rollback - requires operating approval
-- OFF prevents future gated starts; it does not stop a job that already read
-  its environment. Inspect active run state, never steal unknown ownership.
-- Preserve scan_state.json, frozen reports, daily histories and history_index.
-  Revert only reviewed code commits, keeping concurrent user/data changes.
-  Reverting just this weekly delta restores PR #7's unguarded weekly path and
-  can repeat notices; reverting PR #7 too restores unguarded daily behavior.
-  Neither is safe to replay for already successful periods. Use a reviewed
-  quiet window/new period and reconcile the recorded claims first.
-- No code rollback can recall accepted notifications. An unknown notice is not
-  authorization for another send. Failed-data recovery needs root-cause repair,
-  output/owner inspection and a separately approved recovery implementation.
+Unperformed operating transition / exact approval boundaries
+1. Public review of this exact delta, independent of PR5. PR7 remains draft.
+2. Read-only successful end-to-end JSON route proof from existing app URL to the
+   canonical HTTPS base. Then explicitly approve the canonical base/gate contract.
+3. Approved quiet window: pause daily_scan, inspect active run(s), wait for zero;
+   do not edit cron or cancel a possibly publishing run. Refresh the reviewed asset
+   manifest against the final main after the pause: legacy files added since the
+   pinned commit have no guarded ledger proof and cannot be silently adopted.
+   This refresh is a separate exact-diff review before activation. Change Source ONLY
+   to GitHub Actions, retaining domain/DNS/HTTPS and environment protections.
+4. Reviewed exact commit merge plus permissions: existing contents:write; PR7 adds
+   actions:read for run/job/artifact metadata. Pages adds pages:write/id-token:write
+   and github-pages environment. All are job-wide in this same-slot design. No new
+   PAT/SA key/Firebase IAM/rules/billing is required by the proposed design.
+5. After actual Source/route checks set DAILYPICK_PAGES_SOURCE=workflow-confirmed-v1,
+   DAILYPICK_PAGES_ROUTE=verified-v1 and DAILYPICK_PAGES_URL=<verified HTTPS base>.
+   Enable DAILYPICK_GUARDED_RUNTIME=enabled-v1 LAST and re-enable the schedule.
+   Environment strings are attestations, not automatic evidence of Source/DNS.
+6. Observe a NEW approved session through archive/deployment/public proof/notice.
+   Do not re-scan old periods to validate installation. Real token protections,
+   Actions/artifact limits, static-site rendering and public route remain unverified.
+   API reads include all allowed bodies for hashes; runtime/limits need observation.
 
-Limits
-Only saved recommendation snapshots can be evaluated. Missing historical files
-or overwritten same-day observations cannot be reconstructed by this guard.
-It does not prove a complete historical recommendation population, adjusted
-returns, profitability, live provider permissions or actual device delivery.
-No new schedule, database, infrastructure, credential, IAM or paid plan is used.
+Rollback / limitations
+- Before the first guarded write, code+Source rollback may restore reviewed branch
+  publishing. After scan_state exists, blindly returning to main/root can publish
+  coordinator/source files. Keep Actions/last good site and pause starts while
+  reviewing recovery. Never restore old data or erase delivery/notification claims.
+- Gates OFF stop future starts, not active jobs. Legacy fallback can duplicate
+  notices. Unknown delivery can intentionally omit a notice; no exactly-once claim.
+- Git/Pages are not atomic. Concurrent manual writes can race after final claim;
+  public proof detects divergence and suppresses notices but cannot undo a submitted
+  deployment. Active-run review and the existing concurrency slot remain required.
+- Artifact retention/storage and API limits are not a universal zero-cost guarantee.
+
+Official references, read only
+https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
+https://github.com/actions/upload-pages-artifact/blob/56afc609e74202658d3ffba0e8f6dda462b719fa/action.yml
+https://github.com/actions/upload-artifact/blob/ea165f8d65b6e75b540449e92b4886f43607fa02/action.yml
+https://github.com/actions/deploy-pages/blob/368f82528645a54fb793d4d04e342629a3f51346/src/internal/context.js

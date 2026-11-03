@@ -17,7 +17,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 PATTERNS = ('test_scan_publication.py', 'test_completed_sessions.py', 'test_guarded_daily.py',
             'test_publication_adapters.py', 'test_publication_runtime.py',
-            'test_weekly_publication.py', 'test_weekly_runtime.py', 'test_pages_runtime.py', 'test_pages_assets.py')
+            'test_weekly_publication.py', 'test_weekly_runtime.py', 'test_pages_runtime.py', 'test_pages_assets.py', 'test_scan_diagnostics.py')
 
 
 def main(names=None):

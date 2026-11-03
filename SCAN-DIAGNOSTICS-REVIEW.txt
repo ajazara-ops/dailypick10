@@ -1,0 +1,75 @@
+Local scan-failure diagnostics review. NOT uploaded or deployed.
+Base: PR7 26b00655182a1c90ee7f32cd84141405ef5bfc1b.
+
+Problem and exact integration
+scan_market previously counted per-symbol exceptions without recording a ticker
+or reason. This made a retained 99/100 observation impossible to diagnose later.
+It now emits one JSON line to standard error at the existing universe/per-symbol
+catch boundaries. The real daily scanner -> collect_daily_session -> scan_market
+path is exercised with synthetic providers, fake Git and no notification effects.
+daily_stock_scanner.py/scoring/calendar/weekly/workflow/source gates are unchanged.
+
+Fields and limits
+schemaVersion, event, GitHub runId/runAttempt, market, validated ticker, stage,
+attemptedAt, safe exceptionType/category/errorCode/summary, observed HTTP status,
+retryCount, retryScope and downstreamRetryCount. GitHub run context is numeric
+only; local/malformed context is null. No actor, email, account, push token or key.
+attemptedAt is the declared scan start, not a newly invented price/failure time;
+Actions attaches the actual log-line timestamp. One record per caught failure.
+Stage means the current contract boundary. A trusted quote_fetch_failed cause
+can narrow stock_analysis to quote_fetch. Unknown inner analysis steps remain
+stock_analysis; no fabricated claim that an indicator or financial field failed.
+retryCount=0 applies ONLY to the scan_market dispatcher, which performs no retry.
+downstreamRetryCount=null: helper/provider/library retries are not observed here.
+runAttempt is the Actions attempt number, not a provider retry count.
+
+Classification and privacy
+Only fixed SourceDataError codes, known exception kinds and actual integer HTTP
+statuses are accepted. 429 in an arbitrary message is NOT rate-limit evidence.
+A typed yfinance limit exception can indicate a provider limit without inventing
+an HTTP429 response. Missing/old/invalid data and exact-session mismatch have
+separate codes. KeyError/TypeError indicate processing, not proof of a code bug.
+Unknown failures remain unknown. Cause chains are bounded and cycle-safe.
+No exception str/repr, traceback, URL, response body/header, cookies, environment
+dump or dynamic exception class name is written. Summary text is static.
+Output failure cannot change scan decisions or make the error count disappear.
+This covers these new diagnostics, not arbitrary logging by third-party libraries.
+
+Publication and storage
+No diagnostic fields are added to recommendation JSON, history, notification,
+scan_state, Pages manifest or public site artifacts. No artifact uploader or raw
+log retention is added. Standard Actions logs for a public repo may be public;
+the allowlisted records are designed for that visibility. A workflow artifact
+must not be called private merely because it requires a download/login. Future
+restricted raw diagnostics would require separate access/retention approval;
+this proposal deliberately stores no raw payload and needs no new credential.
+
+Preserved behavior
+Errors still count. Partial/error scans still retain all last-good rows and
+timestamps and remain stale. No changed filters/score/top10/freshness allowance,
+no retry/backoff/extra fetch, no new schedule, and no gate activation.
+The separate unpublished Yahoo cache/429 guard is preserved, not silently merged.
+When that candidate is integrated, its ProviderRateLimited early-stop catch must
+also emit the same bounded record before stopping; do not remove its stop/break.
+Its from-None provider wrapper loses deeper causes, so unknown remains unknown.
+
+Reproduction using existing locked publication-test dependencies
+python -I scripts/test_session_publication.py test_scan_diagnostics test_guarded_daily
+Standard discovery also registers test_scan_diagnostics. No sibling baseline,
+hidden runner, original mobile node_modules, live SDK, credential or network is used.
+The scanner harness/fixtures are already included in the PR7 baseline.
+Tests cover actual CLI partial preservation/no new history/no notice, 429 versus
+unknown text, source absence, timeout, exact session/freshness, success/filter,
+output failure, cyclic causes, run context and synthetic secret exclusion.
+
+Unverified / approval boundary
+This cannot recover the previously lost production failure or identify its ticker.
+No new live quote or Actions execution was performed. Production logging is not
+verified until approved code reaches a future natural execution.
+Public transmission of this five-file delta requires separate approval:
+  modified scan_contract.py
+  modified scripts/test_session_publication.py
+  new scan_diagnostics.py
+  new tests/test_scan_diagnostics.py
+  new SCAN-DIAGNOSTICS-REVIEW.txt
+No new merge, Source, IAM, Pages permission, billing or account deletion is implied.

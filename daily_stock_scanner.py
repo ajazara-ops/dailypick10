@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 from scan_contract import (Observation, SourceDataError, TIMEZONES, number, price, utc_stamp, scan_market, merge_daily, daily_notification, cohort_from_snapshots, settle_cohort, build_report, write_json_once, write_latest)
 from weekly_contract import REPORT_KIND, latest_publication, weekly_period, assert_publishable, weekly_cohort, settle_weekly, build_weekly_report, validate_frozen_report
-from market_calendar import evaluation_session, is_market_session
+from market_calendar import evaluation_session, is_market_session, session_close_utc
 from notification_policy import push_eligible
 from korean_universe import load_korean_universe
 from io import StringIO
@@ -658,6 +658,53 @@ def market_session_date(market):
     return datetime.now(ZoneInfo(TIMEZONES[market])).strftime('%Y-%m-%d')
 
 
+def matching_completed_daily(previous, market, session_date, attempted_at):
+    """Reuse only a complete, current-session result started after actual close.
+
+    Missing/ambiguous metadata or calendar errors preserve the legacy scan path;
+    they never establish that a prior result or alert is safe to suppress.
+    """
+    try:
+        if market not in TIMEZONES or not isinstance(previous, dict):
+            return False
+        markets, stocks = previous.get('markets'), previous.get('stocks')
+        if (not isinstance(markets, dict) or not isinstance(stocks, list) or
+                any(not isinstance(row, dict) for row in stocks)):
+            return False
+        meta = markets.get(market)
+        if not isinstance(meta, dict) or meta.get('timezone') != TIMEZONES[market]:
+            return False
+        if meta.get('status') not in {'fresh', 'empty'} or meta.get('stale') is not False:
+            return False
+        attempted, observed, errors = (meta.get('attemptedCount'), meta.get('observedCount'), meta.get('errorCount'))
+        if (type(attempted) is not int or attempted <= 0 or type(observed) is not int or
+                observed != attempted or type(errors) is not int or errors != 0):
+            return False
+        if meta.get('quoteAsOf') != session_date:
+            return False
+        rows = [row for row in stocks if row.get('market') == market]
+        if (meta['status'] == 'fresh' and not rows) or (meta['status'] == 'empty' and rows):
+            return False
+        if any(not isinstance(row.get('id'), str) or not row['id'].strip() or
+               not isinstance(row.get('symbol'), str) or not row['symbol'].strip() or
+               number(row.get('currentPrice')) is None or number(row.get('currentPrice')) <= 0 or
+               number(row.get('score')) is None or number(row.get('score')) < 0
+               for row in rows):
+            return False
+        if len(rows) > 10 or len({row['id'] for row in rows}) != len(rows):
+            return False
+        prior = datetime.fromisoformat(meta['generatedAt'].replace('Z', '+00:00'))
+        now = datetime.fromisoformat(attempted_at.replace('Z', '+00:00'))
+        if prior.tzinfo is None or now.tzinfo is None or prior.utcoffset() is None or now.utcoffset() is None:
+            return False
+        if now.astimezone(ZoneInfo(TIMEZONES[market])).date().isoformat() != session_date:
+            return False
+        close = session_close_utc(market, session_date)
+        return close is not None and close <= prior <= now
+    except Exception:
+        return False
+
+
 def generate_daily(target, requested_date=None):
     generated_at = utc_stamp()
     previous_path = Path('todays_recommendation.json')
@@ -667,11 +714,17 @@ def generate_daily(target, requested_date=None):
         session_date = market_session_date(market)
         if requested_date and requested_date != session_date:
             raise ValueError('Historical daily regeneration requires point-in-time data and is disabled')
+        if matching_completed_daily(previous, market, session_date, generated_at):
+            continue
         rows, meta = scan_market(market, us_universe if market == 'US' else get_korea_tickers,
                                 lambda ticker, m: analyze_stock(ticker, m, target_date=session_date), previous, generated_at)
         if meta['status'] in {'fresh', 'empty'}:
             process_news_for_list(rows)
         updates[market] = (rows, meta)
+    if not updates:
+        # A matching committed result is not proof an earlier alert arrived.
+        write_latest('.pending_notification.json', {'skip': True, 'reason': 'daily_report_already_exists'})
+        return previous
     out = merge_daily(previous, updates, generated_at)
     indexes = analyze_market_condition()
     for key, value in indexes.items():
@@ -683,7 +736,7 @@ def generate_daily(target, requested_date=None):
     filename = f"{generated_at[:10]}_{stamp[11:]}_{target}_daily.json"
     write_json_once(Path(DAILY_DATA_DIR) / filename, out)
     write_latest('todays_recommendation.json', out)
-    write_latest('.pending_notification.json', out['notification'])
+    write_latest('.pending_notification.json', {**out['notification'], 'noticeKind': 'daily-v1'})
     return out
 
 
@@ -713,13 +766,16 @@ def main():
             raise ValueError('Push delivery requires --notify')
         payload = json.loads(Path('.pending_notification.json').read_text('utf-8'))
         if payload in ({'skip': True, 'reason': 'weekly_report_already_exists'},
-                       {'skip': True, 'reason': 'weekly_attempt_claimed'}):
-            print('Weekly notification already attempted or report exists; it is not resent.')
+                       {'skip': True, 'reason': 'weekly_attempt_claimed'},
+                       {'skip': True, 'reason': 'daily_report_already_exists'},
+                       {'skip': True, 'reason': 'daily_attempt_claimed'}):
+            print('Notification already attempted or report exists; it is not resent.')
             return
-        if payload.get('noticeKind') == 'weekly-v1':
+        if payload.get('noticeKind') in {'weekly-v1', 'daily-v1'}:
             # Claim locally before sending. An interrupted or uncertain delivery
             # stays suppressed; this does not prove a recipient got a notification.
-            write_latest('.pending_notification.json', {'skip': True, 'reason': 'weekly_attempt_claimed'})
+            reason = 'weekly_attempt_claimed' if payload['noticeKind'] == 'weekly-v1' else 'daily_attempt_claimed'
+            write_latest('.pending_notification.json', {'skip': True, 'reason': reason})
         send_push_notification(payload['title'], payload['body'])
 
 

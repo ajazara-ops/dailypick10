@@ -1,0 +1,332 @@
+{
+  "repository": "ajazara-ops/dailypick10",
+  "main": "7f1a06d1ee7966b99633916baefd7920e38a75ac",
+  "pr5": {
+    "head": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+    "mergeBase": "bdb616630ac7412661b540f3147ec06d6fdb1ff1",
+    "files": [
+      "account_deletion.py",
+      "deletion_memory.py",
+      "deletion_boundary.py",
+      "spark_intake.py",
+      "tests/test_deletion_boundary.py"
+    ]
+  },
+  "pr7": {
+    "head": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+    "mergeBase": "7f1a06d1ee7966b99633916baefd7920e38a75ac",
+    "files": [
+      ".github/workflows/daily_scan.yml",
+      "PUBLICATION-REVIEW.txt",
+      "SCAN-DIAGNOSTICS-REVIEW.txt",
+      "daily_stock_scanner.py",
+      "expo_publication.py",
+      "github_publication.py",
+      "korean_universe.py",
+      "market_calendar.py",
+      "notification_policy.py",
+      "pages_assets.py",
+      "pages_cli.py",
+      "pages_delivery.py",
+      "pages_site_manifest.json",
+      "publication_runtime.py",
+      "requirements-publication-test.txt",
+      "scan_contract.py",
+      "scan_diagnostics.py",
+      "scan_publication.py",
+      "scripts/resolve_scan_event.py",
+      "scripts/test_session_publication.py",
+      "tests/export_weekly_contract.py",
+      "tests/fake_github.py",
+      "tests/fake_repository.py",
+      "tests/fixtures/legacy_daily.py",
+      "tests/fixtures/selection_contract.json",
+      "tests/test_completed_sessions.py",
+      "tests/test_contract.py",
+      "tests/test_financial_fallback.py",
+      "tests/test_guarded_daily.py",
+      "tests/test_korean_universe.py",
+      "tests/test_notification_policy.py",
+      "tests/test_pages_assets.py",
+      "tests/test_pages_runtime.py",
+      "tests/test_publication_adapters.py",
+      "tests/test_publication_runtime.py",
+      "tests/test_scan_diagnostics.py",
+      "tests/test_scan_publication.py",
+      "tests/test_score_display_contract.py",
+      "tests/test_weekly_contract.py",
+      "tests/test_weekly_publication.py",
+      "tests/test_weekly_runtime.py",
+      "weekly_contract.py",
+      "weekly_publication.py"
+    ]
+  },
+  "composition": "PR7 fixed public 43-file test subset + PR5 fixed 5 prerequisites + 24 local overlay files. No merge, hidden sibling source, operating data or production binding.",
+  "python": "3.13.15",
+  "node": "24.22.1",
+  "scope": "69 source paths for independent local test; other PR7 checkout paths stay unchanged.",
+  "baselineBlobs": {
+    ".github/workflows/daily_scan.yml": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "cd4ddb44c1bb3d37ca513e3661326acd3a85971c"
+    },
+    "PUBLICATION-REVIEW.txt": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "94a69315f3ee1009a04a66a136bd5a3b85f8c780"
+    },
+    "SCAN-DIAGNOSTICS-REVIEW.txt": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "5ba4fb44d08029794b54bb86531ee8f2c7a91821"
+    },
+    "daily_stock_scanner.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "f358036920c7415cb1d2d516cd39fd98631cbfa1"
+    },
+    "expo_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "12185d416787fdb8109b00419f200259ca5f7dfc"
+    },
+    "github_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "e02a7901366af17ff8db8c711caa01e2aeb1e18b"
+    },
+    "korean_universe.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "2c09f165094ff20f33ebf619999d44afdfb41cd8"
+    },
+    "market_calendar.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "0a8437d82fe3be262776f9f993cfe7036dac71bd"
+    },
+    "notification_policy.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "64128049316719ac72f147434dc8ca987435adfe"
+    },
+    "pages_assets.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "8d7006fffebcc8135ec4561a5c5f9d8c93d8c728"
+    },
+    "pages_cli.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "7cf0263fb8b6438b5efe9809cc1e81e951e1bd49"
+    },
+    "pages_delivery.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "9f74d6698ef74f3b48fc61c5f61bc74310ad7c99"
+    },
+    "pages_site_manifest.json": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "62c4082891513e8911489e14ac81c10c0608b940"
+    },
+    "publication_runtime.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "02e39ade0083bd5e8c9e3fefcf48dbcc5e2bf941"
+    },
+    "requirements-publication-test.txt": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "07906428efc6f62b873e5378998d44012a68b43a"
+    },
+    "scan_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "29932504c936605a481ffef691340c3d360c2ca1"
+    },
+    "scan_diagnostics.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "fedfe1a5d0c6af578b813b14531c422bdd0d991d"
+    },
+    "scan_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "645faafbb3bca38c73e4dfe27a6e228ca1cbd545"
+    },
+    "scripts/resolve_scan_event.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "ffdc98538ce2d85c5ae699bc1c963b638adc7abd"
+    },
+    "scripts/test_session_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "a334a5b90714bfb091f79c5b0af082539d0da55a"
+    },
+    "tests/export_weekly_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "d3d65b6d2087b476c12df587d7204a501947753b"
+    },
+    "tests/fake_github.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "51e8f202f2e963ee9dc8c6070d8b11d978bfe18c"
+    },
+    "tests/fake_repository.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "2c4e0662e56e546e5f5c6f0d606cd38ff5ed4d6f"
+    },
+    "tests/fixtures/legacy_daily.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "56228898dad78738b04b2bd080b2abed083a5660"
+    },
+    "tests/fixtures/selection_contract.json": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "213927cc7873a585c500dd2a37285009f9739920"
+    },
+    "tests/test_completed_sessions.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "a3f8c75bc4980b2661aae763d126be96bd070955"
+    },
+    "tests/test_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "8f8c0722faa09f2f44623f94930758ad7405253a"
+    },
+    "tests/test_financial_fallback.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "428fb2aff855cd7be6dd46a5341ea54a7a25dc7b"
+    },
+    "tests/test_guarded_daily.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "4fa30cb374105d5d14bb7cca179de37edc7c1cf9"
+    },
+    "tests/test_korean_universe.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "03df6a6cc32118d2f8a812dba7c654ccf8c8568e"
+    },
+    "tests/test_notification_policy.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "c022c25705b62a4d652ec5fd0174db171f3c3ab6"
+    },
+    "tests/test_pages_assets.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "a200ca690d8e38168b331ac92f1a84b13254f9a5"
+    },
+    "tests/test_pages_runtime.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "efb4951924a55259b4ce9d908d94ae3d0a93e4be"
+    },
+    "tests/test_publication_adapters.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "20ea64c3c3161c75bdac737040a9e59d4b1ca944"
+    },
+    "tests/test_publication_runtime.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "7a45d4c43344fac636cabc147f2c9246612878fb"
+    },
+    "tests/test_scan_diagnostics.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "deb261d25a28bcae2012597e78dcf06d2b91c193"
+    },
+    "tests/test_scan_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "c8d4159dd2e04b35dd858784f4687d3e8d8c69f7"
+    },
+    "tests/test_score_display_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "ae072d6dc14e479af718af813545f5e86255199a"
+    },
+    "tests/test_weekly_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "b5b15bfe9695cd149b5f95b2d08836e7ed6ee6b6"
+    },
+    "tests/test_weekly_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "e3187c2d012f8bd0d3fbaad9f8c85d738caf93a2"
+    },
+    "tests/test_weekly_runtime.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "c47671a8c2b3973858c7fbfa131feac23805669c"
+    },
+    "weekly_contract.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "27408d5a4cafd37efb9fd978a93f88b7ae5a9ef1"
+    },
+    "weekly_publication.py": {
+      "commit": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+      "blob": "f15e9daf7431677397be67f679b23d270f791783"
+    },
+    "account_deletion.py": {
+      "commit": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+      "blob": "571235b4d041e59d4258c4323c11b3647f17a54d"
+    },
+    "deletion_memory.py": {
+      "commit": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+      "blob": "41c2ad449d204ee84161eadba68972020742622b"
+    },
+    "deletion_boundary.py": {
+      "commit": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+      "blob": "11bbec96cd32b2c2254f15df398e07dbed6eb996"
+    },
+    "spark_intake.py": {
+      "commit": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+      "blob": "d03b552101a2a536c95f9774894e8356f232fc5d"
+    },
+    "tests/test_deletion_boundary.py": {
+      "commit": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+      "blob": "89890ea459b90ffc909dee782c128126ea5eb583"
+    }
+  },
+  "localOverlay": [
+    "README-INTEGRATION-KO.txt",
+    "daily_stock_scanner.py",
+    "deletion_adapters.py",
+    "emulator_only.py",
+    "mobile/src/components/DeletionStatus.tsx",
+    "mobile/src/domain/deletion.ts",
+    "mobile/src/services/accountDeletion.ts",
+    "mobile/src/services/sparkDeletionIntake.ts",
+    "mobile/src/services/sparkDeletionTransport.ts",
+    "mobile/src/theme.ts",
+    "mobile/tests/deletion-batch-contract.test.cjs",
+    "notification_policy.py",
+    "package-lock.json",
+    "package.json",
+    "requirements-integration.lock",
+    "review/integration/BASE-COMMITS.json",
+    "scripts/verify_integration.py",
+    "spark_batch.py",
+    "spark_runtime.py",
+    "tests/test_deletion_publication_integration.py",
+    "tests/test_publication_runtime.py",
+    "tests/test_spark_batch.py",
+    "tests/test_spark_runtime.py",
+    "tests/test_spark_sdk_connection.py"
+  ],
+  "integration20261103": {
+    "note": "29-path overlay tested on PR7 source subset; prior 68-file union is no longer required.",
+    "pr5": "024199f5ff4ebb3c711cd1d9dea90251fae249db",
+    "pr7": "da8ae4685f338f7e8412f87ee1ee02acbc666d41",
+    "publicPr7SourceSha256": {
+      ".github/workflows/daily_scan.yml": "46c556e2a8deb40d05e8b3ed18b0501519f99a8dae702b3f3cfc69afb592fed9",
+      "PUBLICATION-REVIEW.txt": "29e626428dd3c2f630d2692c6c012d39904d80b37d8e6824e1b90824f2d921e2",
+      "daily_stock_scanner.py": "097d485850663ec040e2cffd185be758232913bf594bbf3a8f4c8f60264065d8",
+      "expo_publication.py": "da02352204f7e40c54efc86c37ab0be9f354bb017054c819192dd0b61b119765",
+      "github_publication.py": "f7e4de8e8fec50c81828c712e13ac78f2ec369de742439584c80e7a486c69d15",
+      "korean_universe.py": "858fcc6e5f67ec69829e3b1cc0746010253dcbb8b7f1d6555672fffec42d809e",
+      "market_calendar.py": "60fd3c419b0e4a272fd14dedd5576b9464ad1d7985c7ebddc5b77419f94679da",
+      "notification_policy.py": "d2145f3aa1d7e115fa7f18bcfa02f1f28d0a34c9eb9aa68ad51784982308369c",
+      "pages_assets.py": "8e7c52427288554b376a8909b5c8443aeed6a17eeba093c347f566380f62774e",
+      "pages_cli.py": "1885aa860d127cbd3dea1402d73d734deaad568bba3b80f5ecd9e3d9e65eb792",
+      "pages_delivery.py": "18940f304f5254e654bc7bba41948fa7aecdff5c8d6c0214641b1787f19c02ee",
+      "pages_site_manifest.json": "97b75f627893daf5740b8d3e289fb9b3833a480090ce487e40c74e3b3d0c7f97",
+      "publication_runtime.py": "60fcfb2cee7a697cd1ca9f876782ae99c818b5bfb18bfb3102ceec07bc43e11e",
+      "requirements-publication-test.txt": "a81fec8a0f91f90bf496238d9e89658e21a73c7f70c6f3eb46e9e11aabe1b4fb",
+      "scan_contract.py": "4ad86171c91a3f4ff44618310ecefc6c6cf8c988f5ed28ee5cc19bbea1e3dcfa",
+      "scan_publication.py": "ad7df0cbbdca62d49ee6cefc6f10f6c4b610268362ada3ec16de9513049121f5",
+      "scripts/resolve_scan_event.py": "52a9c94e194450004e9b3d110852eb84d28b0625c1fbeb6d0389c8a4b54b9a6e",
+      "scripts/test_session_publication.py": "2b94744be58efd63b1b633cfad455742b08b99753d92dfd9414a6bef8101c053",
+      "tests/fake_github.py": "372a47e482c160865492cbaab2efc68f881f23a1c7651116f7a16625b8c11466",
+      "tests/fake_repository.py": "27eeabc9b490d1fedff190c32a24472d1de25db0334c659f1fb4da706e424eac",
+      "tests/fixtures/legacy_daily.py": "92f769253143f9fd8e3a17d2b37d9f1a4dff6b9b9f0a710276ddf5512de06e62",
+      "tests/fixtures/selection_contract.json": "0c831774dbfc9fb8326005f5d9d042dfb535f83cfbcd97278235a03b6193cf62",
+      "tests/test_completed_sessions.py": "b45d674cb28d078c190f3ee2788d7c11e48034deb39655708f4bfde75f5d22e6",
+      "tests/test_guarded_daily.py": "adab066edb1f1be740116864bd385b0a6a58eb45c89d972595a543e0995c2daf",
+      "tests/test_pages_assets.py": "db57c718c0e7633748779ec1a06db6e46b18807858316e7dd5faa3460095c9bb",
+      "tests/test_pages_runtime.py": "e2d4dd540ff04e4f6174933ab6fdb6e46cbe34a42b1806395d788c47b5ce4511",
+      "tests/test_publication_adapters.py": "ae60489dec28c2243b6ff57f580f6a19ec60e20291a124b2833577141847a557",
+      "tests/test_publication_runtime.py": "6b462859c182855293d0d8e9d7d236472311454cb41a96bb91f9221b6d7fb6ef",
+      "tests/test_scan_publication.py": "58a8fa6b7113cd7a5db276d011251cf413ba8549147623a9a679dbeeaab136e4",
+      "tests/test_weekly_publication.py": "03a721df89d0e0e7c9c1811f892491e38b00400bdb1e19e482c80ead2e8af6a3",
+      "tests/test_weekly_runtime.py": "c6d80ef7997adb7d396ebd99b93a665eb82e0d3da8907ad1e2cd89c7684ad74b",
+      "weekly_contract.py": "d4be33c308e472d905018833a219bde42b324eabcf8b17fcae93ddda8797e164",
+      "weekly_publication.py": "a6437509feb69020cdb561bbbe9e53c20a651300bc39b12c53bcc7db53d0bd7d",
+      "scan_diagnostics.py": "8d1b7e2ff332053a82b8a19bfa371621bcd2527ef6ce4c43b76c2b56474962d0",
+      "tests/test_scan_diagnostics.py": "a4663fcb55b2ee67e5d62ed6af6534d5337f79f3d82d113bbdc0d880c40fbc8f",
+      "SCAN-DIAGNOSTICS-REVIEW.txt": "1642298733d4aa426d307cd3c9b54c3a5bd93ff48b51a07a8b4daae1ef1abb4f"
+    },
+    "productionEnabled": false
+  }
+}

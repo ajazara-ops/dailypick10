@@ -598,7 +598,7 @@ def exit_quote(item, target_date):
             'hasSplit': bool((held_period['Stock Splits'] != 0).any()) if 'Stock Splits' in hist else None}
 
 
-def generate_weekly_report(publication_date=None, now=None):
+def generate_weekly_report(publication_date=None, now=None, *, include_created=False):
     generated_at = now or utc_stamp()
     publication_date = publication_date or latest_publication(generated_at)
     period = weekly_period(publication_date)
@@ -606,7 +606,8 @@ def generate_weekly_report(publication_date=None, now=None):
     output_path = Path(WEEKLY_REPORT_DIR) / f'{publication_date}_v3_weekly.json'
     if output_path.exists():
         validate_frozen_report(json.loads(output_path.read_text('utf-8')), period)
-        return output_path  # Frozen entry/exit prices, including unevaluated rows.
+        # Frozen entry/exit prices, including unevaluated rows.
+        return (output_path, False) if include_created else output_path
     snapshots = []
     unreadable_files = 0
     for file in sorted(Path(DAILY_DATA_DIR).glob('*_daily.json')):
@@ -621,7 +622,7 @@ def generate_weekly_report(publication_date=None, now=None):
     diagnostics['unreadableSnapshotCount'] = unreadable_files
     results, sessions = settle_weekly(cohort, period, evaluation_session, exit_quote)
     write_json_once(output_path, build_weekly_report(results, period, generated_at, sessions, diagnostics))
-    return output_path
+    return (output_path, True) if include_created else output_path
 
 
 def update_history_index(now=None):
@@ -696,16 +697,29 @@ def main():
     if args.mode == 'daily':
         generate_daily(args.target, args.date)
     elif args.mode in {'weekly', 'weekly_summary'}:
-        generate_weekly_report(args.date)
+        _, created = generate_weekly_report(args.date, include_created=True)
         update_history_index()
-        write_latest('.pending_notification.json', {'title': '주간 상승률 TOP 10',
-                     'body': '한 주 추천의 중복 종목을 모아 2주 뒤 금요일 종가로 비교했습니다. 시장별 상승률 상위 10개와 미평가 수를 확인하세요.'})
+        if created:
+            write_latest('.pending_notification.json', {'noticeKind': 'weekly-v1', 'title': '주간 상승률 TOP 10',
+                         'body': '한 주 추천의 중복 종목을 모아 2주 뒤 금요일 종가로 비교했습니다. 시장별 상승률 상위 10개와 미평가 수를 확인하세요.'})
+        else:
+            # Report creation is durable evidence of the period, not proof of delivery.
+            # Do not automatically resend an uncertain or previously sent notification.
+            write_latest('.pending_notification.json', {'skip': True, 'reason': 'weekly_report_already_exists'})
     elif args.mode == 'update_index':
         update_history_index()
     elif args.mode == 'notify':
         if not args.notify:
             raise ValueError('Push delivery requires --notify')
         payload = json.loads(Path('.pending_notification.json').read_text('utf-8'))
+        if payload in ({'skip': True, 'reason': 'weekly_report_already_exists'},
+                       {'skip': True, 'reason': 'weekly_attempt_claimed'}):
+            print('Weekly notification already attempted or report exists; it is not resent.')
+            return
+        if payload.get('noticeKind') == 'weekly-v1':
+            # Claim locally before sending. An interrupted or uncertain delivery
+            # stays suppressed; this does not prove a recipient got a notification.
+            write_latest('.pending_notification.json', {'skip': True, 'reason': 'weekly_attempt_claimed'})
         send_push_notification(payload['title'], payload['body'])
 
 

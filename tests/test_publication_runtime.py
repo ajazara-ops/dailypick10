@@ -37,7 +37,7 @@ class RuntimeTests(unittest.TestCase):
                                      post=self.post,clock=lambda:NOW,calendar=facts)
 
     def run_cli(self):
-        return self.scanner.main(['--mode','daily','--target','KR'],runtime_factory=self.factory)
+        return self.scanner.main(['--mode','daily','--target','KR','--date','2026-11-02'],runtime_factory=self.factory)
 
     def test_actual_cli_publishes_once_defers_all_notices_then_noop(self):
         result=self.run_cli();counts=deepcopy(self.harness.counts);files=deepcopy(self.server.files)
@@ -61,7 +61,7 @@ class RuntimeTests(unittest.TestCase):
         kr=json.loads(self.server.files['todays_recommendation.json'])['stocks']
         self.scanner.us_universe=lambda:['SYNTHETIC-A','SYNTHETIC-B']
         self.env=self.server.environment('1002')
-        result=self.scanner.main(['--mode','daily','--target','US'],runtime_factory=self.factory)
+        result=self.scanner.main(['--mode','daily','--target','US','--date','2026-11-02'],runtime_factory=self.factory)
         self.assertEqual(result['state'],'published');self.assertEqual(result['notification'],'awaiting_pages')
         combined=json.loads(self.server.files['todays_recommendation.json'])
         self.assertEqual([row for row in combined['stocks'] if row['market']=='KR'],kr)
@@ -70,7 +70,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(set(json.loads(self.server.files['scan_state.json'])['entries']),
                          {'daily:KR:2026-11-02','daily:US:2026-11-02'})
         self.env=self.server.environment('1003')
-        self.assertEqual(self.scanner.main(['--mode','daily','--target','US'],runtime_factory=self.factory)['state'],'noop')
+        self.assertEqual(self.scanner.main(['--mode','daily','--target','US','--date','2026-11-02'],runtime_factory=self.factory)['state'],'noop')
         self.assertEqual(self.harness.counts['price'],102)
 
     def test_unconfirmed_publication_returns_failure_and_never_reads_recipients(self):
@@ -137,6 +137,6 @@ class RuntimeTests(unittest.TestCase):
         self.scanner.update_history_index=lambda:self.fail('legacy index called')
         self.scanner.write_latest=lambda *_:self.fail('legacy pending notice called')
         def forbidden(_):self.fail('weekly must not use daily runtime')
-        self.scanner.main(['--mode','weekly_summary','--target','ALL'],runtime_factory=forbidden,
+        self.scanner.main(['--mode','weekly_summary','--target','ALL','--date','2026-11-21'],runtime_factory=forbidden,
                           weekly_runtime_factory=weekly_factory)
-        self.assertEqual(calls,[('1001',self.scanner.collect_weekly_period,None)])
+        self.assertEqual(calls,[('1001',self.scanner.collect_weekly_period,'2026-11-21')])

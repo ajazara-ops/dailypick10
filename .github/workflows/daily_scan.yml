@@ -12,7 +12,11 @@ on:
         required: true
         default: daily
         type: choice
-        options: [daily, weekly, weekly_summary]
+        options: [daily, weekly, weekly_summary, pages_resume]
+      delivery_id:
+        description: 'Existing ledger delivery ID; used only by pages_resume (no scan)'
+        required: false
+        type: string
       target:
         description: 'Target market'
         required: true
@@ -22,6 +26,10 @@ on:
 
 permissions:
   contents: write
+  actions: read
+  # LOCAL REVIEW ONLY: these new permissions/environment need separate approval.
+  pages: write
+  id-token: write
 
 concurrency:
   group: stock-data-publisher
@@ -30,6 +38,14 @@ concurrency:
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    env:
+      DAILYPICK_GUARDED_RUNTIME: ${{ vars.DAILYPICK_GUARDED_RUNTIME }}
+      DAILYPICK_PAGES_SOURCE: ${{ vars.DAILYPICK_PAGES_SOURCE }}
+      DAILYPICK_PAGES_ROUTE: ${{ vars.DAILYPICK_PAGES_ROUTE }}
+      DAILYPICK_PAGES_URL: ${{ vars.DAILYPICK_PAGES_URL }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -43,24 +59,53 @@ jobs:
       - name: Install dependencies
         run: pip install yfinance pandas requests lxml firebase-admin exchange-calendars==4.13.2
       - name: Run Scan Logic
+        if: steps.intent.outputs.mode != 'pages_resume'
         env:
           SCAN_MODE: ${{ steps.intent.outputs.mode }}
           SCAN_TARGET: ${{ steps.intent.outputs.target }}
-        run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET"
-      - name: Commit and Push
+        run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET" --publication-result "$RUNNER_TEMP/publication-result.json"
+      - name: Prepare immutable Pages handoff
+        id: handoff
         env:
           SCAN_MODE: ${{ steps.intent.outputs.mode }}
+          DELIVERY_ID: ${{ inputs.delivery_id }}
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          for path in todays_recommendation.json daily_data weekly_reports history_index.json; do
-            if [ -e "$path" ]; then git add -- "$path"; fi
-          done
-          if ! git diff --cached --quiet; then
-            git commit -m "Update stock data ($SCAN_MODE)"
-            git push
+          if [ "$SCAN_MODE" = 'pages_resume' ]; then
+            python pages_cli.py resume --delivery-id "$DELIVERY_ID" --handoff "$RUNNER_TEMP/pages-handoff.json" --output "$GITHUB_OUTPUT"
+          else
+            python pages_cli.py prepare --result "$RUNNER_TEMP/publication-result.json" --handoff "$RUNNER_TEMP/pages-handoff.json" --output "$GITHUB_OUTPUT"
           fi
-      - name: Deliver generated notification after publishing
+      - name: Package only allowlisted immutable Git assets
+        if: steps.handoff.outputs.action == 'build'
+        run: python pages_cli.py stage --handoff "$RUNNER_TEMP/pages-handoff.json" --archive "$RUNNER_TEMP/artifact.tar"
+      - name: Verify actual tar before upload
+        if: steps.handoff.outputs.action == 'build'
+        run: python pages_cli.py archive-check --handoff "$RUNNER_TEMP/pages-handoff.json" --archive "$RUNNER_TEMP/artifact.tar"
+      - name: Upload verified Pages artifact
+        if: steps.handoff.outputs.action == 'build'
+        id: artifact
+        # Same official upload action used by upload-pages-artifact, but no repacking
+        # after verification: the archive contains exactly one validated file set.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          path: ${{ runner.temp }}/artifact.tar
+          name: ${{ steps.handoff.outputs.artifact_name }}
+          if-no-files-found: error
+          retention-days: 7
+      - name: Claim one Pages deployment
+        if: steps.handoff.outputs.action == 'build'
+        run: python pages_cli.py claim --handoff "$RUNNER_TEMP/pages-handoff.json" --artifact-id "${{ steps.artifact.outputs.artifact-id }}" --archive "$RUNNER_TEMP/artifact.tar"
+      - name: Deploy verified Pages artifact
+        if: steps.handoff.outputs.action == 'build'
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+        with:
+          artifact_name: ${{ steps.handoff.outputs.artifact_name }}
+      - name: Verify public JSON then deliver claimed notices
+        if: success() && steps.handoff.outputs.action != 'none'
         env:
+          # Not exposed to collection/build/deployment steps.
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-        run: python daily_stock_scanner.py --mode notify --notify
+        run: python pages_cli.py verify --handoff "$RUNNER_TEMP/pages-handoff.json"
+      # Same concurrency slot covers data, Pages, public proof and notification.
+      # A failed/unknown deployment resumes verification only; never blindly redeploy.
+      # No settings API, source-mode change, configure-pages or legacy fallback.

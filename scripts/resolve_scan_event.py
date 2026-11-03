@@ -1,6 +1,7 @@
 """Resolve scheduled intent from the event, never from the runner's wall clock."""
 import json
 import os
+import re
 from pathlib import Path
 
 SCHEDULES = {
@@ -18,6 +19,10 @@ def resolve_event(event_name, event):
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs") or {}
         mode, target = inputs.get("mode"), inputs.get("target", "ALL")
+        if mode == 'pages_resume':
+            if not re.fullmatch(r'[0-9a-f]{64}', str(inputs.get('delivery_id', ''))):
+                raise ValueError('Existing delivery ID is required; no collection on resume')
+            return mode, 'ALL'
         if mode not in {"daily", "weekly", "weekly_summary"} or target not in {"US", "KR", "ALL"}:
             raise ValueError("Explicit valid mode and target are required")
         return mode, target

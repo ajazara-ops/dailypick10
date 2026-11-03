@@ -10,6 +10,8 @@ from pathlib import Path
 import sys
 import tempfile
 
+from scan_diagnostics import emit_scan_failure
+
 TIMEZONES = {"US": "America/New_York", "KR": "Asia/Seoul"}
 UNIVERSE_ERROR_CODES = frozenset({
     'universe_unavailable', 'incomplete_us_universe', 'incomplete_korean_universe',
@@ -80,7 +82,7 @@ def rank_stocks(rows, limit=10):
     return ordered
 
 
-def scan_market(market, get_universe, analyze, previous, generated_at):
+def scan_market(market, get_universe, analyze, previous, generated_at, expected_session=None):
     old_stocks = [s for s in previous.get("stocks", []) if s.get("market") == market]
     old_meta = previous.get("markets", {}).get(market, {})
     errors, filtered, observations, candidates = 0, 0, [], []
@@ -93,27 +95,39 @@ def scan_market(market, get_universe, analyze, previous, generated_at):
         universe, errors = [], 1
         # Publish a bounded diagnostic, never arbitrary HTTP bodies or exception text.
         universe_error = str(exc) if isinstance(exc, SourceDataError) and str(exc) in UNIVERSE_ERROR_CODES else 'universe_unavailable'
+        emit_scan_failure(exc, market=market, ticker=None, stage='universe',
+                          generated_at=generated_at, source_error_type=SourceDataError)
     for ticker in universe:
+        diagnostic_stage = 'stock_analysis'
         try:
             observation = analyze(ticker, market)
+            diagnostic_stage = 'observation_validation'
             if not isinstance(observation, Observation):
                 raise SourceDataError("invalid_observation")
+            diagnostic_stage = 'quote_date_validation'
             quote_date = date.fromisoformat(observation.quote_as_of[:10])
+            if expected_session is not None and quote_date.isoformat() != expected_session:
+                raise SourceDataError('wrong_quote_session')
+            diagnostic_stage = 'quote_freshness'
             age = (date.fromisoformat(generated_at[:10]) - quote_date).days
             if age < 0 or age > 4:
                 raise SourceDataError("stale_quote")
             if observation.stock is None:
                 filtered += 1
             else:
+                diagnostic_stage = 'price_validation'
                 if price(observation.stock.get("currentPrice"), market) is None:
                     raise SourceDataError("invalid_price")
+                diagnostic_stage = 'score_validation'
                 score = number(observation.stock.get('score'))
                 if score is None or score < 0 or not score_inputs_available(observation.stock):
                     raise SourceDataError('score_inputs_unavailable')
                 candidates.append(observation.stock)
             observations.append(observation.quote_as_of)
-        except Exception:
+        except Exception as exc:
             errors += 1
+            emit_scan_failure(exc, market=market, ticker=ticker, stage=diagnostic_stage,
+                              generated_at=generated_at, source_error_type=SourceDataError)
     if errors and old_stocks:
         # A partial scan must not silently replace the full last-good universe.
         rows = deepcopy(old_stocks)

@@ -1,3 +1,6 @@
+2026-11-03 LOCAL SESSION-GUARD CANDIDATE — NOT READY TO DEPLOY
+This paragraph supersedes previous scheduling and activation instructions below.
+All GitHub schedule events fail closed because their intended session occurrence is not proven. Deploying this candidate as-is stops automatic daily and weekly publication even with the runtime gate enabled. A dispatcher candidate has only synthetic tests and is not deployed; its deployment and credentials require separate approval. Manual daily ALL is no longer supported; manual daily and weekly runs require explicit keys. queue:max only reduces pending-run replacement and does not guarantee event delivery. Preserve current production until a reviewed complete cutover and recovery plan exists.
 LOCAL REVIEW ONLY - PR #7 + Pages delivery + positive artifact allowlist
 Base: 36dd7737020539b874709746149e0e1fecb8995f (open draft PR #7).
 No push, merge, settings change, deployment, operating scan, recipient lookup or

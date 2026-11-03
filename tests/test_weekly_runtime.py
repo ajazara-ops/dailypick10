@@ -48,7 +48,7 @@ class WeeklyRuntimeTests(unittest.TestCase):
                                       post=self.post, clock=lambda:self.now)
 
     def cli(self, mode='weekly', extra=None):
-        return self.scanner.main(['--mode',mode,'--target','ALL']+(extra or []), weekly_runtime_factory=self.factory)
+        return self.scanner.main(['--mode',mode,'--target','ALL','--date','2026-11-21']+(extra or []), weekly_runtime_factory=self.factory)
 
     def test_actual_cli_reads_legacy_archives_and_alias_is_complete_noop(self):
         result = self.cli();self.assertEqual(result['state'],'published')

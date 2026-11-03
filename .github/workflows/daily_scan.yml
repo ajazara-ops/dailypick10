@@ -17,6 +17,10 @@ on:
         description: 'Existing ledger delivery ID; used only by pages_resume (no scan)'
         required: false
         type: string
+      session_key:
+        description: 'Explicit daily or weekly period key; required except for pages_resume'
+        required: false
+        type: string
       target:
         description: 'Target market'
         required: true
@@ -34,6 +38,7 @@ permissions:
 concurrency:
   group: stock-data-publisher
   cancel-in-progress: false
+  queue: max
 
 jobs:
   run-scanner:
@@ -63,7 +68,8 @@ jobs:
         env:
           SCAN_MODE: ${{ steps.intent.outputs.mode }}
           SCAN_TARGET: ${{ steps.intent.outputs.target }}
-        run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET" --publication-result "$RUNNER_TEMP/publication-result.json"
+          SCAN_DATE: ${{ steps.intent.outputs.session_date }}
+        run: python daily_stock_scanner.py --mode "$SCAN_MODE" --target "$SCAN_TARGET" --date "$SCAN_DATE" --publication-result "$RUNNER_TEMP/publication-result.json"
       - name: Prepare immutable Pages handoff
         id: handoff
         env:

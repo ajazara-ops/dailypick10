@@ -36,10 +36,10 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(number(0), 0)
 
     def test_delayed_schedules_keep_event_intent(self):
-        # Runner time is deliberately irrelevant and is not an input.
-        for schedule, expected in [('30 9 * * 1-5', ('daily','KR')), ('15 23 * * 1-5', ('daily','US')), ('0 8 * * 6', ('weekly_summary','ALL'))]:
-            self.assertEqual(resolve_event('schedule', {'schedule':schedule}), expected)
-        self.assertEqual(resolve_event('workflow_dispatch', {'inputs':{'mode':'weekly','target':'US'}}), ('weekly','US'))
+        # A cron expression alone does not identify a trustworthy occurrence date.
+        for schedule in ('30 9 * * 1-5', '15 23 * * 1-5', '0 8 * * 6'):
+            with self.assertRaisesRegex(ValueError,'session_unverified'):resolve_event('schedule', {'schedule':schedule})
+        self.assertEqual(resolve_event('workflow_dispatch', {'inputs':{'mode':'daily','target':'US','session_key':'daily:US:2026-11-02'}}), ('daily','US','2026-11-02'))
         for event, payload in [('schedule',{'schedule':'unexpected'}), ('workflow_dispatch',{'inputs':{'mode':'auto'}}), ('push',{})]:
             with self.assertRaises(ValueError): resolve_event(event,payload)
 
@@ -176,36 +176,18 @@ def isolated_scanner():
 
 
 class ScannerIntegrationTests(unittest.TestCase):
-    def test_daily_failure_keeps_last_good_other_market_and_writes_separate_archive(self):
+    def test_legacy_daily_path_cannot_write_without_guarded_publisher(self):
         scanner=isolated_scanner()
-        previous={'stocks':[row('old'),dict(row('K'),market='KR')],
-                  'markets':{'US':{'generatedAt':'2026-10-29T23:15:00Z','quoteAsOf':'2026-10-29'},
-                             'KR':{'generatedAt':'2026-10-29T09:30:00Z','quoteAsOf':'2026-10-29'}}}
         with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:
-            assert Path(folder).resolve().is_relative_to(ROOT.resolve())
-            root=Path(folder);daily=root/'daily';daily.mkdir()
-            original=daily/'2026-10-29_daily.json';original.write_text('{"keep":true}')
-            (root/'todays_recommendation.json').write_text(json.dumps(previous))
+            root=Path(folder); daily=root/'daily'; daily.mkdir()
+            original=daily/'2026-10-29_daily.json'; original.write_text('{"keep":true}')
+            latest=root/'todays_recommendation.json'; latest.write_text('{"stocks":[]}')
             scanner.DAILY_DATA_DIR=str(daily)
-            saved_cwd=os.getcwd()
-            try:
-                os.chdir(root)
-                with patch.object(scanner,'utc_stamp',return_value=NOW), \
-                     patch.object(scanner,'market_session_date',return_value='2026-10-30'), \
-                     patch.object(scanner,'us_universe',return_value=[]), \
-                     patch.object(scanner,'analyze_market_condition',return_value={}), \
-                     patch.object(scanner,'process_news_for_list') as news:
-                    result=scanner.generate_daily('US')
-                    news.assert_not_called()
-                self.assertEqual(result['stocks'],previous['stocks'])
-                self.assertEqual(result['markets']['KR'],previous['markets']['KR'])
-                self.assertEqual(result['markets']['US']['status'],'error')
-                self.assertIn('오류',result['notification']['body'])
-                self.assertEqual(original.read_text(),'{"keep":true}')
-                self.assertEqual(len(list(daily.glob('*_daily.json'))),2)
-            finally:
-                os.chdir(saved_cwd)
-
+            with self.assertRaisesRegex(RuntimeError,'live execution is disabled'):
+                scanner.generate_daily('US')
+            self.assertEqual(original.read_text(),'{"keep":true}')
+            self.assertEqual(latest.read_text(),'{"stocks":[]}')
+            self.assertEqual(len(list(daily.glob('*_daily.json'))),1)
     def test_weekly_writes_new_top10_cohort_and_leaves_legacy_bytes_intact(self):
         scanner=isolated_scanner()
         with tempfile.TemporaryDirectory(dir=TEST_TEMP) as folder:

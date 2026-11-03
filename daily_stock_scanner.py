@@ -728,6 +728,20 @@ def main(argv=None, *, runtime_factory=None, weekly_runtime_factory=None):
     parser.add_argument('--publication-result', help='Local bounded result for Pages handoff')
     parser.add_argument('--notify', action='store_true', help='Explicitly allow push delivery; used only after successful publishing')
     args = parser.parse_args(argv)
+    # Fail before publisher factory, credentials, repository, or price access.
+    if args.mode in {'daily', 'weekly', 'weekly_summary'}:
+        if not isinstance(args.date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.date):
+            raise ValueError('explicit_session_date_required')
+        try:
+            requested_day = datetime.strptime(args.date, '%Y-%m-%d').date()
+        except ValueError:
+            raise ValueError('invalid_session_date') from None
+        if requested_day.isoformat() != args.date:
+            raise ValueError('invalid_session_date')
+        if args.mode == 'daily' and args.target not in {'KR', 'US'}:
+            raise ValueError('one_explicit_daily_market_required')
+        if args.mode in {'weekly', 'weekly_summary'} and (args.target != 'ALL' or requested_day.weekday() != 5):
+            raise ValueError('weekly_saturday_and_all_markets_required')
     if args.mode == 'daily':
         from types import SimpleNamespace
         from publication_runtime import build_daily_publisher

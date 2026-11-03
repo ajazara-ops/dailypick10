@@ -75,7 +75,7 @@ class PagesRuntimeTests(unittest.TestCase):
         return build_delivery(environment=self.env,request=self.request,post=self.post,get=self.get,scanner=self.scanner,asset_policy=self.policy)
 
     def scan(self,target='KR'):
-        return self.scanner.main(['--mode','daily','--target',target,'--publication-result',str(self.result)],runtime_factory=self.factory)
+        return self.scanner.main(['--mode','daily','--target',target,'--date','2026-11-02','--publication-result',str(self.result)],runtime_factory=self.factory)
 
     def cli(self,command,*args):
         return pages_main([command,'--handoff',str(self.handoff),*args],factory=self.delivery)
@@ -254,11 +254,9 @@ class PagesRuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,'stale_artifact_handoff'):self.claim()
         self.assertEqual(self.posts,[])
 
-    def test_all_markets_share_final_latest_and_have_two_independent_notices(self):
-        self.scanner.us_universe=lambda:['SYNTHETIC-A','SYNTHETIC-B']
-        self.scan('ALL');self.prepare();self.build();self.claim();self.deployed();self.cli('verify')
-        self.assertEqual(len(self.posts),2);self.assertEqual(self.harness.counts['price'],102)
-        self.assertEqual(len(self.row()['files']),3)
+    def test_all_markets_without_two_explicit_session_keys_fails_before_scan(self):
+        with self.assertRaisesRegex(ValueError,'one_explicit_daily_market_required'):self.scan('ALL')
+        self.assertEqual(self.posts,[]);self.assertEqual(self.harness.counts['price'],0)
 
     def test_weekly_actual_collector_and_index_go_through_same_delivery_cli(self):
         files,self.policy=site_fixture(sources())
@@ -271,7 +269,7 @@ class PagesRuntimeTests(unittest.TestCase):
         self.scanner.exit_quote=quote
         def factory(scanner):
             return build_weekly_publisher(scanner,environment=self.env,request=self.request,post=self.post,clock=lambda:self.now)
-        args=['--mode','weekly','--publication-result',str(self.result)]
+        args=['--mode','weekly','--date','2026-11-21','--publication-result',str(self.result)]
         self.scanner.main(args,weekly_runtime_factory=factory)
         self.assertEqual(self.posts,[])
         self.prepare();self.build();self.claim();self.deployed();self.cli('verify')
@@ -280,9 +278,9 @@ class PagesRuntimeTests(unittest.TestCase):
         self.assertEqual(self.prepare()['action'],'none');self.assertEqual(len(quotes),2)
 
     def test_resume_intent_never_falls_back_to_daily_or_changes_crons(self):
-        self.assertEqual(resolve_event('workflow_dispatch',{'inputs':{'mode':'pages_resume','delivery_id':'a'*64}}),('pages_resume','ALL'))
+        self.assertEqual(resolve_event('workflow_dispatch',{'inputs':{'mode':'pages_resume','delivery_id':'a'*64}}),('pages_resume','ALL',''))
         with self.assertRaises(ValueError):resolve_event('workflow_dispatch',{'inputs':{'mode':'pages_resume'}})
-        self.assertEqual(resolve_event('schedule',{'schedule':'30 9 * * 1-5'}),('daily','KR'))
+        with self.assertRaisesRegex(ValueError,'session_unverified'):resolve_event('schedule',{'schedule':'30 9 * * 1-5'})
 
 
 if __name__=='__main__':unittest.main()

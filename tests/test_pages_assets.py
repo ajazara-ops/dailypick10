@@ -3,12 +3,13 @@ from copy import deepcopy
 import io
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tarfile
 import tempfile
 import unittest
 
 from fake_github import GitServer
-from github_publication import GitHubHTTP, GitHubRepository
+from github_publication import GitHubHTTP, GitHubRepository, RepositoryUnavailable
 from pages_assets import (load_policy, validate_policy, asset_plan, write_archive,
     verify_archive, git_blob, safe_path, STATIC, RESERVED)
 from scan_publication import encoded, digest
@@ -65,22 +66,23 @@ class AssetTests(unittest.TestCase):
                 info.size=len(body) if kind==tarfile.REGTYPE else 0
                 out.addfile(info,io.BytesIO(body) if kind==tarfile.REGTYPE else None)
 
-    def test_production_manifest_matches_reviewed_329_layout_and_static_domain(self):
+    def test_migration_candidate_manifest_matches_reviewed_330_layout_and_static_domain(self):
         policy=load_policy()
-        self.assertEqual(policy['reviewedMain'],'c796be6ed00e0e4e7d0d589e4711a579999cb7e6')
+        self.assertEqual(policy['reviewedMain'],'3ee8fb4abea0c728f6a82126fcbc602c80e079ab')
         counts={k:sum(r['kind']==k for r in policy['files']) for k in ('static','latest','index','daily','weekly')}
-        self.assertEqual(counts,{'static':12,'latest':1,'index':1,'daily':283,'weekly':32})
+        self.assertEqual(counts,{'static':12,'latest':1,'index':1,'daily':284,'weekly':32})
         rows={r['path']:r for r in policy['files']}
         self.assertEqual(rows['daily_data/2026-11-02_193919Z_KR_daily.json']['gitBlobSha'],'829a90cef78c8476c2837a2128c673ddc89d9056')
-        self.assertEqual(rows['todays_recommendation.json']['gitBlobSha'],'829a90cef78c8476c2837a2128c673ddc89d9056')
+        self.assertEqual(rows['daily_data/2026-11-03_035611Z_US_daily.json']['gitBlobSha'],'f7c21c48d83333b456c970f6513cd2dcf2ee7772')
+        self.assertEqual(rows['todays_recommendation.json']['gitBlobSha'],'f7c21c48d83333b456c970f6513cd2dcf2ee7772')
         self.assertEqual(set(r['path'] for r in policy['files'] if r['kind']=='static'),STATIC)
         self.assertEqual(next(r['gitBlobSha'] for r in policy['files'] if r['path']=='CNAME'),git_blob(b'ajazara.xyz'))
 
-    def test_actual_tar_preserves_all_329_paths_and_bytes_and_only_generated_manifest(self):
-        bodies=self.plan();self.assertEqual(len(bodies),329)
+    def test_actual_tar_preserves_all_330_paths_and_bytes_and_only_generated_manifest(self):
+        bodies=self.plan();self.assertEqual(len(bodies),330)
         bodies[RESERVED]=encoded({'synthetic':True})
         proof=write_archive(self.tar,bodies)
-        self.assertEqual(proof['fileCount'],330)
+        self.assertEqual(proof['fileCount'],331)
         self.assertEqual(verify_archive(self.tar,{p:digest(b) for p,b in bodies.items()}),proof)
         with tarfile.open(self.tar,'r:') as t:
             self.assertEqual(set(t.getnames()),set(bodies))
@@ -112,6 +114,35 @@ class AssetTests(unittest.TestCase):
         p=self.add_daily();self.assertIn(p,self.plan())
         self.ledger['entries'].clear()
         with self.assertRaisesRegex(ValueError,'provenance_unverified'):self.plan()
+
+    def test_unreviewed_legacy_archive_cannot_silently_disappear_after_fresh_publication(self):
+        for path in ('daily_data/2026-11-04_035611Z_US_daily.json',
+                     'daily_data/2026-11-03_111100Z_KR_daily.json',
+                     'weekly_reports/2026-11-28_v2_weekly.json'):
+            with self.subTest(path=path):
+                self.server=GitServer(self.files);self.repo=GitHubRepository(GitHubHTTP('synthetic-only-token',self.server.request))
+                self.ledger={'schemaVersion':1,'entries':{}}
+                secret_like=b'{"synthetic":"unreviewed legacy body"}'
+                self.server.advance({path:secret_like});self.add_daily()
+                with self.assertRaisesRegex(RepositoryUnavailable,'unreviewed_legacy_history'):
+                    self.plan()
+                blobs={uri.rsplit('/',1)[1] for method,uri,_ in self.server.calls if uri.startswith('/git/blobs/')}
+                self.assertNotIn(git_blob(secret_like),blobs)
+                self.assertEqual(self.server.patch_count,0)
+
+    def test_direct_snapshot_cannot_silently_exclude_unreviewed_legacy_history(self):
+        path='daily_data/2026-11-04_035611Z_US_daily.json'
+        snapshot=SimpleNamespace(files={**self.files,path:b'{"synthetic":true}'})
+        with self.assertRaisesRegex(ValueError,'unreviewed_legacy_history'):
+            asset_plan(snapshot,self.ledger,self.policy)
+
+    def test_reviewed_migration_pins_legacy_bytes_and_rejects_tampering(self):
+        path='daily_data/2026-11-03_035611Z_US_daily.json'
+        original=self.files[path]
+        self.assertEqual(self.plan()[path],original)
+        self.server.advance({path:b'{"synthetic":"changed"}'})
+        with self.assertRaisesRegex(ValueError,'reviewed_asset_changed'):
+            self.plan()
 
     def test_new_daily_invalid_price_is_not_published_even_with_matching_hash(self):
         self.add_daily(lambda d:d['stocks'][0].update(currentPrice=None))

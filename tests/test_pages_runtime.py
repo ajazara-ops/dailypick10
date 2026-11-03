@@ -11,6 +11,7 @@ import test_guarded_daily as fixtures
 from test_scan_publication import NOW, facts
 from test_weekly_publication import WEEK_NOW, sources
 from publication_runtime import build_daily_publisher, build_weekly_publisher
+from github_publication import RepositoryUnavailable
 from pages_cli import main as pages_main, build_delivery
 from pages_delivery import MANIFEST, DEPLOY_STEP
 from scan_publication import encoded
@@ -123,6 +124,16 @@ class PagesRuntimeTests(unittest.TestCase):
         self.assertEqual(self.prepare()['action'],'none')
         self.assertEqual(self.harness.counts,counts);self.assertEqual(len(self.posts),1)
         self.assertNotIn(b'ExpoPushToken',b''.join(self.server.files.values()))
+
+    def test_unreviewed_legacy_history_stops_pages_before_notification(self):
+        path='daily_data/2026-11-04_035611Z_US_daily.json'
+        self.server.advance({path:encoded({'synthetic':True})})
+        self.scan()
+        with self.assertRaisesRegex(RepositoryUnavailable,'unreviewed_legacy_history_requires_review'):
+            self.prepare()
+        self.assertEqual(self.posts,[])
+        self.assertEqual(self.token_reads,[])
+        self.assertFalse(self.archive.exists())
 
     def test_source_unknown_blocks_actual_cli_before_credentials_and_quotes(self):
         class Guard(dict):

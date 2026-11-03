@@ -198,7 +198,7 @@ class GitHubRepository:
 
     def site_snapshot_at(self, head, policy):
         """Only traverse allowlisted site directories; never read excluded blobs."""
-        from pages_assets import candidate_path, safe_path, validate_policy
+        from pages_assets import candidate_path, safe_path, validate_policy, unreviewed_legacy_history
         policy = validate_policy(policy)
         head = sha(head)
         commit = self._get('/git/commits/' + head)
@@ -223,6 +223,9 @@ class GitHubRepository:
                 full=prefix+name
                 try:safe_path(full)
                 except ValueError:raise RepositoryUnavailable('unsafe_site_tree_path') from None
+                if unreviewed_legacy_history(full,known):
+                    # Do not download an unreviewed blob or silently omit a public history URL.
+                    raise RepositoryUnavailable('unreviewed_legacy_history_requires_review')
                 needed = candidate_path(full,policy)
                 directory = full in {'daily_data','weekly_reports'} or any(p.startswith(full+'/') for p in known)
                 if needed:

@@ -17,6 +17,10 @@ from weekly_publication import validate_weekly, weekly_key
 
 DAILY = re.compile(r'daily_data/(\d{4}-\d{2}-\d{2})_(KR|US)_daily\.json')
 WEEKLY = re.compile(r'weekly_reports/(\d{4}-\d{2}-\d{2})_v3_weekly\.json')
+# Legacy public archives require explicit pinned review; they do not have the
+# guarded ledger entries required to adopt current-format publications.
+LEGACY_DAILY = re.compile(r'daily_data/\d{4}-\d{2}-\d{2}(?:_[A-Za-z0-9+-]+)*_daily\.json')
+LEGACY_WEEKLY = re.compile(r'weekly_reports/\d{4}-\d{2}-\d{2}(?:_v[23])?_weekly\.json')
 STATIC = frozenset({'CNAME', 'app-ads.txt', 'google37c103c6e1de47ae.html',
     'index.html', 'about/index.html', 'assets/site.css', 'assets/language.js',
     'blogger/privacy/index.html', 'dailypick10/index.html',
@@ -91,6 +95,12 @@ def candidate_path(path, policy):
     return path in {r['path'] for r in policy['files']} or bool(DAILY.fullmatch(path) or WEEKLY.fullmatch(path))
 
 
+def unreviewed_legacy_history(path, pinned):
+    """Detect omitted public-history-shaped paths without reading their bytes."""
+    return (isinstance(path, str) and path not in pinned and not DAILY.fullmatch(path) and
+            not WEEKLY.fullmatch(path) and bool(LEGACY_DAILY.fullmatch(path) or LEGACY_WEEKLY.fullmatch(path)))
+
+
 def _sensitive(value):
     if isinstance(value,dict):
         for k,v in value.items():
@@ -141,6 +151,8 @@ def asset_plan(snapshot, ledger, policy):
     """Return only allowed bytes; known site/history changes require a new review."""
     policy=validate_policy(policy)
     pinned={r['path']:r for r in policy['files']}
+    if any(unreviewed_legacy_history(path,pinned) for path in snapshot.files):
+        raise ValueError('unreviewed_legacy_history_requires_review')
     paths=sorted(p for p in snapshot.files if candidate_path(p,policy))
     unique_paths(paths)
     if not set(pinned)<=set(paths):raise ValueError('required_asset_missing')

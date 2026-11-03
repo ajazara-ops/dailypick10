@@ -119,7 +119,18 @@ def get_all_user_tokens(strict=False):
                 continue
             token = user_data.get('pushToken')
             if isinstance(token, str) and re.fullmatch(r'(?:Exponent|Expo)PushToken\[[^\s\[\]]+\]', token):
-                tokens.append(token)
+                # A profile marker alone cannot guard a recreated/stale profile.
+                # Exceptions propagate to the bounded strict error path: never
+                # treat unreadable authoritative state as an absent lifecycle.
+                from notification_policy import confirmed_push_eligible
+                uid = getattr(doc, 'id', None)
+                if not isinstance(uid, str) or not uid or '/' in uid or len(uid) > 128:
+                    raise SourceDataError('unverified_recipient_identity')
+                state = db.collection('accountDeletionState').document(uid).get()
+                intent = db.collection('accountDeletionIntents').document(uid).get()
+                if confirmed_push_eligible(user_data, state.to_dict() if state.exists else None,
+                                           intent.to_dict() if intent.exists else None):
+                    tokens.append(token)
                 
         print(f"🔎 DB에서 사용자 {len(tokens)}명을 찾았습니다.")
         return tokens

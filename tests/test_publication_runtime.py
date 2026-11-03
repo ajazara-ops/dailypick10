@@ -115,10 +115,13 @@ class RuntimeTests(unittest.TestCase):
 
     def test_existing_recipient_filter_strict_lookup_and_legacy_default_are_preserved(self):
         token='ExpoPushToken[synthetic-eligible]'
-        docs=[types.SimpleNamespace(to_dict=lambda:{'pushToken':token}),
-              types.SimpleNamespace(to_dict=lambda:{'pushToken':'ExpoPushToken[synthetic-excluded]','deletionRequest':{}})]
+        docs=[types.SimpleNamespace(id='synthetic-eligible',to_dict=lambda:{'pushToken':token}),
+              types.SimpleNamespace(id='synthetic-excluded',to_dict=lambda:{'pushToken':'ExpoPushToken[synthetic-excluded]','deletionRequest':{}})]
         collection=types.SimpleNamespace(stream=lambda:iter(docs))
-        def select(name):self.assertEqual(name,'users');return collection
+        def select(name):
+            if name=='users':return collection
+            self.assertIn(name,{'accountDeletionState','accountDeletionIntents'})
+            return types.SimpleNamespace(document=lambda uid:types.SimpleNamespace(get=lambda:types.SimpleNamespace(exists=False)))
         self.scanner.FIREBASE_AVAILABLE=True
         self.scanner.firebase_admin=types.SimpleNamespace(_apps={'synthetic':object()})
         self.scanner.firestore=types.SimpleNamespace(client=lambda:types.SimpleNamespace(collection=select))

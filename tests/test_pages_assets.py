@@ -16,7 +16,7 @@ from test_scan_publication import output, NOW
 
 
 def site_fixture(extra=None):
-    """Same 328 path layout, explicitly synthetic contents and hashes."""
+    """Same 329 path layout, explicitly synthetic contents and hashes."""
     policy=deepcopy(load_policy());files={}
     for row in policy['files']:
         p=row['path']
@@ -65,19 +65,22 @@ class AssetTests(unittest.TestCase):
                 info.size=len(body) if kind==tarfile.REGTYPE else 0
                 out.addfile(info,io.BytesIO(body) if kind==tarfile.REGTYPE else None)
 
-    def test_production_manifest_matches_reviewed_328_layout_and_static_domain(self):
+    def test_production_manifest_matches_reviewed_329_layout_and_static_domain(self):
         policy=load_policy()
-        self.assertEqual(policy['reviewedMain'],'7f1a06d1ee7966b99633916baefd7920e38a75ac')
+        self.assertEqual(policy['reviewedMain'],'c796be6ed00e0e4e7d0d589e4711a579999cb7e6')
         counts={k:sum(r['kind']==k for r in policy['files']) for k in ('static','latest','index','daily','weekly')}
-        self.assertEqual(counts,{'static':12,'latest':1,'index':1,'daily':282,'weekly':32})
+        self.assertEqual(counts,{'static':12,'latest':1,'index':1,'daily':283,'weekly':32})
+        rows={r['path']:r for r in policy['files']}
+        self.assertEqual(rows['daily_data/2026-11-02_193919Z_KR_daily.json']['gitBlobSha'],'829a90cef78c8476c2837a2128c673ddc89d9056')
+        self.assertEqual(rows['todays_recommendation.json']['gitBlobSha'],'829a90cef78c8476c2837a2128c673ddc89d9056')
         self.assertEqual(set(r['path'] for r in policy['files'] if r['kind']=='static'),STATIC)
         self.assertEqual(next(r['gitBlobSha'] for r in policy['files'] if r['path']=='CNAME'),git_blob(b'ajazara.xyz'))
 
-    def test_actual_tar_preserves_all_328_paths_and_bytes_and_only_generated_manifest(self):
-        bodies=self.plan();self.assertEqual(len(bodies),328)
+    def test_actual_tar_preserves_all_329_paths_and_bytes_and_only_generated_manifest(self):
+        bodies=self.plan();self.assertEqual(len(bodies),329)
         bodies[RESERVED]=encoded({'synthetic':True})
         proof=write_archive(self.tar,bodies)
-        self.assertEqual(proof['fileCount'],329)
+        self.assertEqual(proof['fileCount'],330)
         self.assertEqual(verify_archive(self.tar,{p:digest(b) for p,b in bodies.items()}),proof)
         with tarfile.open(self.tar,'r:') as t:
             self.assertEqual(set(t.getnames()),set(bodies))

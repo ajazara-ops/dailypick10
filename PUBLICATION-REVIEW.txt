@@ -16,9 +16,9 @@ Actual connected local path
   A newer repo/data/index change blocks an old artifact from being redeployed.
 
 Positive allowlist / real tar
-- pages_site_manifest.json pins 328 existing public paths and Git blob SHA1 values
-  from main 7f1a06d1ee7966b99633916baefd7920e38a75ac: 12 static site assets,
-  latest JSON + history index, 282 daily archives and 32 weekly reports.
+- pages_site_manifest.json pins 329 existing public paths and Git blob SHA1 values
+  from main c796be6ed00e0e4e7d0d589e4711a579999cb7e6: 12 static site assets,
+  latest JSON + history index, 283 daily archives and 32 weekly reports.
 - Exact Git blobs, not recursive checkout/Jekyll output, are packaged. The static
   HTML/CSS/JS has no observed front matter/Liquid processing requirement. Original
   bytes/paths, legal pages, app-ads, verification HTML and CNAME are preserved.
@@ -45,8 +45,8 @@ Positive allowlist / real tar
   upload-pages-artifact. It does not re-tar the repository after verification.
   The generated publication-manifest.json contains public commit/run IDs and
   allowed file paths/hashes, not the private/coordinator ledger. This is one new
-  public proof file requiring review; initial baseline artifact is 329 files.
-- Existing 314 historical JSON bodies are pinned by observed Git hashes, not
+  public proof file requiring review; initial baseline artifact is 330 files.
+- Existing 315 historical JSON bodies are pinned by observed Git hashes, not
   retrospectively schema-certified or recalculated. Tests use synthetic bodies.
 
 Delivery proof and recovery
@@ -84,12 +84,17 @@ Current operating evidence / preserved URLs
 - User screenshot (2026-11-02 16:25:26 UTC): Source Deploy from a branch, main/root;
   custom domain ajazara.xyz, DNS check successful, display http://ajazara.xyz/,
   Enforce HTTPS unchecked. This was read evidence, not setting-change approval.
-- App URL remains https://ajazara-ops.github.io/dailypick10/. The real canonical
-  JSON URL/redirect/TLS chain is not yet verified. After reviewing the prior failure,
-  the final authorized normal-network check at 2026-11-02 17:17:32 UTC failed DNS
-  resolution for both ajazara.xyz and ajazara-ops.github.io (error11001). No HTTP
-  attempt/redirect/TLS response occurred; no retry loop or bypass. HTTPS unchecked is not proof of
-  HTTPS unavailability. Preserve domain/DNS/HTTPS option and app URL.
+- App URL remains https://ajazara-ops.github.io/dailypick10/. On 2026-11-03
+  01:26:26-28 UTC, a normal approved public-only network read verified HTTPS 200
+  for ajazara.xyz and both JSON files. Latest JSON/index Git blob hashes match
+  current main exactly. The app's two github.io JSON URLs return 301 Location
+  http://ajazara.xyz/<file> (HTTPS downgrade); that downgrade was NOT followed.
+  HTTP root separately returns 200, not an HTTPS redirect. This does not prove
+  device failure, nor contradict the user's earlier successful app refresh.
+  Enforce HTTPS must be separately approved and the full app redirect chain
+  rechecked before route attestation. Do not change the app URL, DNS or CNAME.
+  The default sandbox still had DNS11001; the approved ordinary network read
+  resolved both hosts. No certificate bypass, credential, or setting change.
 - Existing KR manual run41432906596 ordinary checkout-default-token git push created
   7f1a06d...; Pages run41433439338 deployed that commit successfully. User confirmed
   app refresh. No custom PAT evidenced. Existing path is NOT declared broken.
@@ -98,14 +103,18 @@ Current operating evidence / preserved URLs
 
 Unperformed operating transition / exact approval boundaries
 1. Public review of this exact delta, independent of PR5. PR7 remains draft.
-2. Read-only successful end-to-end JSON route proof from existing app URL to the
-   canonical HTTPS base. Then explicitly approve the canonical base/gate contract.
+2. Separately approve Enforce HTTPS in repository Settings > Pages; preserve the
+   custom domain, DNS and app URL. Recheck both existing app JSON URLs end-to-end
+   with no HTTPS downgrade and exact current-main JSON hashes. Direct canonical
+   HTTPS already passed, but that alone does not satisfy the app-route gate.
+   Then explicitly approve https://ajazara.xyz/ as the canonical base contract.
 3. Approved quiet window: pause daily_scan, inspect active run(s), wait for zero;
    do not edit cron or cancel a possibly publishing run. Refresh the reviewed asset
    manifest against the final main after the pause: legacy files added since the
    pinned commit have no guarded ledger proof and cannot be silently adopted.
    This refresh is a separate exact-diff review before activation. Change Source ONLY
-   to GitHub Actions, retaining domain/DNS/HTTPS and environment protections.
+   to GitHub Actions, retaining domain/DNS and the separately approved HTTPS
+   setting and environment protections.
 4. Reviewed exact commit merge plus permissions: existing contents:write; PR7 adds
    actions:read for run/job/artifact metadata. Pages adds pages:write/id-token:write
    and github-pages environment. All are job-wide in this same-slot design. No new
@@ -116,7 +125,8 @@ Unperformed operating transition / exact approval boundaries
    Environment strings are attestations, not automatic evidence of Source/DNS.
 6. Observe a NEW approved session through archive/deployment/public proof/notice.
    Do not re-scan old periods to validate installation. Real token protections,
-   Actions/artifact limits, static-site rendering and public route remain unverified.
+   Actions/artifact limits, new-artifact site rendering and post-transition public
+   route remain unverified. Current direct canonical JSON hashes were verified.
    API reads include all allowed bodies for hashes; runtime/limits need observation.
 
 Rollback / limitations
@@ -132,7 +142,20 @@ Rollback / limitations
 - Artifact retention/storage and API limits are not a universal zero-cost guarantee.
 
 Official references, read only
+https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https
 https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
 https://github.com/actions/upload-pages-artifact/blob/56afc609e74202658d3ffba0e8f6dda462b719fa/action.yml
 https://github.com/actions/upload-artifact/blob/ea165f8d65b6e75b540449e92b4886f43607fa02/action.yml
 https://github.com/actions/deploy-pages/blob/368f82528645a54fb793d4d04e342629a3f51346/src/internal/context.js
+
+2026-11-03 local metadata refresh (unpublished)
+- Main advanced only by two public data blobs. Preserve the additional legacy
+  timestamped KR archive and current latest hash; no content recalculation and
+  no new-session publication claim is inferred from this legacy file.
+- All 12 static assets, CNAME, index and 32 weekly archives are unchanged.
+- The earlier 142 unique PASS remains historical evidence at d71409c; today's
+  refresh passed 38 affected Pages asset/runtime tests with no external attempts.
+  Counts are not added. No production code or workflow logic changed today.
+- Refresh/approve the policy against the latest main again after pausing new
+  starts at cutover. Until cutover, additional legacy runs may stale this pin.
+- No Source, HTTPS, permission, gate, workflow, app or remote changes made.

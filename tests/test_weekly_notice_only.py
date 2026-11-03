@@ -1,5 +1,6 @@
 """Local synthetic tests: actual scanner entry point; no external libraries or calls."""
 import contextlib
+import importlib.util
 import io
 import json
 import os
@@ -10,11 +11,15 @@ import unittest
 import uuid
 from unittest.mock import patch
 
-for name in ('yfinance', 'pandas', 'requests'):
-    sys.modules[name] = types.ModuleType(name)
-sys.modules['firebase_admin'] = None
-with contextlib.redirect_stdout(io.StringIO()):
-    import daily_stock_scanner as scanner
+stubs = {name: types.ModuleType(name) for name in ('yfinance', 'pandas', 'requests')}
+stubs['firebase_admin'] = None
+# Load under a private name and restore the shared module registry after import.
+# Test discovery must not replace other suites' real or fake dependencies.
+with patch.dict(sys.modules, stubs), contextlib.redirect_stdout(io.StringIO()):
+    spec = importlib.util.spec_from_file_location('weekly_notice_scanner_under_test',
+                                                  Path(__file__).resolve().parents[1] / 'daily_stock_scanner.py')
+    scanner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scanner)
 
 STAMP = '2026-11-07T08:30:00+00:00'
 DATE = '2026-11-07'

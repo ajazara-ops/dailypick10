@@ -224,8 +224,14 @@ def analyze_market_condition(target_date=None):
                 market_status[key] = {'status': 'UNKNOWN', 'change': None, 'current': None, 'message': '데이터 없음'}
                 continue
                 
-            current = hist['Close'].iloc[-1]; prev = hist['Close'].iloc[-2]
+            current = number(hist['Close'].iloc[-1]); prev = number(hist['Close'].iloc[-2])
+            if current is None or prev is None or current <= 0 or prev <= 0:
+                market_status[key] = {'status': 'UNKNOWN', 'change': None, 'current': None, 'message': '데이터 없음'}
+                continue
             change_pct = ((current - prev) / prev) * 100
+            if number(change_pct) is None:
+                market_status[key] = {'status': 'UNKNOWN', 'change': None, 'current': None, 'message': '데이터 없음'}
+                continue
             status, message = "NEUTRAL", ""
             
             if key == 'VIX':

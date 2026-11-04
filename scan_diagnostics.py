@@ -5,6 +5,7 @@ credential access, retry, recommendation or publication state is created here.
 """
 from datetime import datetime
 import json
+import math
 import os
 import re
 import sys
@@ -16,6 +17,8 @@ SOURCE_CODES = frozenset({'universe_unavailable', 'incomplete_us_universe',
     'incomplete_korean_universe', 'kr_universe_fetch_failed', 'kr_universe_invalid_json',
     'kr_universe_invalid_contract', 'kr_universe_incomplete', 'kr_universe_invalid_order',
     'quote_fetch_failed', 'missing_quote_history', 'invalid_quote_price',
+    'invalid_quote_missing', 'invalid_quote_nan', 'invalid_quote_nan_with_action', 'invalid_quote_infinite',
+    'invalid_quote_nonpositive', 'invalid_quote_unreadable',
     'invalid_observation', 'stale_quote', 'wrong_quote_session', 'invalid_price', 'score_inputs_unavailable',
     'stock_observation_failed', 'provider_request_failed', 'request_already_failed_this_run',
     'provider_rate_limited'})
@@ -31,6 +34,25 @@ SUMMARIES = {
     'unknown': 'Failure cause is unconfirmed; exception text is intentionally omitted.',
 }
 NETWORK_MODULES = frozenset({'requests.exceptions', 'curl_cffi.requests.exceptions'})
+
+
+def invalid_quote_detail(value):
+    """Fixed reason only; never export the supplied price or its representation."""
+    if value is None:
+        return 'invalid_quote_missing'
+    if isinstance(value, bool):
+        return 'invalid_quote_unreadable'
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return 'invalid_quote_unreadable'
+    if math.isnan(parsed):
+        return 'invalid_quote_nan'
+    if math.isinf(parsed):
+        return 'invalid_quote_infinite'
+    if parsed <= 0:
+        return 'invalid_quote_nonpositive'
+    return 'invalid_quote_price'
 
 
 def _chain(exc):

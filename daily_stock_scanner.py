@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
 from scan_contract import (Observation, SourceDataError, TIMEZONES, number, price, utc_stamp, scan_market, merge_daily, daily_notification, cohort_from_snapshots, settle_cohort, build_report, write_json_once, write_latest)
+from scan_diagnostics import invalid_quote_detail
 from weekly_contract import REPORT_KIND, latest_publication, weekly_period, assert_publishable, weekly_cohort, settle_weekly, build_weekly_report, validate_frozen_report
 from market_calendar import evaluation_session, is_market_session, session_close_utc
 from notification_policy import push_eligible
@@ -485,7 +486,19 @@ def analyze_stock(ticker, market_type, target_date=None):
         if hist.empty: raise SourceDataError("missing_quote_history")
         quote_as_of = hist.index[-1].strftime("%Y-%m-%d")
         if number(hist['Close'].iloc[-1]) is None or hist['Close'].iloc[-1] <= 0:
-            raise SourceDataError("invalid_quote_price")
+            detail = invalid_quote_detail(hist['Close'].iloc[-1])
+            if detail == 'invalid_quote_nan':
+                # A corporate-action row may survive yfinance's empty-row cleanup.
+                # Report only a fixed category, never the values or response body.
+                for column in ('Dividends', 'Stock Splits', 'Capital Gains'):
+                    try:
+                        action = number(hist[column].iloc[-1])
+                        if action is not None and action != 0:
+                            detail = 'invalid_quote_nan_with_action'
+                            break
+                    except Exception:
+                        continue
+            raise SourceDataError("invalid_quote_price") from SourceDataError(detail)
         # A valid short trading history fails strategy eligibility, not data collection.
         if len(hist) < 120: return Observation(None, quote_as_of)
         

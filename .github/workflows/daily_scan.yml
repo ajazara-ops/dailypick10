@@ -2,7 +2,7 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    - cron: '31 9 * * 1-5'
+    - cron: '34 9 * * 1-5'
     - cron: '15 23 * * 1-5'
     - cron: '0 8 * * 6'
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
         env:
           EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ "$EVENT_SCHEDULE" = "31 9 * * 1-5" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ "$EVENT_SCHEDULE" = "34 9 * * 1-5" ]; then
             printf 'mode=daily\ntarget=KR\n' >> "$GITHUB_OUTPUT"
           else
             python scripts/resolve_scan_event.py

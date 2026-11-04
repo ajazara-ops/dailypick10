@@ -3594,15 +3594,15 @@
     "US": {
       "generatedAt": "2026-11-03T03:56:11+00:00",
       "quoteAsOf": "2026-10-30",
-      "stale": false,
-      "status": "fresh",
+      "stale": true,
+      "status": "partial",
       "timezone": "America/New_York",
-      "attemptedAt": "2026-11-03T03:56:11+00:00",
-      "errorCount": 0,
+      "attemptedAt": "2026-11-04T03:00:26+00:00",
+      "errorCount": 1,
       "universeError": null,
       "attemptedCount": 518,
-      "observedCount": 518,
-      "filteredCount": 56,
+      "observedCount": 517,
+      "filteredCount": 36,
       "quotePrecision": "session-date",
       "freshnessLimitCalendarDays": 4
     },
@@ -3622,17 +3622,17 @@
       "freshnessLimitCalendarDays": 4
     }
   },
-  "generatedAt": "2026-11-03T17:12:27+00:00",
-  "timestamp": "2026-11-03T17:12:27+00:00",
+  "generatedAt": "2026-11-04T03:00:26+00:00",
+  "timestamp": "2026-11-04T03:00:26+00:00",
   "analysisMethod": "rules_v1",
   "methodology": "규칙 기반 기술·재무 스크리닝. 기준 가격은 예측·수익 보장이 아닙니다.",
   "market_status": {
     "US": {
       "name": "S&P 500",
-      "current": 7541.4,
-      "change": -0.51,
-      "status": "BAD",
-      "message": "하락세 ☁️"
+      "current": 7568.92,
+      "change": 0.36,
+      "status": "GOOD",
+      "message": "상승세 📈"
     },
     "KR": {
       "name": "KOSPI",
@@ -3643,8 +3643,8 @@
     },
     "VIX": {
       "name": "공포지수",
-      "current": 20.72,
-      "change": -2.03,
+      "current": 20.83,
+      "change": -1.51,
       "status": "BAD",
       "message": "공포 구간 😨"
     }
@@ -3655,6 +3655,6 @@
   ],
   "notification": {
     "title": "DailyPick10 데이터 업데이트",
-    "body": "한국: 데이터 수집 오류 98건. 최신 추천 확인 불가"
+    "body": "미국: 데이터 수집 오류 1건. 최신 추천 확인 불가"
   }
 }

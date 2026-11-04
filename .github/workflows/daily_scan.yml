@@ -2,7 +2,7 @@ name: Daily Stock Scanner
 
 on:
   schedule:
-    - cron: '30 9 * * 1-5'
+    - cron: '31 9 * * 1-5'
     - cron: '15 23 * * 1-5'
     - cron: '0 8 * * 6'
   workflow_dispatch:
@@ -39,7 +39,14 @@ jobs:
           python-version: '3.11'
       - name: Resolve event intent
         id: intent
-        run: python scripts/resolve_scan_event.py
+        env:
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ "$EVENT_SCHEDULE" = "31 9 * * 1-5" ]; then
+            printf 'mode=daily\ntarget=KR\n' >> "$GITHUB_OUTPUT"
+          else
+            python scripts/resolve_scan_event.py
+          fi
       - name: Install dependencies
         run: pip install yfinance pandas requests lxml firebase-admin exchange-calendars==4.13.2
       - name: Run Scan Logic

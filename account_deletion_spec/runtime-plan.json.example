@@ -1,0 +1,28 @@
+{
+  "enabled": false,
+  "productionProjectId": null,
+  "runtime": null,
+  "credentialBinding": null,
+  "http": {"enabled": false, "publicBaseUrl": null},
+  "worker": {
+    "enabled": false,
+    "callback": "deletion_boundary.run_due_once",
+    "batchLimit": 25,
+    "schedule": null,
+    "overlapPolicy": "transactional lease and idempotent stages",
+    "deadlinePolicy": "eligible after 604800 seconds; actual execution may be later"
+  },
+  "storage": {
+    "productionBinding": null,
+    "syntheticReference": "LocalJobStore / SQLite",
+    "jobCollection": "accountDeletionJobs",
+    "stateCollection": "accountDeletionState",
+    "receiptCollection": "accountDeletionReceipts",
+    "profileScope": "users/{verifiedUid}",
+    "retentionPolicy": null,
+    "requiredIndexesReviewed": false
+  },
+  "deploymentApproval": false,
+  "securityRulesApplied": false,
+  "costAndQuotaApproval": false
+}

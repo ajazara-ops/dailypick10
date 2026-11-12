@@ -1,0 +1,43 @@
+운영 연결의 현재 준비 상태와 단계별 승인안
+
+지금 가능한 승인 범위
+PR #5의 검토 코드를 병합하는 단계까지다. 병합 자체는 앱 전송을 선택하거나 운영 규칙/삭제 일정을 켜지 않는다. 이 저장소의 모바일 전달 패치는 별도 StockApp에 자동 적용되지 않는다. 기존 Pages의 자연 재게시 가능성과 코드 반영은 실제 병합 전 확인한다.
+현재 코드만으로 운영 탈퇴 배포 준비가 모두 끝났다고 보고하지 않는다. 아래 운영 적용 항목을 한꺼번에 활성화하는 승인을 요청하지 않는다.
+
+이번에 닫은 앱 통합 공백
+이전 SDK는 Firestore version 2 intent를 반환하고 화면은 version 1 receipt를 기대했다. 새 sparkDeletionTransport는 인증된 본인 문서와 서버 batchGet.readTime을 읽어 화면 상태로 변환한다. 요청/취소/재시작 복구/만료 대기/부분 실패/완료 증거를 같은 실제 앱 상태 클라이언트로 검증했다.
+초 단위로 반올림하면 7일 경계가 달라질 수 있어 version 2 화면 receipt는 seconds/nanoseconds를 보존한다. 기기 시각을 서버 시각으로 쓰지 않는다. client가 기록한 취소 접수는 서버의 cancelled 확인 전까지 서비스 차단을 유지한다.
+createPreparedSparkDeletionTransport는 기본 disabled이며, explicit enabled=true와 승인된 프로젝트·동일 Auth/Firestore 앱·기본 DB·고정 HTTPS 엔드포인트 대조가 필요하다. 앱 기본 accountDeletionTransport는 여전히 disabled이고 환경변수만으로 전환되지 않는다. 이 prepared factory를 실제 앱 bootstrap에서 선택하지 않았다.
+서버 reflect는 작업의 실제 단계와 완료 범위를 함께 반영한다. Auth 조회가 불가능하면 공개/비로그인 우회 조회 없이 완료 확인 불가로 남긴다.
+
+아직 남은 운영 코드·정보
+- 실제 Admin SDK 초기화와 production 문서/Auth binding, bounded intent 조회→취소 확인→기한 도달 작업 생성→worker→결과 반영을 한 운영 실행 경로로 묶는 작업. 현재 server 어댑터는 synthetic/demo guard를 유지하며 운영 CLI는 없다.
+- 이 경로의 권한/인덱스/실행 제한/오류 보고를 승인된 환경에서 확인. 이미 가진 service account 신원 확인은 권한의 실제 행사 검증과 다르다.
+- 위 runtime 준비 전에는 새 신청을 허용하는 규칙 또는 앱 토글을 켜면 안 된다. 취소 접수 후 처리할 서버가 없는 상태를 만들지 않는다.
+
+검토할 규칙의 정확한 파일과 접근 변화
+파일: account_deletion_spec/spark-intake.rules.example
+비교: account_deletion_spec/spark-intake.rules.diff
+대상: 사전에 확인한 Firebase 프로젝트의 (default) Firestore. 실제 프로젝트와 서비스계정 이름은 로컬 승인안에만 기록한다.
+- users/{uid}: 본인만 읽기/쓰기, 활성 탈퇴 intent 또는 blocked state가 있으면 일반 접근 금지. 클라이언트 직접 문서 삭제와 deletionRequest 임의 변경 금지.
+- accountDeletionIntents/{uid}: 본인 get만 허용, list/delete 금지. 최근 300초 인증 및 request.time과 일치하는 원자적 신청만 허용. 취소는 7일 경과 전 cancel_requested 접수만 허용.
+- accountDeletionIntents/{uid}/attempts/{requestId}: 본인 단건 조회와 신청에 결합된 불변 이력 생성만 허용. 재사용/수정/삭제/목록 조회 금지.
+- accountDeletionJobs, accountDeletionState, accountDeletionReceipts: 모든 클라이언트 접근 거부. 서버는 Admin 권한으로 처리하므로 별도 경로 제한이 필요하다.
+- 목록에 없는 사용자 하위 컬렉션을 추정 삭제하지 않는다. 삭제 범위는 Firebase Auth의 검증 UID와 users/{uid} 루트 문서뿐이다. tombstone/요청 이력은 자동 TTL 삭제하지 않는다.
+현행 owner read/write 규칙에 OR로 덧붙이면 차단이 무력화되므로 전체 규칙 교체안이다. 적용 전 현재 규칙 백업과 구버전 호환 확인이 필요하다. 현재는 적용하지 않았다.
+
+배치 제안 — 아직 일정/워크플로 없음
+기존 추천 daily_scan 작업은 그대로 둔다. 삭제/취소 정리는 별도 유한 배치로 분리한다.
+제안 주기: 매시간 UTC 17분(cron 17 * * * *; KST도 매시 17분). 지금 확정·등록한 일정이 아니다. GitHub Actions 예약은 지연/누락 가능하므로 7일 경과 이후 실제 처리 대기를 표시한다.
+제안 상한: 회당 25건, 중복 실행 방지 + Firestore 작업 임대. 취소 확인을 먼저 처리하고 삭제는 별도 승인된 단계에서만 활성화한다. 재시도/needs_review/결과 반영 실패를 잃지 않는 조회가 필요하다.
+실행 신원 후보: 이미 project/client_email만 확인한 기존 FIREBASE_CREDENTIALS의 service account. 새 키 또는 Owner/Editor 역할 추가를 제안하지 않는다. contents:read 외 GitHub 쓰기 권한도 필요하지 않다.
+필요 권한 후보: Auth 사용자 조회, 삭제 활성화 때만 Auth 사용자 삭제; Firestore 관련 문서 조회/목록/트랜잭션/생성/갱신, 삭제 활성화 때만 users 루트 문서 삭제. 현재 권한의 실효성은 미검증이다. Firestore IAM이 컬렉션별 코드 범위를 자동 보장한다고 주장하지 않는다.
+
+영구 삭제를 시작하지 않는 검증 순서
+1. 이번 PR을 기본 비활성 상태로 검토·병합. 앱/운영 규칙/일정은 그대로 둔다.
+2. 위 production runtime과 권한 검증 방법을 구체 코드로 준비하고 별도 검토. 실제 접속을 승인받더라도 첫 실행은 read-only/집계만이며 작업 생성, 취소 확정, 삭제 호출은 금지한다. 현재 단계에서 이 실행을 수행한 것이 아니다.
+3. 규칙 전체 후보와 앱 binding은 운영 런타임의 취소 처리 준비 및 구버전 계획이 확인된 후 함께 승인한다. 테스트 대상/일정/실행 신원/중단 절차를 명시하며, delete 권한 사용과 자동 삭제를 계속 막은 검증용 환경을 우선한다. 운영에 임의의 가짜 회원을 만들지 않는다.
+4. 실제 영구 삭제와 예약 활성화는 그 후 별도 승인이다. 최근 동의/UID 생성 세대/인증 철회/7일 기한을 재검증하고 Auth→users 루트 문서 순서로 처리한다. 중간 실패는 동일 작업 재시도이며 Auth 삭제가 되돌릴 수 있다고 안내하지 않는다.
+5. 운영을 중단할 때 새 접수를 먼저 닫고, 남아 있는 요청의 차단·조회·취소/복구를 유지한다. 기존 요청이 있는데 예전 owner-write 규칙으로 즉시 복원하지 않는다.
+
+Spark 유지. 배포/실제 삭제/IAM/규칙/예약 변경은 하지 않았다. 구독 해지는 별도이며 법적 보존 예외는 정책 검토가 남는다. 새 유료 런타임이나 무과금 보장을 도입하지 않는다.

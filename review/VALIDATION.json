@@ -1,0 +1,123 @@
+{
+  "scope": "local synthetic and demo emulators; production disabled",
+  "priorUniqueChecks": {
+    "mobile": {
+      "tests": 28,
+      "exitCode": 0
+    },
+    "server_new": {
+      "tests": 15,
+      "exitCode": 0
+    },
+    "server_existing_boundary": {
+      "tests": 14,
+      "exitCode": 0,
+      "evidence": "exec chunk c541c6; same final boundary/worker implementation"
+    },
+    "typecheck_and_lint": {
+      "exitCode": 0,
+      "lintMaxWarnings": 0
+    },
+    "emulator": {
+      "sdkRules": 13,
+      "bridge": 5,
+      "bridgeRecheckedAfterNanosecondChange": true,
+      "exitCode": 0,
+      "syntheticAuthSideEffectsOnly": true
+    },
+    "uniqueChecks": 75
+  },
+  "priorSourceHashMatches": 15,
+  "deliveryChecks": {
+    "packagedServerTests": 15,
+    "offlineIsolationAndAdTests": 9,
+    "mobilePatchCheck": "passed; no original writes",
+    "newDeviceRuntimeTest": false
+  },
+  "apk": {
+    "versionName": "1.0.6",
+    "versionCode": 7,
+    "bytes": 88792858,
+    "sha256": "624baa319fb27472c7e5e788c9b60307a439d02460f536d1c89ad7b7b8ff5d71",
+    "package": "com.ajazara.dailypick10.offlinetest",
+    "debugCertificate": true,
+    "certificateSha256": [
+      "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+    ],
+    "testUpdateCertificateMatches": true,
+    "productionConfigurationAbsent": true,
+    "operationalNativeSdksAbsent": true,
+    "currentSourceContentsMatch": {
+      "app/index.tsx": true,
+      "src/domain/deletion.ts": true,
+      "src/components/DeletionStatus.tsx": true,
+      "src/services/useSafeInterstitial.ts": true,
+      "src/services/interstitialSession.ts": true,
+      "offline-test/mocks/accountDeletion.ts": true,
+      "offline-test/mocks/ads.tsx": true,
+      "offline-test/index.tsx": true
+    }
+  },
+  "prior105Preserved": true,
+  "identityDiagnostic": {
+    "matchesUserIAM": true,
+    "permissionsExercised": false,
+    "identifiers": "Excluded from remote review; retained in private local delivery evidence."
+  },
+  "notPerformed": [
+    "live deletion",
+    "production database or rules writes",
+    "IAM changes",
+    "new credentials",
+    "deployment",
+    "APK installation",
+    "billing or plan changes"
+  ],
+  "expectedCI": "No push/pull_request workflow in base; verify remote checks after PR creation. Zero checks is not a passing CI run.",
+  "reviewFollowup": {
+    "defect": "A prior confirmed cancellation state incorrectly prevented confirmation of a later explicit request cancellation.",
+    "fixed": true,
+    "changedImplementation": [
+      "spark_intake.py"
+    ],
+    "pureServerChecks": 18,
+    "localFirestoreTransactionChecks": 6,
+    "authSideEffects": "synthetic only",
+    "emulatorStopped": true,
+    "priorChecksNotDoubleCounted": true,
+    "mobileSourceChanged": false,
+    "connectedApkCreated": true,
+    "operationalDeletionEnabled": false,
+    "connectedApkVersion": "1.0.16 (90)",
+    "connectedApkBytes": 128785337,
+    "connectedApkSha256": "027f1a911e078ad36e69e6c6e6bfa537b349f944ca853ac991b07417c8b2800e",
+    "connectedApkUsesRealServiceModules": true,
+    "connectedApkSignedWithExistingReleaseKey": true,
+    "connectedApkInstalled": false,
+    "configuredAndroidOAuthCertificateMatches": false,
+    "connectedBuildInitialCacheMiss": "Offline cache lacked google-services:4.4.1; resolved using previously authorized official build repositories.",
+    "connectedLoginBlocker": "Resolved by user-reported Google login success after the user registered the existing release certificate. No new build; other services not verified.",
+    "operationalIntegrationGap": "Prepared app transport now exists and is off by default. Production Admin runtime, orchestration and permission/index checks remain; app bootstrap stays disabled.",
+    "configuredAndroidOAuthCertificateMatchesNote": "Historical local JSON comparison; not a current login blocker. Console registration was confirmed by parent from user screenshot."
+  },
+  "appIntegrationFollowup": {
+    "mobileUnitChecks": 37,
+    "serverUnitChecks": 19,
+    "actualLocalAppTransportChecks": 6,
+    "actualLocalServerBridgeChecks": 6,
+    "authSideEffectsInBridge": "mock",
+    "typecheck": true,
+    "lint": true,
+    "preparedLiveFactoryDefault": "disabled; never selected by app bootstrap",
+    "liveFactoryTest": "binding checks with mocks only; no production request",
+    "serverTime": "Firestore batchGet readTime; nanosecond cutoff preserved",
+    "mobilePatchFiles": 15,
+    "originalApplied": false,
+    "apkRebuilt": false,
+    "userDeviceGoogleLogin": "user reported success on prior connected APK; other services unverified",
+    "rulesChangedOrApplied": false,
+    "workerScheduled": false,
+    "existingApksIncludeNewTransport": false,
+    "deliveryScope": "Source follow-up in this review; no merge, app APK rebuild or operational activation."
+  }
+}

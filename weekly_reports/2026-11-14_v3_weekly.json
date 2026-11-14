@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 3,
+  "reportKind": "weekly_top10_v3",
+  "reportDate": "2026-11-14",
+  "generatedAt": "2026-11-14T08:07:03+00:00",
+  "timestamp": "2026-11-14T08:07:03+00:00",
+  "period": {
+    "weekStart": "2026-10-26",
+    "weekEnd": "2026-10-30",
+    "evaluationDate": "2026-11-13",
+    "publicationDate": "2026-11-14",
+    "publishAt": "2026-11-14T17:00:00+09:00",
+    "timezone": "Asia/Seoul",
+    "entryPolicy": "first_recommendation_in_market_session_week",
+    "exitPolicy": "evaluation_friday_or_previous_market_session_close"
+  },
+  "stocks": [],
+  "performance": {
+    "US": {
+      "evaluationQuoteAsOf": "2026-11-13",
+      "calendarStatus": "resolved",
+      "calendarSource": "exchange_calendars: XNYS / XKRX",
+      "totalCount": 0,
+      "observedCount": 0,
+      "missingCount": 0,
+      "complete": true
+    },
+    "KR": {
+      "evaluationQuoteAsOf": "2026-11-13",
+      "calendarStatus": "resolved",
+      "calendarSource": "exchange_calendars: XNYS / XKRX",
+      "totalCount": 0,
+      "observedCount": 0,
+      "missingCount": 0,
+      "complete": true
+    }
+  },
+  "winnerRankings": {
+    "US": [],
+    "KR": []
+  },
+  "sourceDiagnostics": {
+    "unknownSessionRecordCount": 5197,
+    "invalidIdentityCount": 0,
+    "ambiguousEntryCount": 0,
+    "duplicateRecordCount": 0,
+    "lateRecordCount": 0,
+    "nonTradingSessionRecordCount": 0,
+    "unreadableSnapshotCount": 0
+  },
+  "market_status": {},
+  "dominant_sectors": [],
+  "methodology": "시장별 월~금 추천 중복 종목의 첫 추천 기록 가격 대비, 2주 뒤 금요일(휴장 시 직전 거래일) 종가 상승률 상위 10개. 전체 평균 수익률이 아닙니다. 가격 누락·분할 확인 필요 건은 미평가로 유지합니다. 배당·수수료·슬리피지·실제 체결 미반영.",
+  "priceAdjustmentPolicy": "recorded_unadjusted_close; split events remain unevaluated",
+  "evaluationFrozen": true,
+  "legacyHistoryRecalculated": false
+}

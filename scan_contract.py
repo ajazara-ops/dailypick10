@@ -173,7 +173,7 @@ def daily_notification(updates):
         elif not rows:
             parts.append(f"{name}: 이번 규칙 조건에 해당하는 종목 없음")
         else:
-            parts.append(f"{name} 규칙 기반 후보: " + ", ".join(s["symbol"] for s in rows[:2]))
+            parts.append(f"{name} 주식 후보: " + ", ".join(s["symbol"] for s in rows[:2]))
     return {"title": "DailyPick10 데이터 업데이트", "body": " / ".join(parts)}
 
 

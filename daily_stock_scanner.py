@@ -729,10 +729,14 @@ def generate_daily(target, requested_date=None):
     previous_path = Path('todays_recommendation.json')
     previous = json.loads(previous_path.read_text('utf-8')) if previous_path.exists() else {}
     updates = {}
+    closed_markets = []
     for market in (['US', 'KR'] if target == 'ALL' else [target]):
         session_date = market_session_date(market)
         if requested_date and requested_date != session_date:
             raise ValueError('Historical daily regeneration requires point-in-time data and is disabled')
+        if not is_market_session(market, session_date):
+            closed_markets.append(market)
+            continue
         if matching_completed_daily(previous, market, session_date, generated_at):
             continue
         rows, meta = scan_market(market, us_universe if market == 'US' else get_korea_tickers,
@@ -742,7 +746,7 @@ def generate_daily(target, requested_date=None):
         updates[market] = (rows, meta)
     if not updates:
         # A matching committed result is not proof an earlier alert arrived.
-        write_latest('.pending_notification.json', {'skip': True, 'reason': 'daily_report_already_exists'})
+        write_latest('.pending_notification.json', {'skip': True, 'reason': 'market_closed' if closed_markets else 'daily_report_already_exists'})
         return previous
     out = merge_daily(previous, updates, generated_at)
     indexes = analyze_market_condition()
@@ -787,6 +791,7 @@ def main():
         if payload in ({'skip': True, 'reason': 'weekly_report_already_exists'},
                        {'skip': True, 'reason': 'weekly_attempt_claimed'},
                        {'skip': True, 'reason': 'daily_report_already_exists'},
+                       {'skip': True, 'reason': 'market_closed'},
                        {'skip': True, 'reason': 'daily_attempt_claimed'}):
             print('Notification already attempted or report exists; it is not resent.')
             return
